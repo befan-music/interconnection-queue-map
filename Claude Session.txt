@@ -1,0 +1,3313 @@
+
+> <ide_opened_file>The user opened the file c:\Users\einos\Documents\LMU
+  Master\3. UC Berkeley\Attended Courses\Sustainable ventures\Interconnection
+  MAP MVP\context.md in the IDE. This may or may not be related to the current
+  task.</ide_opened_file>
+
+> i want you to rwead @context.md  and then proceed to pulling all publicly
+  available data you can get your hands on about the US energy grid system.
+
+  The map should show specifically where interconnection is feasible and
+  possible etc.
+
+  The main thing i want to see from you is access data and integrate it into a
+  model of the current system
+  ⎿  Read context.md (68 lines)
+
+● I'll start by checking the project folder and what tooling is available.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && ls -la && echo
+      "---" && (python --versi…)
+  ⎿  (No output)
+
+● Bash(python -c "import sys; print(sys.executable)"; pip list 2>/dev/null |
+      grep -iE "pandas|geopandas|requests|openpyxl|shapely|pyproj|gridstatus|net
+      workx|numpy|pyog…)
+  ⎿  (No output)
+
+● Internet works (curl just needs --ssl-no-revoke on this machine). No Python
+  packages yet, so I'll create a project venv.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python -m venv
+      .venv && ./.venv/Scripts…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -m pip install -…)
+  ⎿  Error: Exit code 1
+     error: failed-wheel-build-for-install
+
+     Failed to build installable wheels for some pyproject.toml based projects
+
+     lxml
+     Traceback (most recent call last):
+       File "<string>", line 1, in <module>
+         import gridstatus; print(gridstatus.__version__)
+         ^^^^^^^^^^^^^^^^^
+     … +1 line (ctrl+o to expand)
+
+● gridstatus won't build on Python 3.14 (pinned lxml), so I'll write direct
+  fetchers for each source instead. Let me load web tools to locate current
+  download URLs.
+
+● Web Search("HIFLD electric power transmission lines download after HIFLD Open
+            shutdown 2025 new location")
+  ⎿  Did 1 search in 6s
+
+● Web Search("LBNL Queued Up 2025 edition interconnection queue data download
+            xlsx")
+  ⎿  Did 1 search in 5s
+
+● Web Search("EIA-860 2025 early release zip download generator plant latitude
+            longitude")
+  ⎿  Did 2 searches in 6s
+
+● Let me inspect the source pages directly for download links.
+
+● Bash(C="curl -sSL --ssl-no-revoke -A Mozilla/5.0"; echo "== EIA860"; $C
+      https://www.eia.gov/electricity/data/eia860/ | grep -oE
+      'href="[^"]*\.zip"' | head -8; echo "…)
+  ⎿  (No output)
+
+● Fetch(https://emp.lbl.gov/queues)
+  ⎿  Received 0 bytes (403 Forbidden)
+
+● Fetch(https://portal.datarescueproject.org/datasets/hifld-open-transmission-li
+       nes/)
+  ⎿  Received 9.1KB (200 OK)
+
+● Bash(C="curl -sS --ssl-no-revoke -A Mozilla/5.0 -o /dev/null -w
+      %{http_code}\n"; echo LBNL; $C -L https://emp.lbl.gov/queues; echo
+      HIFLD-FS; curl -sS --ssl-no-revoke…)
+  ⎿  (No output)
+
+● The HIFLD transmission lines feature service is still live (52,244 line
+  segments). Let me search that org for other grid layers.
+
+● Bash(curl -sS --ssl-no-revoke "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/a
+      rcgis/rest/services?f=json" -o "$TEMP/hifld_services.json"; python -c "
+      import json,os…)
+  ⎿  (No output)
+
+● Bash(for s in Electric_Power_Transmission_Lines Planned_transmission_line_
+      BLM_lands_open_to_solar_application; do echo "== $s"; curl -sS
+      --ssl-no-revoke "https://se…)
+  ⎿  (No output)
+
+● Since HIFLD substations are no longer public, I'll rebuild substation nodes
+  from the SUB_1/SUB_2 endpoint names in the lines layer and cross-check against
+  OpenStreetMap. Next I'll look at the ISO queue endpoints and the EIA Atlas.
+
+● Bash(C="curl -sS --ssl-no-revoke -A Mozilla/5.0 -L -o /dev/null -w
+      %{http_code}:%{content_type}:%{size_download}\n --max-time 60";
+      echo CAISO; $C https://www.caiso.…)  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● CAISO, MISO, SPP, NYISO and ERCOT queues are all reachable. Let me find PJM,
+  ISO-NE, LBNL, and boundary layers (ISO/RTO, balancing authorities).
+
+● Web Search(""Queued Up" LBNL data file xlsx emp.lbl.gov sites default files
+            2026 queues data through 2025")
+  ⎿  Did 1 search in 6s
+
+● Web Search("ArcGIS FeatureServer "Independent_System_Operators" OR
+            "Control_Areas" OR "Balancing_Authorities" HIFLD EIA atlas rest
+            services")
+  ⎿  Did 1 search in 6s
+
+● A NASA server mirrors the HIFLD Open energy layers. Let me see what it holds
+  (it may include substations).
+
+● Bash(curl -sS --ssl-no-revoke --max-time 60 "https://maps.nccs.nasa.gov/mappin
+      g/rest/services/hifld_open/energy/FeatureServer?f=json" | python -c "
+      import json,sys…)
+  ⎿  (No output)
+  ⎿  (timeout 2m 30s)
+
+● NASA mirror is unreachable; I'll use EIA's Balancing Authorities service
+  instead. Checking PJM, ISO-NE, LBNL, and boundary layers:
+
+● Bash(B="https://services7.arcgis.com/FGr1D95XCGALKXqM/ArcGIS/rest/services";
+      for s in Balancing_Authorities Independent_System_Operators RTO_Regions
+      NERC_Regions Ele…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● PJM and the LBNL Queued Up 2026 file (data through end-2025) both download.
+  EIA's BA layer now needs a token, so I'll try the public mirror. ISO-NE needs
+  cookies:
+
+● Bash(J="$TEMP/isone_cj.txt"; rm -f $J; curl -sS --ssl-no-revoke -A Mozilla/5.0
+      -L -c $J -b $J --max-time 60 -o "$TEMP/isone.html" -w
+      "%{http_code}:%{content_type}:%{…)
+  ⎿  (No output)
+  ⎿  (timeout 3m 20s)
+
+● I've confirmed enough sources, including ISO-NE's HTML queue table (1,752
+  rows) and the control-area mirror with peak load per BA for load allocation.
+  Now I'll install an HTML parser and set up the project structure to start
+  building the pipeline.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -m pip install -…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● Auto mode is off, so from here I'll write files with the dedicated tools.
+  Starting with the shared pipeline helpers: paths, an HTTP session, ArcGIS
+  pagination, and a provenance manifest.
+
+● Write(pipeline\common.py)
+  ⎿  Wrote 108 lines to pipeline\common.py
+      1 """Shared paths, HTTP helpers and provenance tracking for the pip
+        eline."""
+      2 import hashlib
+      3 import json
+      4 import sys
+      5 import time
+      6 from datetime import datetime, timezone
+      7 from pathlib import Path
+      8
+      9 import requests
+     … +113 lines (ctrl+o to expand)
+
+● That retry helper mishandles method on retries, so I'll fix it now.
+
+● Update(pipeline\common.py)
+  ⎿  Added 2 lines, removed 3 lines
+      52      MANIFEST.write_text(json.dumps(manifest, indent=2, sort_key
+          s=True))
+      53  
+      54  
+      55 -def get(url, retries=4, timeout=180, **kw):                    
+      55 +def get(url, method="GET", retries=4, timeout=180, **kw):      
+      56      for attempt in range(retries):
+      57          try:
+      58 -            r = SESSION.request(kw.pop("method", "GET") if atte
+         -mpt == 0 else kw.get("method", "GET"),                         
+      59 -                                url, timeout=timeout, **kw)    
+      58 +            r = SESSION.request(method, url, timeout=timeout, *
+         +*kw)                                                           
+      59              r.raise_for_status()
+      60              return r
+      61          except requests.RequestException as e:
+
+● Now the fetch script, with one function per source and each raw file logged to
+  the manifest.
+
+● Write(pipeline\fetch_data.py)
+  ⎿  Wrote 208 lines to pipeline\fetch_data.py
+       1 """Download every public source used by the interconnection mode
+         l into data/raw/.
+       3 Usage:  python -I pipeline/fetch_data.py [source ...]      (no a
+         rgs = all sources)
+       4 Every file is logged with URL, timestamp and sha256 in data/raw/
+       5 """
+       6 import io
+       7 import json
+       9 import sys
+      10 import time
+     … +260 lines (ctrl+o to expand)
+
+● I'll run the slow OpenStreetMap pull (49 state queries) in the background and
+  fetch everything else in parallel.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I pipeline/fetc…)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I pipeline/fetc…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● All 14 non-OSM sources downloaded. Next I'll profile each dataset's schema
+  before writing the model.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && ls -la
+      data/raw/eia860/eia8602025/ && .…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● HIFLD lines mostly date from 2017–2020, and endpoint labels like
+  UNKNOWN208315/TAP135422 correspond to restricted HIFLD substation IDs, giving
+  stable node identities for topology building. Next I'll check the queue and
+  EIA files.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  Error: Exit code 1
+     Traceback (most recent call last):
+       File "<string>", line 7, in <module>
+         df.to_parquet('data/interim/lbnl_queue_raw.parquet')
+         ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\.venv\Lib\site-packages\pandas\core\frame.py", line 3135, in to_parquet
+         return to_parquet(
+             self,
+         ...<7 lines>...
+             **kwargs,
+
+     … +52 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● LBNL gives 8,513 active requests (~1,745 GW) with POI names that often include
+  kV. Next, EIA-860 and the live ISO queues:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● EIA-860 includes grid voltage per plant and LMP node designations, both useful
+  for snapping and later congestion work. Now the ISO queue files:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  Error: Exit code 1
+     Traceback (most recent call last):
+       File "<string>", line 7, in <module>
+         m=json.load(open(q+'miso_queue.json')); print('MISO', type(m), len(m));
+     print(m[0])
+       File "C:\Users\einos\AppData\Local\Python\pythoncore-3.14-64\Lib\json\__i
+     nit__.py", line 293, in load
+         return loads(fp.read(),
+                      ~~~~~~~^^
+       File "C:\Users\einos\AppData\Local\Python\pythoncore-3.14-64\Lib\encoding
+     s\cp1252.py", line 23, in decode
+         return codecs.charmap_decode(input,self.errors,decoding_table)[0]
+                ~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+     … +9 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  Error: Exit code 1
+     Traceback (most recent call last):
+       File "<string>", line 7, in <module>
+         s=pd.read_csv(q+'spp_active_queue.csv', nrows=3, header=None);
+     print('SPP'); print(s.iloc[:3,:8].to_string())
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 872, in
+     read_csv
+         return _read(filepath_or_buffer, kwds)
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 306, in
+     _read
+         return parser.read(nrows)
+                ~~~~~~~~~~~^^^^^^^
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\.venv\Lib\site-packages\pandas\io\parsers\readers.py", line 1950, in
+     read
+
+     … +18 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && head -c 700
+      data/raw/queues/spp_active_…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● I'll write normalizers to unify the different ISO formats into one schema,
+  using live ISO queue data (through Oct 2026) and LBNL figures for the non-ISO
+  West/Southeast regions. Next, I'll check the remaining headers.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● I now have every queue schema. While OSM finishes, I'll check the status
+  fields I need for phase mapping:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● ISO-NE lists only 52 active requests and CAISO 261, versus LBNL's 72 and 432.
+  I'll check whether CAISO's live file is missing a cluster before choosing
+  which source is authoritative:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● Live ISO feeds will serve as the authoritative source, with LBNL filling in
+  any active projects missing from an ISO's full-history file (including CAISO's
+  Cluster 15 gap) and covering the non-ISO West and Southeast regions entirely.
+  Now writing the queue normalizer.
+
+● Write(pipeline\normalize_queues.py)
+  ⎿  Wrote 273 lines to pipeline\normalize_queues.py
+       1 """Normalize the 7 ISO/RTO live queues + LBNL Queued Up into one
+          active-project table.
+       3 Policy
+       4 - Live ISO files (Oct 2026) are authoritative for their ISO.
+       5 - LBNL (end-2025) covers the non-ISO West and Southeast, and bac
+       6   ID never appears in an ISO's full-history live file (e.g. CAIS
+         O Cluster 15, which CAISO
+       7   publishes outside its Public Queue Report).
+       9 """
+      10 import json
+     … +351 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I pipeline/norm…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● PJM pulled 313 LBNL backfills, which is more than I'd expect. Checking whether
+  that's an ID-format mismatch:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● PJM's live IDs carry suffixes like AG2-637 - MOVED TO TC2, so they fail to
+  match LBNL. I'll strip that suffix in the ID normalizer:
+
+● Update(pipeline\normalize_queues.py)
+  ⎿  Added 1 line, removed 1 line
+      64  
+      65  
+      66  def norm_id(x):
+      67 -    s = str(x).strip().upper()                                 
+      67 +    s = str(x).strip().upper().split(" - ")[0].strip()  # PJM: 
+         +"AG2-637 - MOVED TO TC2"                                       
+      68      return s.lstrip("0") if s.isdigit() else s
+      69  
+      70  
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I pipeline/norm…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● Queue normalization checks out at 7,323 active projects totaling 1,686 GW, but
+  OSM is crawling—only 2 states in 20 minutes—and overpass-api.de is throwing
+  406 errors. I'll test if it's rejecting the browser User-Agent.
+
+● Bash(for ua in "Mozilla/5.0" "InterconnectionMapMVP/0.1 (academic research;
+      contact eino.schulzesteinen@gmail.com)" "python-requests/2.32"; do printf
+      "%s -> " "$ua";…)  ⎿  (No output)
+  ⎿  (timeout 2m)
+
+● Overpass instances are all timing out, and I noticed a test earlier mistakenly
+  sent your email in a User-Agent header to overpass-api.de — that won't happen
+  again. I'll try one more mirror, but will build the network independent of
+  OSM, using it only to enrich names if it becomes available.
+
+● Bash(for u in https://overpass.private.coffee/api/status
+      https://maps.mail.ru/osm/tools/overpass/api/status
+      https://overpass.kumi.systems/api/status; do printf "%s -…)
+  ⎿  (No output)
+  ⎿  (timeout 2m)
+
+● overpass.private.coffee and the mail.ru mirror are healthy. I'll restart the
+  OSM job with those first, using a plain project User-Agent; completed states
+  are skipped.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+
+● Stop Task
+  ⎿  cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+     Courses/Sustainable ventures/Interconnection MAP MVP" &&
+     ./.venv/Scripts/python -I pipeline/fetc… · stopped
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I pipeline/fetc…)
+  ⎿  Running in the background (↓ to manage)
+
+● While OSM runs, I'll check line voltages and the control-area attributes,
+  which drive the load model:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import g…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● Control-area peak loads date from 2018, which is stale (ERCOT has grown about
+  20% since). I'll use EIA-930 hourly demand for the 2025 summer peak instead.
+  Checking the bulk files:
+
+● Bash(C="curl -sS --ssl-no-revoke -A Mozilla/5.0 -I --max-time 30"; for f in
+      EIA930_BALANCE_2025_Jul_Dec.csv EIA930_BALANCE_2026_Jan_Jun.csv
+      EIA930_BALANCE_2026_Jul_D…)
+  ⎿  (No output)
+  ⎿  (timeout 2m)
+
+● EIA-930 already covers summer 2026 (Jul–Oct file, 30 MB), so I'll add it as a
+  source along with its reference table:
+
+● Update(pipeline\fetch_data.py)
+  ⎿  Added 11 lines
+      110                  return
+      111  
+      112  
+      113 +# --- Load ---------------------------------------------------
+          +---------------------------                                   
+      114 +                                                              
+      115 +def eia930():                                                 
+      116 +    """EIA-930 hourly balancing-authority demand (summer 2026)
+          + + BA reference table."""                                     
+      117 +    base = "https://www.eia.gov/electricity/gridmonitor/sixMon
+          +thFiles"                                                      
+      118 +    download("EIA-930", f"{base}/EIA930_BALANCE_{date.today().
+          +year}_Jul_Dec.csv",                                           
+      119 +             RAW / "eia930" / "EIA930_BALANCE_Jul_Dec.csv")   
+      120 +    download("EIA-930", f"{base}/EIA930_Reference_Tables.xlsx"
+          +,                                                             
+      121 +             RAW / "eia930" / "EIA930_Reference_Tables.xlsx") 
+      122 +                                                              
+      123 +                                                              
+      124  # --- Interconnection queues ---------------------------------
+           -----------------------------
+      125  
+      126  def lbnl_queue():
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && sed -i 's/
+      hifld_lines, control_area…)
+  ⎿  Error: Exit code 1
+     [18:30:55] == eia930: EIA-930 hourly balancing-authority demand (summer
+     2026) + BA reference table.
+     [18:31:40]   saved data\raw\eia930\EIA930_BALANCE_Jul_Dec.csv (29.5 MB)
+     [18:31:40]   saved data\raw\eia930\EIA930_Reference_Tables.xlsx (0.0 MB)
+     [18:31:40] done; failed: none
+     Traceback (most recent call last):
+       File "<string>", line 5, in <module>
+         x=pd.ExcelFile('data/raw/eia930/EIA930_Reference_Tables.xlsx');
+     print(x.sheet_names); r=x.parse(x.sheet_names[0]);
+     print(r.columns.tolist()); print(r.head(3).to_string())
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\.venv\Lib\site-packages\pandas\io\excel\_base.py", line 1608, in
+     __init__
+         raise ValueError(
+
+     … +69 lines (ctrl+o to expand)
+
+● The reference table URL didn't return an Excel file, but I don't need
+  it—EIA-860 plants share the same BA codes, so I can map each control-area
+  polygon using the plants inside it. I'll remove that download.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && head -c 300
+      data/raw/eia930/EIA930_Refe…)
+  ⎿  (No output)
+
+● Working on the network builder next: it'll snap HIFLD line endpoints to
+  substation/junction nodes, derive node names from the SUB_1/SUB_2 labels,
+  assign voltage-class-based electrical parameters (thermal rating, St. Clair
+  loadability), and label the three interconnections.
+
+● Write(pipeline\build_network.py)
+  ⎿  Wrote 251 lines to pipeline\build_network.py
+       1 """Build the transmission network graph from HIFLD line geometry
+       2
+       3 Nodes  = substations / junctions, found by snapping line endpoin
+         ts together (and to OSM substations).
+         ameters by voltage class.
+       5 Output = data/interim/nodes.parquet, data/interim/lines.parquet
+       6 """
+       7 import glob
+       8 import json
+      10 import sys
+     … +318 lines (ctrl+o to expand)
+
+● Two cleanups before running: drop a leftover no-op zip block, and add a
+  --no-osm flag so I can test the network now with OSM only partly downloaded.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  Error: Exit code 1
+     [18:33:30] loading HIFLD lines
+     C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\pipeline\build_network.py:81: UserWarning: Geometry is in a geographic
+     CRS. Results from 'centroid' are likely incorrect. Use 'GeoSeries.to_crs()'
+     to re-project geometries to a projected CRS before this operation.
+
+       c = g.geometry.centroid
+     [18:34:06]   51,861 AC line segments in CONUS
+     [18:34:10]   31,181 buses after snapping (radius 300 m)
+     [18:34:17]   SUB_1 at geometry start for 67% of fully-resolved lines
+     Traceback (most recent call last):
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\pipeline\build_network.py", line 248, in <module>
+
+     … +16 lines (ctrl+o to expand)
+
+● The ERCOT polygon is invalid geometry; I'll repair it with make_valid and also
+  silence the geographic-centroid warning.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● I found that snapping creates false AC bridges across back-to-back DC ties,
+  merging all three interconnections into one 30,083-bus component. I'll fix
+  this by labeling each bus's interconnection using EIA-860 NERC region polygons
+  and cutting the erroneous seam-crossing lines, starting with a quick EIA prep
+  step for plants/generators needed across multiple stages.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● I'll prep the EIA data: pulling generator inventory from the Aug 2026 860M,
+  plant metadata like grid kV and NERC region from the 860 annual, and building
+  a tech taxonomy with peak availability factors for the dispatch model.
+
+● Write(pipeline\prepare_eia.py)
+  ⎿  Wrote 107 lines to pipeline\prepare_eia.py
+       1 """Prepare the existing generation fleet from EIA-860M (Aug 2026
+         ) + EIA-860 (2025 annual).
+       3 Output: data/interim/generators.parquet  operating generators, C
+         ONUS
+       4         data/interim/plants.parquet      plant-level aggregation
+       5         data/interim/planned_generators.parquet
+       6 """
+       7 import sys
+       9
+      10 import geopandas as gpd
+     … +148 lines (ctrl+o to expand)
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I pipeline/prep…)
+  ⎿  Error: Exit code 1
+     [18:38:27] reading august_generator2026.xlsx
+     Traceback (most recent call last):
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\pipeline\prepare_eia.py", line 107, in <module>
+         main()
+         ~~~~^^
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\pipeline\prepare_eia.py", line 78, in main
+         gens.to_parquet(INTERIM / "generators.parquet", index=False)
+         ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+       File "C:\Users\einos\Documents\LMU Master\3. UC Berkeley\Attended
+     Courses\Sustainable ventures\Interconnection MAP
+     MVP\.venv\Lib\site-packages\pandas\core\frame.py", line 3135, in to_parquet
+
+     … +38 lines (ctrl+o to expand)
+
+● Mixed-type columns from Excel; I'll coerce numeric and ID columns explicitly:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+  ⎿  (timeout 6m 40s)
+
+● EIA fleet data is ready: 26,888 operating generators totaling 1,305 GW of
+  summer capacity, matching the US total. Next I'll replace the interconnection
+  logic in the network builder with polygon/NERC labeling and seam cutting.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(pipeline\build_network.py)
+  ⎿  Added 30 lines, removed 18 lines
+      188      g["limit_mw"] = np.minimum(g.thermal_mva, g.stclair_mw)
+      189      g["limit_basis"] = np.where(g.thermal_mva <= g.stclair_mw,
+            "thermal", "stability (St. Clair)")
+      190  
+      191 -    # ---- connectivity & interconnection --------------------
+          ----------------------------------                             
+      191 +    # ---- interconnection labels & seam cuts ----------------
+          +-----------------------------------                           
+      192 +    # The three US interconnections meet only through DC ties,
+          + but snapping merges the AC lines                             
+      193 +    # on both sides of each back-to-back converter. Label ever
+          +y bus by its balancing-authority                              
+      194 +    # polygon (whose interconnection = majority NERC region of
+          + the EIA plants inside it), fall                              
+      195 +    # back to the nearest plants, then cut any line that joins
+          + two interconnections.                                        
+      196 +    pts_ll = gpd.GeoSeries(gpd.points_from_xy(nodes.x, nodes.y
+          +), crs=CRS_M).to_crs(4326)                                    
+      197 +    nodes["lon"], nodes["lat"] = pts_ll.x.values, pts_ll.y.val
+          +ues                                                           
+      198 +    plants = gpd.read_parquet(INTERIM / "plants.parquet").drop
+          +na(subset=["interconnection"])                                
+      199 +    ca = gpd.read_file(RAW / "hifld" / "control_areas.geojson"
+          +)                                                             
+      200 +    ca["geometry"] = ca.geometry.make_valid()                 
+      201 +    pj = gpd.sjoin(plants[["interconnection", "geometry"]], ca
+          +[["ID", "geometry"]], predicate="within")                     
+      202 +    ca_ic = pj.groupby("ID").interconnection.agg(lambda s: s.m
+          +ode().iat[0] if len(s) >= 3 else None)                        
+      203 +    ca["ic"] = ca.ID.map(ca_ic)                               
+      204 +    nj = gpd.sjoin(gpd.GeoDataFrame(geometry=pts_ll.values, cr
+          +s=4326), ca.dropna(subset=["ic"])[["ic", "geometry"]],        
+      205 +                   predicate="within")                        
+      206 +    poly_ic = nj.groupby(level=0).ic.agg(lambda s: s.iat[0] if
+          + s.nunique() == 1 else None)                                  
+      207 +    pxy = plants.to_crs(CRS_M)                                
+      208 +    _, nn = cKDTree(np.c_[pxy.geometry.x, pxy.geometry.y]).que
+          +ry(nodes[["x", "y"]].values, k=9)                             
+      209 +    knn_ic = pd.DataFrame(plants.interconnection.values[nn]).m
+          +ode(axis=1)[0]                                                
+      210 +    nodes["ic_label"] = poly_ic.reindex(range(n_nodes)).fillna
+          +(knn_ic).values                                               
+      211 +                                                              
+      212 +    seam = g.from_node.map(nodes.ic_label).values != g.to_node
+          +.map(nodes.ic_label).values                                   
+      213 +    cut = g[seam]                                             
+      214 +    log(f"  cutting {seam.sum()} seam lines between interconne
+          +ctions "                                                      
+      215 +        f"(kV: {cut.kv.value_counts().to_dict()})")           
+      216 +    g = g[~seam].copy()                                       
+      217 +                                                              
+      218      adj = coo_matrix((np.ones(len(g)), (g.from_node, g.to_node
+           )), shape=(n_nodes, n_nodes))
+      219      ncomp, comp = connected_components(adj, directed=False)
+      220      nodes["component"] = comp
+      221      sizes = pd.Series(comp).value_counts()
+      222      nodes["component_size"] = nodes.component.map(sizes)
+      197 -                                                              
+      198 -    pts_ll = gpd.GeoSeries(gpd.points_from_xy(nodes.x, nodes.y
+          -), crs=CRS_M).to_crs(4326)                                    
+      199 -    nodes["lon"], nodes["lat"] = pts_ll.x.values, pts_ll.y.val
+          -ues                                                           
+      200 -    ca = gpd.read_file(RAW / "hifld" / "control_areas.geojson"
+          -)                                                             
+      201 -    ercot = ca[ca.NAME.str.contains("ELECTRIC RELIABILITY COUN
+          -CIL OF TEXAS")].geometry.make_valid().union_all()             
+      202 -    in_ercot = gpd.GeoSeries(pts_ll.values, crs=4326).within(e
+          -rcot).values                                                  
+      203 -    nodes["in_ercot_poly"] = in_ercot                         
+      204 -                                                              
+      223      ic = {}
+      224      for cid, sz in sizes.items():
+      225          if sz < 200:
+      226              break
+      227          m = nodes.component.eq(cid)
+      210 -        lon = nodes.loc[m, "lon"]                             
+      211 -        if nodes.loc[m, "in_ercot_poly"].mean() > 0.5:        
+      212 -            ic[cid] = "ERCOT"                                 
+      213 -        elif lon.median() < -104.5:                           
+      214 -            ic[cid] = "Western"                               
+      215 -        else:                                                 
+      216 -            ic[cid] = "Eastern"                               
+      217 -        log(f"  component {cid}: {sz:,} buses, median lon {lon
+          -.median():.1f}, "                                             
+      218 -            f"west of -106: {(lon < -106).mean():.0%}, east of
+          - -100: {(lon > -100).mean():.0%} -> {ic[cid]}")               
+      228 +        ic[cid] = nodes.loc[m, "ic_label"].mode().iat[0]      
+      229 +        log(f"  component {cid}: {sz:,} buses -> {ic[cid]} "  
+      230 +            f"(label purity {nodes.loc[m, 'ic_label'].eq(ic[ci
+          +d]).mean():.1%})")                                            
+      231      nodes["interconnection"] = nodes.component.map(ic).fillna(
+           "island")
+      232      nodes["modeled"] = nodes.component.isin(ic)
+      233      log(f"  {ncomp:,} components; {nodes.modeled.mean():.1%} o
+           f buses in modeled networks")
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I pipeline/buil…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && sed -i 's/
+      knn_ic = pd.DataFrame(pla…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Three clean interconnections now: Eastern (21,318 buses), Western (6,065),
+  ERCOT (2,398), with 95.5% of buses in a solvable network. Checking OSM
+  progress:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && ls data/raw/osm/
+      | wc -l; tail -4 data/…)
+  ⎿  (No output)
+
+● I'll continue building with the HIFLD-only network for now since OSM coverage
+  is still partial (9/49 states), and add OSM names back in later. Next up is
+  the queue-to-bus matcher, using fuzzy POI-to-substation name matching
+  constrained by county distance and voltage agreement, with county-proximity as
+  a fallback.
+
+● Write(pipeline\match_queue.py)
+  ⎿  Wrote 153 lines to pipeline\match_queue.py
+       1 """Locate every active queue project on a network bus.
+       2
+       4 2. Fuzzy-match the POI name ("Lamont 115 kV", "Helm-Kerman 70 kV
+          Line", "59903 Bearkat 345kV")
+       5    against substation names (HIFLD endpoint labels + OSM) within
+       6    rewarding voltage agreement and proximity.
+       7 3. Fall back to the nearest bus of suitable voltage to the count
+         y centroid.
+       9 """
+      10 import re
+     … +183 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && time
+      ./.venv/Scripts/python -I pipeline…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● .cx collides with GeoPandas' coordinate indexer; renaming the centroid
+  columns:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Matched 2,675 projects (676 GW) directly to named POI substations, 4,426 via
+  county proximity, and left 222 unlocated — spot checks look correct, and
+  proximity reliance should improve once OSM names are added. Next I'll build
+  the core model: allocating 2026 peak load to buses, attaching generators,
+  running DC power flow for summer-peak and light-load scenarios, and computing
+  PTDF-based headroom before and after the phase-weighted queue.
+
+● Write(pipeline\build_model.py)
+  ⎿  Wrote 383 lines to pipeline\build_model.py
+      1 """Screening-level DC power-flow model of the US transmission sys
+      2
+      3 Inputs : network (build_network), fleet (prepare_eia), located qu
+      4          EIA-930 summer-2026 BA peaks, Census 2020 tract populati
+      5 Steps  : 1. peak load per BA (EIA-930) -> tracts by population ->
+         nearest bus
+      7          3. two dispatch scenarios per interconnection (summer pe
+        ak; light load / high renewables)
+        ws fit (see README)
+        ble (load) at each bus befo
+     … +492 lines (ctrl+o to expand)
+
+● A few fixes before running: binding-line IDs must be -1 when no line exceeds
+  the DF cut-off, the str.contains needs na=False, and a smaller batch keeps
+  memory down.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  Running in the background (↓ to manage)
+  ⎿  (timeout 10m)
+
+● The model is still solving (Eastern alone is ~21k buses), so in parallel I'll
+  start on the map. Per the artifact workflow I'll run the quickstart first:
+
+● Artifact(quickstart other without design systems)
+  ⎿  sent page-design guidance, left design systems out
+
+● The map is an interactive tool rather than a chart dashboard, so it'll be a
+  plain page. Checking the model run:
+
+  Read 1 file (ctrl+o to expand)
+
+● The output file's empty because grep buffers until exit—nothing to worry
+  about. Meanwhile, I'll write the exporter that converts the model into compact
+  map data (polyline-encoded geometry plus columnar attributes) to keep it
+  under the 16 MB limit.
+
+● Write(pipeline\export_map.py)
+  ⎿  Wrote 173 lines to pipeline\export_map.py
+      1 """Export the model to compact JSON for the web map (map/data/*.j
+        son).
+      2
+        ibutes are stored column-wise,
+      4 which keeps the whole national dataset small enough to load in a
+        browser.
+      5 """
+      7 import sys
+      8 from datetime import date
+      9 from pathlib import Path
+     … +219 lines (ctrl+o to expand)
+
+● Bash(for u in
+      https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js ht
+      tps://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css
+      ht…)
+  ⎿  (No output)
+  ⎿  (timeout 1m)
+● MapLibre 4.7.1 is on cdnjs. Its stylesheet can't load under the artifact CSP,
+  so I'll inline the few rules it needs and draw my own controls. Waiting on the
+  model run before building the page:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && ls -la
+      data/processed/ 2>/dev/null; tas…)
+  ⎿  (No output)
+
+● The model process is running (about 600 MB in memory). I'll write the map page
+  meanwhile.
+
+● Write(map\index.html)
+  ⎿  Wrote 674 lines to map\index.html
+       1 <title>Interconnection Headroom Atlas</title>
+       3 <link rel="preconnect" href="https://fonts.gstatic.com" crossori
+         gin>
+         amily=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wgh
+       5 <style>
+       6 /* Layout: full-bleed map; a control rail floats on the left, an
+       7    both become bottom sheets on phones. Neutrals are cool slate;
+          copper is the single accent. */
+       9   --bg: #e9eef0; --land: #f7f8f7; --state: #c9d1d5; --panel: #ff
+      10   --ink: #16202a; --mute
+     … +1145 lines (ctrl+o to expand)
+
+● Map page drafted. Checking on the model:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && ls -la
+      data/processed/; cat "C:/Users/e…)
+  ⎿  (No output)
+
+● PowerShell(Get-Process python | Select-Object Id, CPU, WorkingSet64, StartTime
+            | Format-Table -AutoSize)
+  ⎿      Id       CPU WorkingSet64 StartTime
+         --       --- ------------ ---------
+     125524   0,03125      4317184 21.10.2026 18:59:22
+     … +3 lines (ctrl+o to expand)
+
+● It's using CPU, but I can't see which stage it's in because grep holds the
+  output. I'll give it a few more minutes and meanwhile add a pipeline runner
+  and requirements file.
+
+● Write(pipeline\run_all.py)
+  ⎿  Wrote 21 lines to pipeline\run_all.py
+      1 """Run the full pipeline end to end.
+      2
+      3 Usage:  python -I pipeline/run_all.py            (re-uses data al
+        ready in data/raw)
+      4         python -I pipeline/run_all.py --fetch    (re-downloads ev
+      5 """
+      6 import subprocess
+      7 import sys
+      8 import time
+      9 from pathlib import Path
+     … +16 lines (ctrl+o to expand)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -m pip freeze |…)
+  ⎿  (No output)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && sed -i
+      '/^networkx==/d;/^xlrd==/d' requ…)
+  ⎿  (No output)
+
+● CPU time is barely moving, so the process seems stalled rather than computing.
+  I'll stop it and re-run unbuffered to a log so I can see which stage hangs.
+
+● Stop Task
+  ⎿  cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+     Courses/Sustainable ventures/Interconnection MAP MVP" && python -
+     <<'EOF'
+     from pathlib import Pat… · stopped
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && powershell
+      -Command "Stop-Process -Id 1…)
+  ⎿  Running in the background (↓ to manage)
+
+● Monitor(build_model.py stage log lines and errors)
+  ⎿  Monitor started · task b2dcc9qnx · timeout 1800s
+
+● While that runs I'll draft the README (sources, pipeline, method, limitations)
+  and fill in numbers once the model finishes.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && cat
+      data/build_model.log; ls data/raw/o…)
+  ⎿  (No output)
+
+● Write(README.md)
+  ⎿  Wrote 99 lines to README.md
+      1 # Interconnection Headroom Atlas (MVP)
+      3 A screening-level digital twin of the contiguous-US transmission
+        grid, built only from public data.
+      4 For every substation it estimates how many MW of new **generation
+      5 connect before a transmission line hits its limit, both on today'
+        s grid and after the active
+        uct thesis.
+      7
+      8 > Screening estimates, not interconnection studies. Real ratings,
+      9 > positions sit in CEII-protected base cases. See *Limitations*.
+     … +157 lines (ctrl+o to expand)
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [19:42:26] load: 820 GW non-coincident BA peak across 43 BAs (EIA-930 Jul-Oct
+  2026); allocated over 83,776 tracts
+
+● Load allocation done: 820 GW of non-coincident summer-2026 BA peak across 43
+  BAs, which is plausible against a US coincident peak of about 760 GW. Waiting
+  for the power-flow stages.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until grep -qE
+      "Eastern:|Traceback|Erro…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [19:52:29] Eastern: 21,318 buses, 30,407 lines, gen 843.7 GW, peak load 577.6
+  GW, calibrated lines 13.1%
+  [19:52:29]    peak: {'thermal_util': 0.884, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(577.6), 'queue_injection_gw':
+  np.float64(131.6)}
+  [19:52:29]    light: {'thermal_util': 0.238, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(317.7), 'queue_injection_gw':
+  np.float64(117.8)}
+
+● Eastern finished solving in about 10 minutes, showing 578 GW peak load against
+  844 GW fleet capacity, 88% thermal utilisation at peak, and 13% of lines
+  re-rated by calibration—acceptable for screening-grade ratings. Western and
+  ERCOT are smaller grids, so they should solve faster.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until grep -qE
+      "bus generation signal|T…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+● Monitor event: "build_model.py stage log lines and errors"
+  [19:53:16] Western: 6,065 buses, 8,336 lines, gen 270.8 GW, peak load 149.5
+  GW, calibrated lines 6.8%
+  [19:53:16]    peak: {'thermal_util': 0.69, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(149.5), 'queue_injection_gw':
+  np.float64(64.0)}
+  [19:53:16]    light: {'thermal_util': 0.15, 'renewable_curtail_factor': 0.642,
+  'shortfall_mw': -0.0, 'load_gw': np.float64(82.2), 'queue_injection_gw':
+  np.float64(63.6)}
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [19:53:23] ERCOT: 2,398 buses, 3,422 lines, gen 154.3 GW, peak load 86.9 GW,
+  calibrated lines 21.3%
+  [19:53:23]    peak: {'thermal_util': 0.817, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(86.9), 'queue_injection_gw':
+  np.float64(73.6)}
+  [19:53:23]    light: {'thermal_util': 0.15, 'renewable_curtail_factor': 0.84,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(47.8), 'queue_injection_gw':
+  np.float64(48.5)}
+
+● Background command "Re-run model with unbuffered log (background)" completed
+(exit code 0)
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [19:53:27] bus generation signal: {'red': 27386, 'yellow': 1570, 'green': 825}
+
+● The model runs end to end, but post-queue headroom isn't usable: existing-grid
+  headroom looks sensible, while adding the ~270 GW phase-weighted queue with
+  no upgrades overloads backbone lines and zeroes out any bus with ≥5%
+  distribution factor on them. I'll dig into the diagnosis before adjusting the
+  method.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import g…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● I've traced the issue to a 5% distribution-factor cutoff causing one backbone
+  line to overload across nearly every bus—too strict for energy-only screening,
+  which typically uses ~20%. I'll switch to DF ≥ 20% for the main headroom
+  metrics, keep 5% as a secondary deliverability figure, only evaluate lines
+  passing the threshold per batch (speeding up runtime), and store each binding
+  line's DF for the inspector.
+
+  Read 1 file (ctrl+o to expand)
+
+● Update(pipeline\build_model.py)
+  ⎿  Added 37 lines, removed 34 lines
+      269          th_sink = solve_theta(sink)
+      270          out = {c: np.full(N, np.nan) for c in res_cols}
+      271          bind = {k: np.full(N, -1) for k in ("gen", "gen_q", "l
+           oad")}
+      272 +        bind_df = np.full(N, np.nan)                          
+      273          lid = L.index.values
+      274 +        to_lid = lambda r: np.where(r >= 0, lid[np.maximum(r, 
+          +0)], -1)  # noqa: E731                                        
+      275 +                                                              
+      276 +        def margins(D, rows, f, sign, thr):                   
+      277 +            """MW addable at each candidate bus (column) befor
+          +e a line with |DF| >= thr reaches U.                          
+      278 +            sign=+1 injection, -1 withdrawal. Returns (MW, bin
+          +ding line row, signed DF)."""                                 
+      279 +            nb = D.shape[1]                                   
+      280 +            if not len(rows):                                 
+      281 +                return np.full(nb, np.inf), np.full(nb, -1), n
+          +p.full(nb, np.nan)                                            
+      282 +            Ds = D[rows]                                      
+      283 +            a = np.abs(Ds)                                    
+      284 +            fs, Us = f[rows][:, None], U[rows][:, None]       
+      285 +            room = np.where(Ds * sign > 0, Us - fs, Us + fs)  
+          +    # towards the limit the flow is pushed to                 
+      286 +            with np.errstate(invalid="ignore", divide="ignore"
+          +):                                                            
+      287 +                m = np.where(a >= thr, np.maximum(room, 0) / a
+          +, np.inf)                                                     
+      288 +            k = np.argmin(m, axis=0)                          
+      289 +            c = np.arange(nb)                                 
+      290 +            v = m[k, c]                                       
+      291 +            return v, np.where(np.isfinite(v), rows[k], -1), D
+          +s[k, c] * sign                                                
+      292 +                                                              
+      293          for s0 in range(0, N, BATCH):
+      294              cols = np.arange(s0, min(s0 + BATCH, N))
+      295              E = np.zeros((N, len(cols)))
+     ...
+      298              TH[keep] = lu.solve(E[keep])
+      299              TH -= th_sink[:, None]
+      300              D = ((TH[fr] - TH[to]) * b[:, None]).astype(np.flo
+           at32)   # M x batch, MW per MW
+      281 -            pos_m, neg_m = D > DF_MIN, D < -DF_MIN            
+      282 -            absD = np.where(pos_m | neg_m, np.abs(D), np.nan) 
+      301 +            aD = np.abs(D)                                    
+      302 +            rows_e = np.nonzero((aD >= DF_MIN).any(axis=1))[0]
+      303 +            rows_d = np.nonzero((aD >= DF_DELIV).any(axis=1))[
+          +0]                                                            
+      304  
+      284 -            def margins(f, sign):                             
+      285 -                # sign=+1: injection, -1: withdrawal          
+      286 -                up = (U - f)[:, None]                         
+      287 -                dn = (U + f)[:, None]                         
+      288 -                inc = pos_m if sign > 0 else neg_m      # flow
+          - pushed in + direction                                        
+      289 -                dec = neg_m if sign > 0 else pos_m            
+      290 -                m = np.where(inc, up / absD, np.where(dec, dn 
+          -/ absD, np.inf))                                              
+      291 -                m = np.maximum(m, 0)                          
+      292 -                k = np.argmin(m, axis=0)                      
+      293 -                return m[k, np.arange(len(cols))], k          
+      294 -                                                              
+      295 -            for scen in ("peak", "light"):                    
+      296 -                v, k = margins(base_f[scen], +1)              
+      297 -                out[f"hr_gen_{scen}"][cols] = v               
+      298 -                if scen == "peak":                            
+      299 -                    bk_peak = k                               
+      300 -                else:                                         
+      301 -                    bk_light = k                              
+      302 -                v, kq = margins(q_f[scen], +1)                
+      303 -                out[f"hr_gen_{scen}_q"][cols] = v             
+      304 -                if scen == "peak":                            
+      305 -                    bkq_peak = kq                             
+      306 -                else:                                         
+      307 -                    bkq_light = kq                            
+      308 -            v, k = margins(base_f["peak"], -1)                
+      305 +            for sfx, fp, fl in (("", base_f["peak"], base_f["l
+          +ight"]), ("_q", q_f["peak"], q_f["light"])):                  
+      306 +                vp, rp, dp = margins(D, rows_e, fp, +1, DF_MIN
+          +)                                                             
+      307 +                vl, rl, dl = margins(D, rows_e, fl, +1, DF_MIN
+          +)                                                             
+      308 +                out[f"hr_gen_peak{sfx}"][cols] = vp           
+      309 +                out[f"hr_gen_light{sfx}"][cols] = vl          
+      310 +                worse_light = vl < vp                         
+      311 +                bind["gen" + sfx][cols] = to_lid(np.where(wors
+          +e_light, rl, rp))                                             
+      312 +                if sfx == "_q":                               
+      313 +                    bind_df[cols] = np.where(worse_light, dl, 
+          +dp)                                                           
+      314 +            v, r, _ = margins(D, rows_e, base_f["peak"], -1, D
+          +F_MIN)                                                        
+      315              out["hr_load_peak"][cols] = v
+      310 -            bind["load"][cols] = np.where(np.isfinite(v), lid[
+          -k], -1)                                                       
+      311 -            v, _ = margins(q_f["peak"], -1)                   
+      312 -            out["hr_load_peak_q"][cols] = v                   
+      313 -            for key, sfx, kp, kl in (("gen", "", bk_peak, bk_l
+          -ight), ("gen_q", "_q", bkq_peak, bkq_light)):                 
+      314 -                hp, hl = out[f"hr_gen_peak{sfx}"][cols], out[f
+          -"hr_gen_light{sfx}"][cols]                                    
+      315 -                k = np.where(hl < hp, kl, kp)                 
+      316 -                bind[key][cols] = np.where(np.isfinite(np.mini
+          -mum(hp, hl)), lid[k], -1)                                     
+      316 +            bind["load"][cols] = to_lid(r)                    
+      317 +            out["hr_load_peak_q"][cols] = margins(D, rows_e, q
+          +_f["peak"], -1, DF_MIN)[0]                                    
+      318 +            out["hr_gen_deliv"][cols] = margins(D, rows_d, bas
+          +e_f["peak"], +1, DF_DELIV)[0]                                 
+      319          for c in res_cols:
+      320              buses.loc[bm, c] = np.minimum(out[c], HEADROOM_CAP
+           )
+      321          buses.loc[bm, "bind_gen_line"] = bind["gen"]
+      322          buses.loc[bm, "bind_gen_line_q"] = bind["gen_q"]
+      323 +        buses.loc[bm, "bind_gen_df_q"] = bind_df              
+      324          buses.loc[bm, "bind_load_line"] = bind["load"]
+      325          summary["interconnections"][ic] = info
+      326          log(f"{ic}: {N:,} buses, {M:,} lines, gen {info['gen_g
+           w']} GW, peak load {info['peak_load_gw']} GW, "
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  Running in the background (↓ to manage)
+
+● While it re-runs, I'll wire the two new fields (5% deliverability headroom and
+  binding DF) into the exporter and the inspector, and update the method text.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+
+● Updating the README to match the 20%/5% DF method:
+
+● Update(README.md)
+  ⎿  Added 6 lines, removed 2 lines
+      68     assumes today's grid is operated within limits, and the shar
+          e of lines adjusted is reported.
+      69  6. **Headroom (PTDF).** For each bus, compute the distribution 
+          factors of a 1 MW injection there,
+      70     balanced by scaling back existing thermal plants. Headroom i
+          s the MW that can be added before any
+      71 -   line with |DF| ≥ 5% reaches 85% of its rating, the 85% stand
+         -ing in for an N-1 margin. Generation                           
+      72 -   headroom takes the worse of the two scenarios. Load headroom
+         - is the same with withdrawal at peak.                          
+      71 +   line with |DF| ≥ 20% reaches 85% of its rating. The 20% matc
+         +hes the energy-only (ERIS) cut-off                             
+      72 +   MISO and SPP use, and the 85% stands in for an N-1 margin. G
+         +eneration headroom takes the worse of                          
+      73 +   the two scenarios, and load headroom is the same with withdr
+         +awal at peak. A stricter                                       
+      74 +   deliverability-style figure (|DF| ≥ 5%, as in PJM/NRIS studi
+         +es) is reported alongside. An early                            
+      75 +   run that used 5% for everything pushed 89% of buses to zero 
+         +once the queue was added, because                              
+      76 +   distant backbone lines dominated.                           
+      77  7. **Queue ahead.** Active requests are weighted by their odds 
+          of reaching operation (early study 0.10,
+      78     late study 0.25, IA executed 0.55, construction 0.90) and by
+           scenario output. They are added to the
+      79     base case and headroom is recomputed. That gives *headroom a
+          fter queue*, the map's main signal.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until grep -qE
+      "bus generation signal|T…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [19:55:51] load: 820 GW non-coincident BA peak across 43 BAs (EIA-930 Jul-Oct
+  2026); allocated over 83,776 tracts
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:00:24] Eastern: 21,318 buses, 30,407 lines, gen 843.7 GW, peak load 577.6
+  GW, calibrated lines 13.1%
+  [20:00:24]    peak: {'thermal_util': 0.884, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(577.6), 'queue_injection_gw':
+  np.float64(131.6)}
+  [20:00:24]    light: {'thermal_util': 0.238, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(317.7), 'queue_injection_gw':
+  np.float64(117.8)}
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:00:45] Western: 6,065 buses, 8,336 lines, gen 270.8 GW, peak load 149.5
+  GW, calibrated lines 6.8%
+  [20:00:45]    peak: {'thermal_util': 0.69, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(149.5), 'queue_injection_gw':
+  np.float64(64.0)}
+  [20:00:45]    light: {'thermal_util': 0.15, 'renewable_curtail_factor': 0.642,
+  'shortfall_mw': -0.0, 'load_gw': np.float64(82.2), 'queue_injection_gw':
+  np.float64(63.6)}
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:00:50] ERCOT: 2,398 buses, 3,422 lines, gen 154.3 GW, peak load 86.9 GW,
+  calibrated lines 21.3%
+  [20:00:50]    peak: {'thermal_util': 0.817, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(86.9), 'queue_injection_gw':
+  np.float64(73.6)}
+  [20:00:50]    light: {'thermal_util': 0.15, 'renewable_curtail_factor': 0.84,
+  'shortfall_mw': 0.0, 'load_gw': np.float64(47.8), 'queue_injection_gw':
+  np.float64(48.5)}
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:00:54] bus generation signal: {'red': 18304, 'yellow': 6632, 'green':
+  4845}
+
+● Background command "Apply DF threshold changes and re-run model (background)"
+completed (exit code 0)
+
+● Eastern queue times improved to ~4.5 min with a better spread (4,845 green /
+  6,632 yellow / 18,304 red), but the post-queue median still sits at 0, likely
+  due to oversubscribed queues. I'll verify this by breaking it down
+  geographically.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import g…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● I found the root cause: the model balances new injections against the whole
+  interconnection instead of within each project's own balancing authority,
+  which forces unrealistic long-distance transfers through a few seams. I'll
+  restructure the dispatch and sink logic to be
+  balancing-authority-aware—assigning each bus a BA, balancing locally first
+  before settling interconnection-wide, and capping queue injections at what
+  each BA can actually displace.
+
+  Read 1 file (ctrl+o to expand)
+
+● I'll rewrite build_model.py as a whole with the BA-aware dispatch and sinks;
+  it's cleaner than patching.
+
+● Write(pipeline\build_model.py)
+  ⎿  Added 135 lines, removed 95 lines
+       2  
+       3  Inputs : network (build_network), fleet (prepare_eia), located 
+          queue (match_queue),
+       4           EIA-930 summer-2026 BA peaks, Census 2020 tract popula
+          tion, HIFLD control areas.
+       5 -Steps  : 1. peak load per BA (EIA-930) -> tracts by population 
+         --> nearest bus                                                 
+       5 +Steps  : 1. every bus gets a balancing authority (BA); BA peak 
+         +load (EIA-930) is spread over Census                           
+       6 +            tracts by population and attached to the nearest bu
+         +s                                                              
+       7           2. EIA-860M generators -> bus (voltage-aware snapping)
+       7 -         3. two dispatch scenarios per interconnection (summer 
+         -peak; light load / high renewables)                            
+       8 -         4. DC power flow; line ratings calibrated so today's f
+         -lows fit (see README)                                          
+       9 -         5. PTDF headroom: MW injectable (generation) / withdra
+         -wable (load) at each bus before a                              
+      10 -            line with distribution factor >= DF_MIN (20%, energ
+         -y-only style) reaches its usable limit;                        
+      11 -            repeated with the phase-weighted active queue added
+         - to the base case. A 5% DF                                     
+      12 -            deliverability-style figure is kept alongside      
+       8 +         3. two dispatch scenarios (summer peak; light load / h
+         +igh renewables), each BA balanced to                           
+       9 +            its own load first, the interconnection-wide residu
+         +al settled afterwards                                          
+      10 +         4. DC power flow; line ratings calibrated so today's m
+         +odeled flows fit (see README)                                  
+      11 +         5. PTDF headroom: MW injectable (generation) / withdra
+         +wable (load) at each bus before a line                         
+      12 +            carrying >= DF_MIN of the change reaches its usable
+         + limit. New MW are absorbed pro rata by                        
+      13 +            the non-nuclear output of the bus's own BA, as in I
+         +SO studies. Repeated with the                                  
+      14 +            phase-weighted active queue added (capped at what e
+         +ach BA can displace). A 5% DF                                  
+      15 +            deliverability-style figure is kept alongside.     
+      16  Output : data/processed/{buses,lines,queue,plants}.parquet, dat
+          a/processed/model_summary.json
+      17  """
+      18  import json
+     ...
+      22  import geopandas as gpd
+      23  import numpy as np
+      24  import pandas as pd
+      22 -from scipy.sparse import coo_matrix, csc_matrix                
+      25 +from scipy.sparse import coo_matrix                            
+      26  from scipy.sparse.linalg import splu
+      27  from scipy.spatial import cKDTree
+      28  
+     ...
+      36  ALPHA = 0.85           # usable share of rating (proxy for N-1 
+          security margin)
+      37  CALIB_UTIL = 0.90      # existing flows may use at most this sh
+          are of the usable limit
+      38  THERMAL_MIN = 0.15     # minimum thermal commitment in the ligh
+          t-load scenario
+      39 +MIN_SINK_MW = 300.0    # BAs with less flexible output fall bac
+         +k to an interconnection-wide sink                              
+      40  HEADROOM_CAP = 5000.0  # MW, display cap
+      41  BATCH = 256
+      42  
+     ...
+       71      return d.groupby("Balancing Authority").dem.apply(lambda s
+           : s.nlargest(3).min())
+       72  
+       73  
+       70 -def allocate_load(buses, plants):                             
+       71 -    peaks = ba_peaks()                                        
+       72 -    tr = pd.read_csv(RAW / "census" / "CenPop2020_Mean_TR.txt"
+          -, encoding="latin-1")                                         
+       73 -    tr.columns = [c.strip().upper() for c in tr.columns]      
+       74 -    tr = gpd.GeoDataFrame(tr, geometry=gpd.points_from_xy(tr.L
+          -ONGITUDE, tr.LATITUDE), crs=4326)                             
+       75 -    tr = tr[tr.LATITUDE.between(24, 50) & tr.LONGITUDE.between
+          -(-125, -66)]                                                  
+       76 -                                                              
+       74 +def ba_polygons(plants, valid):                               
+       75 +    """HIFLD control-area polygons labelled with the EIA BA co
+          +de most plants inside them report."""                         
+       76      ca = gpd.read_file(RAW / "hifld" / "control_areas.geojson"
+           )
+       78 -    ca["geometry"] = ca.geometry.make_valid()                 
+       77 +    ca["geometry"] = ca.geometry.make_valid().simplify(0.01)  
+       78      ca["area"] = ca.to_crs(CRS_M).area
+       79      pj = gpd.sjoin(plants[["ba", "geometry"]].dropna(), ca[["I
+           D", "geometry"]], predicate="within")
+       80      ca["ba"] = ca.ID.map(pj.groupby("ID").ba.agg(lambda s: s.m
+           ode().iat[0]))
+       82 -    ca = ca[ca.ba.isin(peaks.index)]                          
+       83 -    j = gpd.sjoin(tr, ca[["ba", "area", "geometry"]], predicat
+          -e="within", how="left")                                       
+       81 +    return ca[ca.ba.isin(valid)][["ba", "area", "geometry"]]  
+       82 +                                                              
+       83 +                                                              
+       84 +def locate_ba(pts, ca, plants, valid):                        
+       85 +    """BA for each point: smallest containing polygon, else th
+          +e BA of the nearest plant."""                                 
+       86 +    j = gpd.sjoin(pts[["geometry"]], ca, predicate="within", h
+          +ow="left")                                                    
+       87      j = j.sort_values("area").loc[lambda x: ~x.index.duplicate
+           d()]
+       85 -    tr["ba"] = j.ba.reindex(tr.index)                         
+       86 -    # tracts outside every BA polygon: BA of the nearest plant
+          - that reports a BA with demand                                
+       87 -    pl = plants[plants.ba.isin(peaks.index)].to_crs(CRS_M)    
+       88 -    trm = tr.to_crs(CRS_M)                                    
+       89 -    miss = tr.ba.isna()                                       
+       90 -    _, nn = cKDTree(np.c_[pl.geometry.x, pl.geometry.y]).query
+          -(np.c_[trm.geometry.x[miss], trm.geometry.y[miss]])           
+       91 -    tr.loc[miss, "ba"] = pl.ba.values[nn]                     
+       88 +    ba = j.ba.reindex(pts.index).astype(object)               
+       89 +    miss = ba.isna().values                                   
+       90 +    if miss.any():                                            
+       91 +        pl = plants[plants.ba.isin(valid)].to_crs(CRS_M)      
+       92 +        pm = pts[miss].to_crs(CRS_M)                          
+       93 +        _, nn = cKDTree(np.c_[pl.geometry.x, pl.geometry.y]).q
+          +uery(np.c_[pm.geometry.x, pm.geometry.y])                     
+       94 +        ba[miss] = pl.ba.astype(object).values[nn]            
+       95 +    return ba                                                 
+       96  
+       97 +                                                              
+       98 +def allocate_load(buses, peaks, ca, plants):                  
+       99 +    tr = pd.read_csv(RAW / "census" / "CenPop2020_Mean_TR.txt"
+          +, encoding="latin-1")                                         
+      100 +    tr.columns = [c.strip().upper() for c in tr.columns]      
+      101 +    tr = tr[tr.LATITUDE.between(24, 50) & tr.LONGITUDE.between
+          +(-125, -66)]                                                  
+      102 +    tr = gpd.GeoDataFrame(tr, geometry=gpd.points_from_xy(tr.L
+          +ONGITUDE, tr.LATITUDE), crs=4326)                             
+      103 +    tr["ba"] = locate_ba(tr, ca, plants, peaks.index)         
+      104      pop_ba = tr.groupby("ba").POPULATION.sum()
+      105      tr["load_mw"] = tr.POPULATION * tr.ba.map(peaks) / tr.ba.m
+           ap(pop_ba)
+      106 +    trm = tr.to_crs(CRS_M)                                    
+      107      mb = buses[buses.modeled]
+      108      _, nn = cKDTree(mb[["x", "y"]].values).query(np.c_[trm.geo
+           metry.x, trm.geometry.y])
+       97 -    tr["bus"] = mb.node.values[nn]                            
+       98 -    load = tr.groupby("bus").load_mw.sum()                    
+      109 +    load = pd.Series(tr.load_mw.values).groupby(mb.node.values
+          +[nn]).sum()                                                   
+      110      used = peaks[peaks.index.isin(tr.ba.unique())]
+      111      log(f"load: {used.sum() / 1e3:,.0f} GW non-coincident BA p
+           eak across {len(used)} BAs "
+      112          f"(EIA-930 Jul-Oct {pd.Timestamp.today().year}); alloc
+           ated over {len(tr):,} tracts")
+     ...
+      115  
+      116  def assign_plants(buses, plants):
+      117      pxy = plants.to_crs(CRS_M)
+      107 -    px, py = pxy.geometry.x.values, pxy.geometry.y.values     
+      118      tree = cKDTree(buses[["x", "y"]].values)
+      109 -    d, idx = tree.query(np.c_[px, py], k=15)                  
+      119 +    d, idx = tree.query(np.c_[pxy.geometry.x.values, pxy.geome
+          +try.y.values], k=15)                                          
+      120      kvsets = buses.kv_levels.astype(str).str.split("/").map(la
+           mbda l: [float(v) for v in l if v]).values
+      121      out_bus, out_d = [], []
+      122      for i, gkv in enumerate(plants.grid_kv.values):
+     ...
+      136      return plants
+      137  
+      138  
+      129 -def dispatch(gens, load_ic, scen):                            
+      130 -    """Return per-generator output (MW) for one interconnectio
+          -n and scenario."""                                            
+      131 -    av = gens.tech.map(SCENARIOS[scen]["avail"]).fillna(0.5).v
+          -alues * gens.mw.values                                        
+      132 -    disp = gens.tech.isin(DISPATCHABLE).values                
+      133 -    ren = gens.tech.isin(["Solar", "Wind", "Offshore wind"]).v
+          -alues                                                         
+      139 +def dispatch(g, load_by_ba, scen):                            
+      140 +    """Per-generator output (MW) for one interconnection: each
+          + BA meets its own load first, then the                        
+      141 +    interconnection residual is settled by thermal plants with
+          + room (or by backing down/curtailing)."""                     
+      142 +    av = g.tech.map(SCENARIOS[scen]["avail"]).fillna(0.5).valu
+          +es * g.mw.values                                              
+      143 +    disp = g.tech.isin(DISPATCHABLE).values                   
+      144 +    ren = g.tech.isin(["Solar", "Wind", "Offshore wind"]).valu
+          +es                                                            
+      145      must = ~disp & ~ren
+      135 -    L = load_ic                                               
+      146      floor = THERMAL_MIN if scen == "light" else 0.0
+      137 -    need = L - av[must].sum() - av[ren].sum() - floor * av[dis
+          -p].sum()                                                      
+      138 -    out = av.copy()                                           
+      139 -    if need >= 0:                                             
+      140 -        s = min(floor + need / max(av[disp].sum(), 1), 1.0)   
+      141 -        out[disp] = av[disp] * s                              
+      142 -        curtail = 1.0                                         
+      143 -    else:                                                     
+      144 -        out[disp] = av[disp] * floor                          
+      145 -        curtail = max((L - av[must].sum() - floor * av[disp].s
+          -um()) / max(av[ren].sum(), 1), 0)                             
+      146 -        out[ren] = av[ren] * curtail                          
+      147 -    shortfall = L - out.sum()          # >0: imports / unserve
+          -d -> load scaled down later                                   
+      147 +    out = np.where(disp, av * floor, av)                      
+      148 +    ba = g.ba.values                                          
+      149 +    for b_, L_b in load_by_ba.items():                        
+      150 +        m = ba == b_                                          
+      151 +        dm = m & disp                                         
+      152 +        need = L_b - out[m].sum()                             
+      153 +        if need > 0 and av[dm].sum() > 0:                     
+      154 +            out[dm] = av[dm] * min(floor + need / av[dm].sum()
+          +, 1.0)                                                        
+      155 +    L = sum(load_by_ba.values())                              
+      156 +    R = L - out.sum()                                         
+      157 +    if R > 0:                                                 
+      158 +        spare = av - out                                      
+      159 +        spare[~disp] = 0                                      
+      160 +        out += spare * min(1.0, R / max(spare.sum(), 1))      
+      161 +    elif R < 0:                                               
+      162 +        above = np.where(disp, out - av * floor, 0)           
+      163 +        out -= above * min(1.0, -R / max(above.sum(), 1))     
+      164 +        R2 = L - out.sum()                                    
+      165 +        if R2 < 0:                                            
+      166 +            out[ren] *= max(0.0, 1 + R2 / max(out[ren].sum(), 
+          +1))                                                           
+      167      return out, {"thermal_util": float(out[disp].sum() / max(a
+           v[disp].sum(), 1)),
+      149 -                 "renewable_curtail_factor": float(curtail), "
+          -shortfall_mw": float(shortfall)}                              
+      168 +                 "renewable_curtail_factor": float(out[ren].su
+          +m() / max(av[ren].sum(), 1)),                                 
+      169 +                 "shortfall_mw": float(L - out.sum())}        
+      170  
+      171  
+      172  def main():
+      173      buses = gpd.read_parquet(INTERIM / "nodes.parquet")
+      154 -    lines = gpd.read_parquet(INTERIM / "lines.parquet")       
+      174 +    lines = gpd.read_parquet(INTERIM / "lines.parquet").reset_
+          +index(drop=True)                                              
+      175      plants = gpd.read_parquet(INTERIM / "plants.parquet")
+      176      gens = pd.read_parquet(INTERIM / "generators.parquet")
+      177      queue = pd.read_parquet(INTERIM / "queue_located.parquet")
+      178  
+      159 -    load, ba_used = allocate_load(buses, plants)              
+      179 +    peaks = ba_peaks()                                        
+      180 +    ca = ba_polygons(plants, peaks.index)                     
+      181 +    buses["ba"] = locate_ba(buses, ca, plants, peaks.index).va
+          +lues                                                          
+      182 +    load, ba_used = allocate_load(buses, peaks, ca, plants)   
+      183      buses["load_peak_mw"] = buses.node.map(load).fillna(0.0)
+      184  
+      185      plants = assign_plants(buses, plants)
+      186      gens = gens.merge(plants[["plant_id", "bus"]], on="plant_i
+           d", how="inner")
+      164 -    gens["ic"] = gens.bus.map(buses.set_index("node").intercon
+          -nection)                                                      
+      187 +    bidx = buses.set_index("node")                            
+      188 +    gens["ic"] = gens.bus.map(bidx.interconnection)           
+      189 +    gens["ba"] = gens.bus.map(bidx.ba)          # balance on t
+          +he BA of the connecting bus                                   
+      190      cap = gens.pivot_table(index="bus", columns="tech", values
+           ="mw", aggfunc="sum", fill_value=0)
+      191      buses["gen_mw"] = buses.node.map(cap.sum(axis=1)).fillna(0
+           .0)
+      192      for t in ("Solar", "Wind", "Battery", "Gas CC", "Gas CT/ot
+           her", "Coal", "Nuclear", "Hydro"):
+     ...
+      201      for ph in PHASE_WEIGHT:
+      202          col = "queue_" + ph.lower().replace(" ", "_") + "_mw"
+      203          buses[col] = buses.node.map(qb[qb.phase.eq(ph)].groupb
+           y("node").mw.sum()).fillna(0.0)
+      179 -    buses["queue_storage_mw"] = buses.node.map(qb[qb.type.str.
+          -contains("Battery", na=False)].groupby("node").mw.sum()).filln
+          -a(0.0)                                                        
+      204 +    buses["queue_storage_mw"] = buses.node.map(               
+      205 +        qb[qb.type.str.contains("Battery", na=False)].groupby(
+          +"node").mw.sum()).fillna(0.0)                                 
+      206  
+      207      # substation structural capacity: N-1 sum of incident bran
+           ch limits
+      208      inc = pd.concat([lines[["from_node", "limit_mw"]].set_axis
+           (["node", "lim"], axis=1),
+     ...
+      221                  "hr_load_peak_q", "hr_gen_deliv"]
+      222      for c in res_cols:
+      223          buses[c] = np.nan
+      198 -    buses["bind_gen_line"] = -1                               
+      199 -    buses["bind_gen_line_q"] = -1                             
+      224 +    for c in ("bind_gen_line", "bind_gen_line_q", "bind_load_l
+          +ine"):                                                        
+      225 +        buses[c] = -1                                         
+      226      buses["bind_gen_df_q"] = np.nan
+      201 -    buses["bind_load_line"] = -1                              
+      227      summary = {"ba_peaks_mw": ba_used.round(0).to_dict(), "int
+           erconnections": {}}
+      228  
+      204 -    lines = lines.reset_index(drop=True)                      
+      229      for ic in ("Eastern", "Western", "ERCOT"):
+      206 -        bm = buses.interconnection.eq(ic)                     
+      230 +        bm = buses.interconnection.eq(ic).values              
+      231          nid = buses.loc[bm, "node"].values
+      232          pos = pd.Series(np.arange(len(nid)), index=nid)
+      209 -        lm = lines.from_node.isin(nid) & lines.to_node.isin(ni
+          -d)                                                            
+      210 -        L = lines[lm]                                         
+      233 +        L = lines[lines.from_node.isin(nid) & lines.to_node.is
+          +in(nid)]                                                      
+      234          fr, to = pos[L.from_node].values, pos[L.to_node].value
+           s
+      235          b = 1.0 / L.x_pu.values
+      236          N, M = len(nid), len(L)
+     ...
+      238                         shape=(M, N)).tocsc()
+      239          B = (A.T @ coo_matrix((b, (np.arange(M), np.arange(M))
+           )) @ A).tocsc()
+      240  
+      218 -        g_ic = gens[gens.ic.eq(ic)].copy()                    
+      241 +        g_ic = gens[gens.ic.eq(ic)].reset_index(drop=True)    
+      242          gb = pos[g_ic.bus].values
+      243          load_vec = buses.loc[bm, "load_peak_mw"].values
+      244 +        bus_ba = buses.loc[bm, "ba"].values                   
+      245          slack = int(np.argmax(np.bincount(gb, weights=g_ic.mw.
+           values, minlength=N)))
+      246          keep = np.r_[0:slack, slack + 1:N]
+      247          lu = splu(B[keep][:, keep].tocsc())
+      248  
+      225 -        def solve_theta(p_mw):                                
+      226 -            th = np.zeros(N)                                  
+      227 -            th[keep] = lu.solve(p_mw[keep] / 100.0)           
+      249 +        def solve_theta(P):                                   
+      250 +            th = np.zeros((N,) + P.shape[1:])                 
+      251 +            th[keep] = lu.solve(np.ascontiguousarray(P[keep]) 
+          +/ 100.0)                                                      
+      252              return th
+      253  
+      254          def flows(p_mw):
+      255              th = solve_theta(p_mw)
+      256              return (th[fr] - th[to]) * b * 100.0
+      257  
+      234 -        disp_mask = g_ic.tech.isin(DISPATCHABLE).values       
+      235 -        sink = np.bincount(gb[disp_mask], weights=g_ic.mw.valu
+          -es[disp_mask], minlength=N)                                   
+      236 -        sink = sink / sink.sum()                              
+      237 -                                                              
+      258          qic = queue[queue.node.isin(nid)]
+      259 +        q_pos = pos[qic.node].values                          
+      260          info = {"buses": int(N), "lines": int(M), "gen_gw": ro
+           und(g_ic.mw.sum() / 1e3, 1),
+      261                  "peak_load_gw": round(load_vec.sum() / 1e3, 1)
+           }
+      241 -        base_f, q_f = {}, {}                                  
+      262 +        base_f, q_f, S, sink_of_bus = {}, {}, {}, {}          
+      263          for scen, cfg in SCENARIOS.items():
+      243 -            L_ic = load_vec.sum() * cfg["load_scale"]         
+      244 -            out, st = dispatch(g_ic, L_ic, scen)              
+      245 -            inj = np.bincount(gb, weights=out, minlength=N)   
+      264              ld = load_vec * cfg["load_scale"]
+      247 -            if st["shortfall_mw"] > 0:      # imports: scale l
+          -oad to available generation                                   
+      265 +            load_by_ba = pd.Series(ld).groupby(bus_ba).sum().t
+          +o_dict()                                                      
+      266 +            out, st = dispatch(g_ic, load_by_ba, scen)        
+      267 +            inj = np.bincount(gb, weights=out, minlength=N)   
+      268 +            if st["shortfall_mw"] > 0:      # imports from out
+          +side the model: scale load to generation                      
+      269                  ld = ld * inj.sum() / ld.sum()
+      270              p = inj - ld
+      271              p[slack] -= p.sum()
+      272              base_f[scen] = flows(p)
+      252 -            qinj = np.bincount(pos[qic.node].values,          
+      253 -                               weights=(qic.mw * qic.weight * 
+          -qic.type.map(lambda t: queue_avail(t, scen))).values,         
+      254 -                               minlength=N)                   
+      255 -            q_f[scen] = base_f[scen] + flows(qinj - sink * qin
+          -j.sum())                                                      
+      273 +                                                              
+      274 +            # sinks: pro-rata non-nuclear output of each BA; i
+          +nterconnection-wide fallback (last column)                    
+      275 +            flex = out * (g_ic.tech.values != "Nuclear")      
+      276 +            flex_ba = pd.Series(flex).groupby(g_ic.ba.values).
+          +sum()                                                         
+      277 +            sink_bas = [x for x, v in flex_ba.items() if v >= 
+          +MIN_SINK_MW]                                                  
+      278 +            col_of = {x: k for k, x in enumerate(sink_bas)}   
+      279 +            K = len(sink_bas) + 1                             
+      280 +            gcol = np.array([col_of.get(x, K - 1) for x in g_i
+          +c.ba.values])                                                 
+      281 +            W = np.zeros((N, K))                              
+      282 +            np.add.at(W, (gb, gcol), flex)                    
+      283 +            W[:, K - 1] = np.bincount(gb, weights=flex, minlen
+          +gth=N)                                                        
+      284 +            W /= W.sum(axis=0, keepdims=True)                 
+      285 +            TS = solve_theta(W)                               
+      286 +            S[scen] = ((TS[fr] - TS[to]) * b[:, None]).astype(
+          +np.float32)    # M x K sink flows                             
+      287 +            sink_of_bus[scen] = np.array([col_of.get(x, K - 1)
+          + for x in bus_ba])                                            
+      288 +            flex_cap = np.r_[flex_ba.reindex(sink_bas).values,
+          + flex.sum()]                                                  
+      289 +                                                              
+      290 +            # queue ahead, balanced by its BA's sink and cappe
+          +d at what that BA can displace                                
+      291 +            q_mw = (qic.mw * qic.weight * qic.type.map(lambda 
+          +t: queue_avail(t, scen))).values                              
+      292 +            q_col = sink_of_bus[scen][q_pos]                  
+      293 +            Qk = np.bincount(q_col, weights=q_mw, minlength=K)
+      294 +            scale = np.minimum(1.0, flex_cap / np.maximum(Qk, 
+          +1e-9))                                                        
+      295 +            q_inj = np.bincount(q_pos, weights=q_mw * scale[q_
+          +col], minlength=N)                                            
+      296 +            q_f[scen] = base_f[scen] + flows(q_inj - W @ (Qk *
+          + scale))                                                      
+      297              lines.loc[L.index, f"flow_{scen}_mw"] = base_f[sce
+           n]
+      298              lines.loc[L.index, f"flow_{scen}_q_mw"] = q_f[scen
+           ]
+      299              buses.loc[bm, f"inj_{scen}_mw"] = p
+      259 -            info[scen] = {**{k: round(v, 3) for k, v in st.ite
+          -ms()}, "load_gw": round(ld.sum() / 1e3, 1),                   
+      260 -                          "queue_injection_gw": round(qinj.sum
+          -() / 1e3, 1)}                                                 
+      300 +            info[scen] = {**{k: round(v, 3) for k, v in st.ite
+          +ms()}, "load_gw": round(float(ld.sum()) / 1e3, 1),            
+      301 +                          "queue_injection_gw": round(float(q_
+          +inj.sum()) / 1e3, 1), "ba_sinks": len(sink_bas)}              
+      302  
+      303          # calibrate ratings so the modeled existing system is 
+           feasible
+      304          lim = L.limit_mw.values
+     ...
+      309          info["share_lines_calibrated"] = round(float((lim_eff 
+           > lim + 1e-6).mean()), 3)
+      310          U = ALPHA * lim_eff
+      311  
+      271 -        # PTDF headroom in batches of candidate buses         
+      272 -        th_sink = solve_theta(sink)                           
+      312          out = {c: np.full(N, np.nan) for c in res_cols}
+      313          bind = {k: np.full(N, -1) for k in ("gen", "gen_q", "l
+           oad")}
+      314          bind_df = np.full(N, np.nan)
+     ...
+      336              cols = np.arange(s0, min(s0 + BATCH, N))
+      337              E = np.zeros((N, len(cols)))
+      338              E[cols, np.arange(len(cols))] = 1.0
+      300 -            TH = np.zeros((N, len(cols)))                     
+      301 -            TH[keep] = lu.solve(E[keep])                      
+      302 -            TH -= th_sink[:, None]                            
+      303 -            D = ((TH[fr] - TH[to]) * b[:, None]).astype(np.flo
+          -at32)   # M x batch, MW per MW                                
+      304 -            aD = np.abs(D)                                    
+      305 -            rows_e = np.nonzero((aD >= DF_MIN).any(axis=1))[0]
+      306 -            rows_d = np.nonzero((aD >= DF_DELIV).any(axis=1))[
+          -0]                                                            
+      339 +            TH = solve_theta(E * 100.0)                       
+      340 +            D0 = ((TH[fr] - TH[to]) * b[:, None]).astype(np.fl
+          +oat32)        # injection vs slack                            
+      341 +            Dp = D0 - S["peak"][:, sink_of_bus["peak"][cols]] 
+          +               # vs own-BA sink                               
+      342 +            Dl = D0 - S["light"][:, sink_of_bus["light"][cols]
+          +]                                                             
+      343 +            del D0                                            
+      344 +            rows_p = np.nonzero((np.abs(Dp) >= DF_MIN).any(axi
+          +s=1))[0]                                                      
+      345 +            rows_l = np.nonzero((np.abs(Dl) >= DF_MIN).any(axi
+          +s=1))[0]                                                      
+      346 +            rows_d = np.nonzero((np.abs(Dp) >= DF_DELIV).any(a
+          +xis=1))[0]                                                    
+      347  
+      348              for sfx, fp, fl in (("", base_f["peak"], base_f["l
+           ight"]), ("_q", q_f["peak"], q_f["light"])):
+      309 -                vp, rp, dp = margins(D, rows_e, fp, +1, DF_MIN
+          -)                                                             
+      310 -                vl, rl, dl = margins(D, rows_e, fl, +1, DF_MIN
+          -)                                                             
+      349 +                vp, rp, dp = margins(Dp, rows_p, fp, +1, DF_MI
+          +N)                                                            
+      350 +                vl, rl, dl = margins(Dl, rows_l, fl, +1, DF_MI
+          +N)                                                            
+      351                  out[f"hr_gen_peak{sfx}"][cols] = vp
+      352                  out[f"hr_gen_light{sfx}"][cols] = vl
+      353                  worse_light = vl < vp
+      354                  bind["gen" + sfx][cols] = to_lid(np.where(wors
+           e_light, rl, rp))
+      355                  if sfx == "_q":
+      356                      bind_df[cols] = np.where(worse_light, dl, 
+           dp)
+      317 -            v, r, _ = margins(D, rows_e, base_f["peak"], -1, D
+          -F_MIN)                                                        
+      357 +            v, r, _ = margins(Dp, rows_p, base_f["peak"], -1, 
+          +DF_MIN)                                                       
+      358              out["hr_load_peak"][cols] = v
+      359              bind["load"][cols] = to_lid(r)
+      320 -            out["hr_load_peak_q"][cols] = margins(D, rows_e, q
+          -_f["peak"], -1, DF_MIN)[0]                                    
+      321 -            out["hr_gen_deliv"][cols] = margins(D, rows_d, bas
+          -e_f["peak"], +1, DF_DELIV)[0]                                 
+      360 +            out["hr_load_peak_q"][cols] = margins(Dp, rows_p, 
+          +q_f["peak"], -1, DF_MIN)[0]                                   
+      361 +            out["hr_gen_deliv"][cols] = margins(Dp, rows_d, ba
+          +se_f["peak"], +1, DF_DELIV)[0]                                
+      362          for c in res_cols:
+      363              buses.loc[bm, c] = np.minimum(out[c], HEADROOM_CAP
+           )
+      364          buses.loc[bm, "bind_gen_line"] = bind["gen"]
+     ...
+      366          buses.loc[bm, "bind_gen_df_q"] = bind_df
+      367          buses.loc[bm, "bind_load_line"] = bind["load"]
+      368          summary["interconnections"][ic] = info
+      329 -        info = {k: (float(v) if isinstance(v, np.floating) els
+          -e v) for k, v in info.items()}                                
+      369          log(f"{ic}: {N:,} buses, {M:,} lines, gen {info['gen_g
+           w']} GW, peak load {info['peak_load_gw']} GW, "
+      370              f"calibrated lines {info['share_lines_calibrated']
+           :.1%}")
+      371          log(f"   peak: {info['peak']}")
+     ...
+      405  
+      406      # ---- queue projects enriched ---------------------------
+           -------------------------------------
+      407      bcols = ["node", "name", "kv_levels", "headroom_gen_mw", "
+           headroom_gen_after_queue_mw", "gen_signal",
+      369 -             "queue_mw", "queue_to_capacity", "interconnection
+          -"]                                                            
+      408 +             "queue_mw", "queue_to_capacity", "interconnection
+          +", "ba"]                                                      
+      409      queue = queue.merge(buses[bcols].rename(columns={"name": "
+           bus_label", "queue_mw": "bus_queue_mw",
+      410                                                       "intercon
+           nection": "ic"}), on="node", how="left")
+      411  
+     ...
+      414      lines.to_parquet(PROCESSED / "lines.parquet")
+      415      queue.to_parquet(PROCESSED / "queue.parquet", index=False)
+      416      plants.to_parquet(PROCESSED / "plants.parquet")
+      378 -    summary["params"] = {"DF_MIN": DF_MIN, "DF_DELIV": DF_DELI
+          -V, "ALPHA": ALPHA, "CALIB_UTIL": CALIB_UTIL, "PHASE_WEIGHT": P
+          -HASE_WEIGHT,                                                  
+      417 +    summary["params"] = {"DF_MIN": DF_MIN, "DF_DELIV": DF_DELI
+          +V, "ALPHA": ALPHA, "CALIB_UTIL": CALIB_UTIL,                  
+      418 +                         "PHASE_WEIGHT": PHASE_WEIGHT,        
+      419                           "SCENARIOS": {k: {"load_scale": v["lo
+           ad_scale"]} for k, v in SCENARIOS.items()}}
+      420      m = buses[buses.modeled]
+      421      summary["bus_signal_counts"] = m.gen_signal.value_counts()
+           .to_dict()
+      422      summary["median_headroom_gen_mw"] = float(m.headroom_gen_m
+           w.median())
+      423      (PROCESSED / "model_summary.json").write_text(json.dumps(s
+           ummary, indent=2, default=float))
+      424      log("bus generation signal: " + str(m.gen_signal.value_cou
+           nts().to_dict()))
+      385 -    print(m[["headroom_gen_mw", "headroom_gen_after_queue_mw",
+          - "headroom_load_mw"]].describe(                               
+      425 +    print(m[["headroom_gen_mw", "headroom_gen_after_queue_mw",
+          + "headroom_load_mw", "hr_gen_deliv"]].describe(               
+      426          percentiles=[.1, .25, .5, .75, .9]).round(0).to_string
+           ())
+      427  
+      428  
+
+● One unit bug to fix before running: the sink flow matrix S needs the ×100
+  per-unit scaling so it matches the injection DFs.
+
+● Update(pipeline\build_model.py)
+  ⎿  Added 1 line, removed 1 line
+      283              W[:, K - 1] = np.bincount(gb, weights=flex, minlen
+           gth=N)
+      284              W /= W.sum(axis=0, keepdims=True)
+      285              TS = solve_theta(W)
+      286 -            S[scen] = ((TS[fr] - TS[to]) * b[:, None]).astype(
+          -np.float32)    # M x K sink flows                             
+      286 +            S[scen] = ((TS[fr] - TS[to]) * b[:, None] * 100.0)
+          +.astype(np.float32)  # M x K, MW per MW                       
+      287              sink_of_bus[scen] = np.array([col_of.get(x, K - 1)
+            for x in bus_ba])
+      288              flex_cap = np.r_[flex_ba.reindex(sink_bas).values,
+            flex.sum()]
+      289  
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -u pipeline/b…)
+  ⎿  Running in the background (↓ to manage)
+● While the BA-aware run goes, I'll update the method text in the map and README
+  to match:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+
+● Waiting for the BA-aware run to finish.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until grep -qE
+      "bus generation signal|T…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:04:56] load: 820 GW non-coincident BA peak across 43 BAs (EIA-930 Jul-Oct
+  2026); allocated over 83,776 tracts
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:10:10] Eastern: 21,318 buses, 30,407 lines, gen 843.7 GW, peak load 577.6
+  GW, calibrated lines 10.5%
+  [20:10:10]    peak: {'thermal_util': 0.884, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': 577.6, 'queue_injection_gw': 131.6,
+  'ba_sinks': 18}
+  [20:10:10]    light: {'thermal_util': 0.238, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': 317.7, 'queue_injection_gw': 117.8,
+  'ba_sinks': 18}
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:10:35] Western: 6,065 buses, 8,336 lines, gen 270.8 GW, peak load 149.5
+  GW, calibrated lines 6.6%
+  [20:10:35]    peak: {'thermal_util': 0.69, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': -0.0, 'load_gw': 149.5, 'queue_injection_gw': 63.9,
+  'ba_sinks': 21}
+  [20:10:35]    light: {'thermal_util': 0.15, 'renewable_curtail_factor': 0.642,
+  'shortfall_mw': -0.0, 'load_gw': 82.2, 'queue_injection_gw': 55.6,
+  'ba_sinks': 18}
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:10:40] ERCOT: 2,398 buses, 3,422 lines, gen 154.3 GW, peak load 86.9 GW,
+  calibrated lines 21.3%
+  [20:10:40]    peak: {'thermal_util': 0.817, 'renewable_curtail_factor': 1.0,
+  'shortfall_mw': 0.0, 'load_gw': 86.9, 'queue_injection_gw': 73.6, 'ba_sinks':
+  1}
+  [20:10:40]    light: {'thermal_util': 0.15, 'renewable_curtail_factor': 0.84,
+  'shortfall_mw': 0.0, 'load_gw': 47.8, 'queue_injection_gw': 43.0, 'ba_sinks':
+  1}
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [20:10:44] bus generation signal: {'yellow': 13163, 'green': 11408, 'red':
+  5210}
+
+● Background command "Run BA-aware model" completed (exit code 0)
+
+● The distribution now looks much more plausible: 11,408 green / 13,163 yellow /
+  5,210 red. Since the after-queue median (207 MW) barely differs from
+  existing-grid (208 MW), I'll verify the queue is still having its expected
+  impact at buses that actually carry queued projects.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import g…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● The results mostly check out, but I'll fix two issues: cap substation
+  injection at 85% of N-1 branch capacity to stop large hubs like Vincent from
+  reading unlimited, and cap after-queue headroom at the existing-grid value so
+  queued projects' counterflow can't artificially boost headroom. I'll also
+  lower the display cap to 3,000 MW.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  Running in the background (↓ to manage)
+
+● Monitor event: "build_model.py stage log lines and errors"
+  [Monitor expired after 30m with 15 events delivered. Re-arm it if you still
+  need the watch.]
+
+● While it runs, I'll teach the map about the new "substation outlet" constraint
+  (code -2) and the 3,000 MW cap:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until grep -qE
+      "bus generation signal|T…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Background command "Add outlet cap, no counterflow credit; re-run model"
+completed (exit code 0)
+
+● The distribution looks consistent with what I'd expect from a screening
+  model—existing-grid median of 181 MW, after-queue median of 135 MW, and a
+  7,135 green / 15,574 yellow / 7,072 red split. I'll do a quick spot-check on
+  known hubs before exporting.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import g…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Vincent, Gates, Mead, and Palo Verde still hit the 3,000 MW cap due to
+  transformer/contingency limits that aren't in public data, so I'll note that
+  as a limitation rather than guess—map data totals 13 MB, within limits. Since
+  I can't open a browser here, I'll syntax-check the page script with Node and
+  run the decoder and feature builders against the real exported data instead.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      S="$TEMP/mapcheck"; mkdir -p "$S" && py…)
+  ⎿  (No output)
+
+● The script runs cleanly—all 237k decoded line vertices fall within CONUS, and
+  feature builders work with real data. I'll adjust island buses to render grey
+  ("not modeled") on the generation lens instead of a traffic-light colour, then
+  publish.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Artifact("map\index.html")
+  ⎿  Published ⧉ https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq
+
+● Version 1 is live, and the OSM substation pull is roughly halfway done (25/49
+  states). Once it finishes, I'll rebuild the network with OSM names to improve
+  bus naming and POI matching, then republish to the same URL—checking progress
+  now.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && ls data/raw/osm |
+      wc -l; tail -3 data/r…)
+  ⎿  No matches found
+
+● At this pace the remaining 24 states will take about 80 minutes, so I'll start
+  a second worker processing states in reverse order against the mail.ru
+  mirror, which will skip already-fetched files to avoid duplicate work.
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  Running in the background (↓ to manage)
+
+● While the two OSM workers run, I'll add the 500 kV hub caveat to the README
+  and save a short memory about this project.
+
+● Update(README.md)
+  ⎿  Added 3 lines, removed 1 line
+       96  ## Limitations (what public data cannot give)
+       97  
+       98  - No real line ratings, transformer or breaker-bay data, and n
+           o N-1 contingency analysis. This needs
+       99 -  ISO base cases (CEII/NDA) or each provider's FERC Order 2023
+          - heatmap.                                                     
+       99 +  ISO base cases (CEII/NDA) or each provider's FERC Order 2023
+          + heatmap. As a result, big 500 kV hubs                        
+      100 +  (Vincent, Gates, Mead, Palo Verde…) read at the 3,000 MW dis
+          +play cap, even though in reality                              
+      101 +  transformer banks, contingencies and deliverability limit th
+          +em.                                                           
+      102  - HIFLD omits lines below 100 kV and some newer lines. Its geo
+           metry is 2017–2023 vintage.
+      103  - Topology comes from geometry, so taps and switching arrangem
+           ents are approximated, and ~4.5% of buses
+      104    sit on fragments not connected to the main network (structur
+           al estimate only).
+
+  Listed 1 directory, wrote 2 memories (ctrl+o to expand)
+
+● While OSM finishes, I'll speed up the queue matcher (5 min) by vectorising the
+  fuzzy scoring with rapidfuzz.process.cdist, since it reruns after OSM.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+
+● Now I'll wait for the OSM workers to finish all 49 state files.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until [ "$(ls
+      data/raw/osm/*.json 2>/de…)
+  ⎿  Running in the background (↓ to manage)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until [ "$(ls
+      data/raw/osm/*.json 2>/de…)
+  ⎿  Running in the background (↓ to manage)
+  ⎿  (timeout 10m)
+
+● Two OSM workers are still going. Meanwhile I'll prepare a script that pulls
+  the headline findings out of the final model:
+
+  Made 1 scratchpad edit +24 (ctrl+o to expand)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && ls
+      data/raw/osm/*.json | wc -l; tail -2…)
+  ⎿  (No output)
+
+● 44 of 49 states are in. Waiting for the last few.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until [ "$(ls
+      data/raw/osm/*.json 2>/de…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Background command "Start reverse-order OSM worker (background)" completed
+(exit code 0)
+
+● Background command "Block until OSM fetch completes" completed (exit code 0)
+
+● All 49 states are in: 71,510 OSM substations. I'll stop the forward worker
+  (nothing left for it to do) and rebuild network → queue matching → model →
+  export with OSM enrichment.
+
+● Stop Task
+  ⎿  cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+     Courses/Sustainable ventures/Interconnection MAP MVP" &&
+     ./.venv/Scripts/python -I pipeline/fetc… · stopped
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && for s in
+      build_network match_queue buil…)
+  ⎿  Running in the background (↓ to manage)
+
+● Background command "Wait until all OSM state files exist" completed (exit code
+0)
+
+● Rebuild running (about 20 minutes). Waiting for it to complete:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && until grep -qE
+      "meta.json|Traceback" da…)
+  ⎿  (No output)
+  ⎿  (timeout 10m)
+
+● Background command "Rebuild network, matching, model, export with OSM"
+completed (exit code 0)
+
+● The OSM pass boosted coverage significantly—86% of buses now match an OSM
+  substation, named substations jumped from 10,310 to 17,251, and POI-name
+  matches rose from 2,675 to 3,340 projects. Here are the headline numbers from
+  the final model:
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I "C:/Users/ein…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● This matches expectations: among substations hosting queued projects, red
+  (zero headroom) rates range from 71% in ERCOT down to 15% in the non-ISO
+  Southeast, with 677 buses flagged as storage or reconductoring candidates.
+  I'll now republish using the OSM-enriched build.
+
+● Artifact("map\index.html")
+  ⎿  Updated ⧉ https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq
+
+● I pulled the public grid data I could find, joined it into one network model
+  of the contiguous US, and published an interactive map of where
+  interconnection is feasible: ⧉
+  https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq (private until you share it
+  from its Share menu).
+
+  I haven't seen the map render, because I have no browser here. The page script
+  passes a syntax check and decodes all the exported data correctly in Node,
+  but please open it and tell me if anything looks broken.
+
+  Data pulled (every file is logged with source URL, date and checksum in
+  data/raw/manifest.json):
+  - Lines: 52k HIFLD transmission line segments (100–765 kV).
+  - Substations: HIFLD's substation file is no longer public, so I rebuilt
+    substations by joining line endpoints and naming them from 71,510
+    OpenStreetMap substations.
+  - Generation: 26,888 operating generators (1,305 GW) from EIA-860M (Aug 2026)
+    and EIA-860.
+  - Load: EIA-930 summer-2026 peaks for each balancing authority, spread by
+    Census population.
+  - Queues: 7,323 active requests (1,686 GW), from the seven ISO queues as of
+    Oct 2026 plus LBNL's Queued Up for non-ISO utilities.
+  - Overlays: BLM land open to solar, and balancing-authority boundaries.
+
+  The model: a simplified power-flow model of all three US grids (Eastern,
+  Western, Texas) at summer peak and at light load. For every substation it
+  gives:
+  - MW of new generation it can take, today and after the queue ahead of you
+    (each request weighted by its odds of being built);
+  - MW of new load it can serve, which is the data-center question;
+  - your original scoring rule: queued MW ÷ substation capacity, red above 1.5×,
+    green below 0.5×;
+  - storage and reconductoring candidates: congested buses with renewables
+    stacked up behind them.
+
+  Results:
+  - Of named substations at 115 kV and above, 28% have room (green), 47% are
+    limited (yellow) and 25% are congested (red).
+  - Among substations where projects are queued, the share that is congested is
+    71% in ERCOT, 43% in PJM, 38% in SPP, 26% in MISO, 24% in CAISO and 15% in
+    the non-ISO Southeast.
+  - 677 buses flag as storage candidates.
+  - Spot checks fit what's known: Lamar CO and Comanche OK are oversubscribed,
+    Windhub reads 1.44× its capacity, and Kansas and West Texas are congested.
+
+  Limitations:
+  - This is a screening model, not a utility study. Line ratings are typical
+    values by voltage, and real ratings, transformer and breaker-bay data and
+    outage cases are in protected utility files that need an NDA.
+  - The biggest 500 kV hubs (Vincent, Gates, Mead) read at the 3,000 MW cap,
+    which overstates them, because transformer limits and outage cases aren't in
+    public data.
+  - 51% of queue requests could only be placed by county, not by their named
+    connection point, so totals by area are reliable but an individual project
+    may be on the wrong substation.
+  - Load follows population, so data-center clusters are under-represented.
+  - An early version marked about 90% of substations as having no room once the
+    queue was added. I fixed this the way ISO studies do it: new power is
+    balanced within the project's own grid operator, and only lines carrying at
+    least 20% of its output count. The README documents these choices.
+
+  Next data to add: the grid operators' FERC Order 2023 heatmaps, utility
+  hosting-capacity maps (PG&E, SCE, SDG&E), and the utility study files under
+  NDA. Each would replace an assumption with real data.
+
+  One thing to know: while testing a server, I sent one request to
+  overpass-api.de with your email address in a header. That was a mistake, and
+  nothing else used it.
+
+  To rebuild: .venv/Scripts/python -I pipeline/run_all.py (add --fetch to
+  re-download everything). To view the map locally: python -m http.server -d
+  map.
+
+  Files are in the project folder:
+  - README.md
+  - pipeline/
+  - map/index.html
+> how does this map help to show interconnection queue?
+
+● The queue shows up in five places on the map. Right now it's mainly an input
+  to the capacity calculation, not a full queue explorer.
+
+  1. Queue layer (off by default). Tick "Active queue at each bus" to get a
+  circle at every substation with active requests, sized by total queued MW.
+  7,101 of the 7,323 active requests (1,686 GW) are placed. The other 222 (77
+  GW) had no usable connection point or county.
+
+  2. Queue pressure lens. This is your scoring rule from context.md: queued MW
+  at a substation divided by its capacity. Here, capacity means what its
+  connected lines can carry with the largest one out of service.
+  - Green is below 0.5×, yellow 0.5–1.5×, red above 1.5×, grey means no active
+    queue.
+  - The side panel lists the most crowded substations in the current view. For
+    example, Lamar CO reads 4.2× and Windhub CA 1.4×.
+
+  3. Generation lens, "after the queue ahead". The default colours already
+  include the queue:
+  - Every active request is added to the power-flow model, weighted by its odds
+    of being built: early study 10%, late study 25%, agreement signed 55%, under
+    construction 90%.
+  - A substation's colour is the capacity left once those projects are in.
+  - Clicking a substation shows both numbers, so you can see how much the queue
+    takes. Kansas, West Texas and Lamar go from some room today to none.
+
+  4. Substation panel (click any dot). The "Queue ahead" section shows:
+  - the number of requests and their expected MW;
+  - a bar splitting the queued MW by study phase;
+  - every project, with name, MW, fuel type, ISO and queue ID, expected online
+    date, and the connection point exactly as the developer wrote it;
+  - how it was placed: by name match, by line endpoint, or only by county. Treat
+    county-only placements as approximate (about half the requests).
+
+  5. Line panel and line colours. Clicking a line shows how many substations it
+  limits and how many queued MW sit behind it. Setting "Lines colored by" to
+  "Loading with queue" shows which lines the queue would overload. Those are the
+  reconductoring targets.
+
+  What it doesn't show yet, compared with the "red line layer" in context.md:
+  - Individual projects aren't drawn on the map; they only appear in the
+    substation panel.
+  - There are no filters by ISO, phase, fuel type or online year.
+  - There is no time-in-queue or delay view, although the queue entry dates are
+    already in the data.
+  - There is no history of withdrawn projects. LBNL's dataset has about 24,000
+    withdrawals, which would show churn and "substation squatting".
+  - The FERC Order 2023 study-delay reports aren't included.
+
+  I can add a dedicated queue view that covers those gaps: project-level dots
+  coloured by phase or fuel, the filters above, a years-in-queue measure per
+  substation, and a withdrawal-churn score from the LBNL history.
+
+> how can we make a business model out of a map=
+
+● A map on its own is hard to sell. We rebuilt this one from public data in a
+  day, so a funded competitor can too, and grid operators now publish free
+  heatmaps under FERC Order 2023. What people pay for is a decision they can act
+  on, backed by data others don't have. So give the map away to attract users
+  and charge for the answers built on top of it.
+
+  Who would pay, and for what
+
+  Customer: Renewable and storage developers
+  Their pain: Wasted land options and deposits on sites that turn out congested.
+
+  CAISO no longer issues pre-application reports, and IPE 5.0 doubles deposits.
+  What they'd buy: Site screening reports, a watchlist of substations, alerts
+  when the queue at a substation changes
+  Pricing model (hypothesis to test): Per-report fee plus a subscription
+  ────────────────────────────────────────
+  Customer: Data-center and large-load developers
+  Their pain: Getting power connected is the bottleneck, and they need to know
+  where a large load can connect
+  What they'd buy: A load-headroom ranking of substations near fiber, water and
+  suitable land
+  Pricing model (hypothesis to test): Highest willingness to pay; enterprise
+  contracts
+  ────────────────────────────────────────
+  Customer: Investors, banks, private equity
+  Their pain: Checking whether a project they'd fund or buy can realistically
+  connect
+  What they'd buy: A "queue risk audit" per project or portfolio
+  Pricing model (hypothesis to test): Per transaction, plus an annual licence
+  ────────────────────────────────────────
+  Customer: Off-takers (CCAs, corporate buyers)
+  Their pain: Signing power contracts with projects that sit in the queue for
+  years
+  What they'd buy: A deliverability score for each project pitched to them
+  Pricing model (hypothesis to test): Subscription
+  ────────────────────────────────────────
+  Customer: Utilities and grid operators
+  Their pain: Speculative applications and repeated restudies
+  What they'd buy: Pre-screening tools for incoming applications
+  Pricing model (hypothesis to test): Slow to sell; later
+
+  Revenue options, ranked by how fast they could make money
+
+  1. Pay-per-site screening report. This fills the gap CAISO's pre-application
+     reports left. A developer enters a substation or a land parcel and gets
+     back capacity after the queue, the line that limits it, the queue ahead of
+     them, and a risk score. It's easy to buy without a long sales process, and
+     it tests demand quickly.
+  2. Subscription (free, pro, enterprise). The free national map is the
+     marketing. Pro adds filters, exports, alerts and history. Enterprise adds
+     an API and portfolio views.
+  3. Due-diligence reports. Fewer customers, but each deal is larger and banks
+     and funds can pay.
+  4. Data licensing and API. Sell the cleaned national queue and capacity data
+     to analytics platforms and funds.
+  5. Marketplace (later). Match developers with landowners near green
+     substations, or broker spare connection capacity at existing plants. FERC
+     lets existing plants offer surplus interconnection service, which is a
+     natural fit for adding storage. Take a success fee.
+
+  Where the defensible advantage comes from
+
+  The public layer is replicable. These assets wouldn't be:
+  - Network-upgrade costs, extracted from ISO cluster-study reports. Those PDFs
+    list the upgrades and costs assigned to each project. Turning them into a
+    dataset of $/kW by connection point is tedious work that most competitors
+    won't do.
+  - Completion odds, learned from LBNL's ~24,000 withdrawn requests instead of
+    my fixed assumptions.
+  - Validation against real data. Customers who have study results can confirm
+    or correct the model, and every correction improves it.
+  - Utility study files under NDA. These give real ratings and outage cases.
+    They can sharpen your scores, but the redistribution rules are strict and
+    need a lawyer's review.
+
+  Recommended path for the course project
+
+  1. Pick a narrow starting point. Two choices: renewable developers in CAISO,
+     where the context already is and the IPE 5.0 pain is fresh; or large-load
+     siting in PJM or ERCOT, where willingness to pay is highest in 2026. Choose
+     one.
+  2. Run customer interviews before building more. Talk to 15–20 developers, 5
+     investors and 3 data-center site selectors. Show them a real screening
+     report built from this model and ask what they'd pay and what they would
+     act on.
+  3. Test pricing with a paid pilot. Ten reports at a fixed price is a stronger
+     signal than any survey.
+
+  The main risks:
+  - Free alternatives: ISO heatmaps, interconnection.fyi and GridStatus.
+  - Competitors: check what Paces, LandGate, Nira Energy and Enverus currently
+    sell and charge before you pitch. I haven't verified their current products.
+  - Liability: a screening tool must not present itself as a utility study.
+  - Slow utility sales: don't start with utilities.
+
+  I can produce a sample screening report for a real substation from the model,
+  which works as an interview prop, or turn this into a business model canvas or
+  deck for the course.
+
+> compare this to a startup in which we could provide reconductering services.
+  How could we make a business out of reconductering?
+
+● I'll quickly check the current reconductoring landscape (policy and players)
+  and pull the reconductoring candidates our own model already identifies, so
+  the comparison rests on real numbers.
+
+● Web Search("reconductoring advanced conductors startups market 2026 utilities
+            FERC Order 1920 state laws")
+  ⎿  Did 1 search in 9s
+
+● Web Search("UC Berkeley GridLab reconductoring study advanced conductors
+            capacity cost per mile findings")
+  ⎿  Did 1 search in 7s
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import g…)
+  ⎿  (No output)
+  ⎿  (timeout 5m)
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import g…)
+  ⎿  (No output)
+
+● The short version
+
+  The two ideas sit at different points of the same problem. The map finds the
+  bottlenecks; reconductoring removes them. The map is easier to start and
+  cheaper to run, but easy to copy. Reconductoring touches billions in grid
+  spending and solves the problem itself, but as a pure services company it is
+  hard, slow and low-margin.
+
+  The strongest company combines them: use the map to find and package
+  reconductoring projects, and get paid when capacity is unlocked.
+
+  What our model says about the reconductoring opportunity
+
+  I queried the model we built. It's a screening model, so treat these as
+  directional numbers:
+  - 393 line segments (about 18,800 km) are the binding limit for substations
+    holding ~890 GW of queued projects.
+  - Of these, 316 are limited by heat rather than stability, and are under 80
+    km. That is about 7,600 km of line in front of ~630 GW of queue. These are
+    the lines where new conductors actually add capacity. Long lines limited by
+    stability don't benefit.
+  - The top candidates match known trouble spots:
+    - Odessa 345 kV in West Texas, with ~36 GW queued behind it
+    - Holcomb 345 kV in Kansas, ~29 GW
+    - Midway–Lincoln 230 kV in Colorado, ~10 GW
+    - Midlothian–Carson 500 kV in Virginia (Dominion), ~9 GW
+    - Southern California 500 kV lines: Lugo–Victorville and Red Bluff–Devers
+
+  So the demand is concentrated: a few hundred line segments hold back most of
+  the queue. That concentration is what makes a reconductoring business
+  possible.
+
+  Comparison
+
+  ┌───────────────┬───────────────────┬────────────────────────────────────┐
+  │               │      Map /        │                                    │
+  │               │   intelligence    │       Reconductoring startup       │
+  │               │      startup      │                                    │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │               │ Information:      │ Physical capacity: more MW on      │
+  │ What you sell │ where to connect, │ existing lines                     │
+  │               │  and the risk     │                                    │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │               │ Developers,       │                                    │
+  │ Buyer         │ investors,        │ Utilities (who own the lines),     │
+  │               │ data-center site  │ developers paying for upgrades     │
+  │               │ selectors         │                                    │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │               │ Subscriptions,    │ Project fees, engineering          │
+  │ Revenue       │ per-report fees,  │ contracts, success fees per MW     │
+  │               │ data licences     │ unlocked                           │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │ Capital       │                   │ Medium for                         │
+  │ needed        │ Low (software)    │ engineering/orchestration; very    │
+  │               │                   │ high as a construction contractor  │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │ Time to first │                   │ 1–3 years: utility sales cycles,   │
+  │  revenue      │ Months            │ plus 18 months to 3 years per      │
+  │               │                   │ project                            │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │ Margins       │ High (software)   │ Construction: thin. Engineering    │
+  │               │                   │ and success fees: good             │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │               │ Weak on public    │ Utility relationships, engineering │
+  │ Defensibility │ data; needs       │  record, execution track record    │
+  │               │ proprietary data  │                                    │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │               │                   │ Utilities earn returns on what     │
+  │ Main risk     │ Free alternatives │ they build, so a cheap fix can     │
+  │               │  (ISO heatmaps)   │ work against their incentive to    │
+  │               │                   │ build bigger projects              │
+  ├───────────────┼───────────────────┼────────────────────────────────────┤
+  │ Impact        │ Better siting     │ Directly adds grid capacity        │
+  │               │ decisions         │                                    │
+  └───────────────┴───────────────────┴────────────────────────────────────┘
+
+  Ways to make reconductoring a business
+
+  1. Construction contractor. You put up the new wire yourself. You'd compete
+     with Quanta, MYR and MasTec, and need crews, equipment, a safety record and
+     years of vendor qualification. That's a real business but not a startup.
+     Avoid it.
+  2. Conductor manufacturer. CTC Global (ACCC) and TS Conductor already do this,
+     and it is capital-heavy. Better as a partner than a business to start.
+  3. Engineering and analytics: the "reconductoring developer" (recommended
+     core). Screen every line, then do the engineering on the shortlist: sag and
+     clearance, tower loading, outage plans. Deliver the business case a
+     utility can file.
+     - Utilities increasingly have to run these evaluations. FERC Order 1920
+       requires advanced conductors to be considered in long-term planning.
+       California's SB 1006 requires utilities to assess which lines can be
+       reconductored. Virginia and Minnesota require advanced technologies in
+       resource plans, and Montana's HB 729 offers a higher rate of return for
+       advanced conductors.
+     - Revenue comes from study fees.
+  4. Developer-funded upgrade orchestration (the biggest opportunity and the
+     closest fit with the map). Developers stuck behind a constraint such as
+     Odessa 345 kV are the ones assigned the cost of network upgrades in cluster
+     studies.
+     - You'd organise them, propose reconductoring as a cheaper and faster
+       alternative, and coordinate the funding. The utility still owns and
+       builds the line.
+     - You'd earn a success fee per MW unlocked. For example, if reconductoring
+       one constraint unlocks 1 GW and you charge $10/kW, that's $10M. This is a
+       hypothesis to test, not a market rate.
+  5. Owning or financing lines. In most US markets a third party can't easily
+     own pieces of a utility's network, so partner with utilities rather than
+     own lines.
+
+  Why now, and what could stop it
+
+  Tailwinds:
+  - The UC Berkeley/GridLab study, from your own institution: reconductoring
+    with advanced conductors can roughly double a line's capacity within its
+    existing right-of-way, at about half the cost of new lines for the same
+    capacity, in 18 months to 3 years.
+  - Federal and state mandates (above), DOE GRIP grants, and data-center load
+    growth.
+  - Google has worked with CTC Global on advanced-conductor deployment.
+
+  Frictions:
+  - Utility incentives, as in the table.
+  - The advanced conductor itself costs 2–4× more than standard steel-core wire.
+  - Outages have to be scheduled, and some towers need reinforcement.
+  - Reconductoring doesn't help stability-limited lines, which the model already
+    separates out.
+
+  Recommendation
+
+  Make the map the engine of a reconductoring developer, not a separate product.
+  The map ranks constraints by queued MW unlocked per km of line. That ranking
+  produces leads among the developers stuck behind each constraint, which you
+  turn into engineered proposals with conductor makers and contractors as
+  partners.
+
+  You keep the software margins and the data advantage, and you earn on capacity
+  actually unlocked. Real cluster-study results from projects you work on also
+  make the map more accurate over time.
+
+  For a first test, take the top 5 candidates (West Texas, Kansas, Virginia),
+  find the developers queued behind each, and ask whether they would pay a
+  success fee for a reconductoring alternative.
+
+  I can add a "Reconductoring" view to the map that ranks these line segments,
+  or turn the top 20 into a candidate list for interviews.
+
+  Sources:
+  - Utility Dive: Goldman School/GridLab reconductoring study
+    (https://www.utilitydive.com/news/reconductoring-power-lines-transmission-ca
+    pacity-goldman-gridlab/712643/)
+  - GridLab 2035 Reconductoring Technical Report (https://leg.mt.gov/content/Com
+    mittees/Interim/2023-2024/Energy-and-Telecommunications/Meetings/July-16-17-
+    2024/GridLab_2035-Reconductoring-Technical-Report.pdf)
+  - pv magazine: Reconductoring could enable 764 GW of solar by 2035
+    (https://pv-magazine-usa.com/2024/04/24/reconductoring-could-enable-764-gw-o
+    f-transmission-connected-solar-by-2035/)
+  - Renewable Energy World: Advanced conductors
+    (https://www.renewableenergyworld.com/news/advanced-conductors-an-unsung-app
+    roach-to-unlocking-transmission-grid-capacity/)
+  - Utility Dive (sponsored): Regulatory push for advanced conductors
+    (https://www.utilitydive.com/spons/from-policy-to-performance-the-regulatory
+    -push-for-advanced-conductors/808661/). This and the next two are vendor or
+    sponsored sources, so verify state bill details against state legislative
+    records.
+  - Utility Dive: Google and CTC Global (https://www.utilitydive.com/news/google
+    -ctc-global-advanced-conductors-transmission/750878/)
+  - CTC Global on FERC Order 1920 (https://ctcglobal.com/?p=271384)
+  - IEEE Spectrum: Grid-enhancing technologies
+    (https://spectrum.ieee.org/grid-enhancing-technologies)
+  - C2ES Next Gen Grid
+    (https://www.c2es.org/wp-content/uploads/2026/04/Next-Gen-Grid-v4.pdf)
+
+> what other competitors offer site intelligence?
+
+● I'll research the current landscape: site-selection platforms, interconnection
+  data providers, grid-analytics vendors, and data-center power siting tools.
+
+● Web Search("renewable energy site selection software interconnection capacity
+            platform Paces LandGate Transect")
+  ⎿  Did 1 search in 6s
+
+● Web Search("interconnection queue analytics platform heatmap startup Nira
+            Energy interconnection.fyi GridStatus Pearl Street")
+  ⎿  Did 1 search in 6s
+
+● Web Search("data center site selection power availability grid capacity
+            software startup 2026")
+  ⎿  Did 1 search in 6s
+
+● Web Search("Enverus PRISM power grid interconnection site selection Hitachi
+            Velocity Suite Yes Energy transmission congestion siting")
+  ⎿  Did 1 search in 7s
+
+● First round covered the big platforms. A second round on the names still
+  missing (Nira, interconnection.fyi, GridStatus, LandGate's grid data, Yes
+  Energy, and the newer data-center power startups):
+
+● Web Search("Nira Energy interconnection prospecting tool substation capacity
+            network upgrade cost estimates")
+  ⎿  Did 1 search in 7s
+
+● Web Search("interconnection.fyi GridStatus queue data pricing subscription
+            developers")
+  ⎿  Did 1 search in 6s
+
+● Web Search("LandGate grid capacity data center power availability substation
+            offtake capacity product")
+  ⎿  Did 1 search in 7s
+
+● Web Search("Yes Energy OR "Velocity Suite" interconnection siting nodal
+            congestion data developers")
+  ⎿  Did 1 search in 9s
+
+● Web Search("GridCARE OR Paces OR Grid8 startup raises funding 2026 grid
+            capacity data center siting")
+  ⎿  Did 1 search in 7s
+
+● The short version
+
+  Site intelligence for grid connections is already crowded and consolidating.
+  Large energy-data companies have bought the early startups: Enverus acquired
+  Pearl Street Technologies, and Wood Mackenzie acquired LandGate in June 2026.
+  New venture money is going to data-center "speed to power", e.g. GridCARE's
+  $64M Series A in May 2026. A national capacity map on its own is already for
+  sale from several vendors, and the leaders claim to use the ISOs' own
+  power-flow models, which are more accurate than our public-data model.
+
+  Competitor landscape
+
+  Direct competitors: substation capacity and interconnection-cost tools
+
+  Company: Nira Energy
+  What it offers: Map of injection capacity at every substation ≥69 kV,
+  upgrade-cost estimates, cost tools for queued projects
+  Notes: Runs ISO power-flow models in ISO software. Claims >97% match with
+  official ISO study results and >100 developer customers. Growth investment
+  from Energize Capital
+  ────────────────────────────────────────
+  Company: LandGate (now Wood Mackenzie)
+  What it offers: Injection and offtake (load) capacity at ~21,000 connection
+  points, upgrade costs, data-center siting, subtransmission lines, land
+  marketplace
+  Notes: Claims AC optimal-power-flow models. A competitor (PVcase) says it
+  ignores N-1 outage cases
+  ────────────────────────────────────────
+  Company: Pearl Street Technologies (now Enverus)
+  What it offers: Interconnect: risk analysis for developers. SUGAR: study
+  automation for grid operators
+  Notes: Now part of Enverus's toolset
+  ────────────────────────────────────────
+  Company: PVcase Prospect
+  What it offers: Interconnection and offtake-capacity analysis, plus a
+  data-center siting module (fiber, water, zoning)
+  Notes: Built into a solar design software suite
+  ────────────────────────────────────────
+  Company: Paces
+  What it offers: AI siting platform combining grid capacity, transmission
+  constraints and permitting; runs power-flow studies for viability and upgrade
+   cost
+  Notes: Reported $11M raise (pv magazine)
+
+  Large energy-data companies
+
+  ┌───────────────┬─────────────────────────────────────────────────────────┐
+  │    Company    │                     What it offers                      │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │               │ Scores sites on interconnection cost, land, prices and  │
+  │ Enverus PRISM │ competing queue. Available-transfer-capability data for │
+  │               │  ERCOT, SPP, PJM and MISO. Also sold in Europe          │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Wood          │                                                         │
+  │ Mackenzie     │ Queue data and insights, now combined with LandGate     │
+  │ Lens          │                                                         │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Hitachi       │                                                         │
+  │ Energy        │ Combined market, grid and interconnection data for      │
+  │ Velocity      │ screening, explicitly "not a replacement for studies"   │
+  │ Suite         │                                                         │
+  ├───────────────┼─────────────────────────────────────────────────────────┤
+  │ Yes Energy    │ Nodal prices and congestion data, plus queue and        │
+  │               │ constraint visibility for developers                    │
+  └───────────────┴─────────────────────────────────────────────────────────┘
+
+  Queue data and free tools
+
+  These set the "free" baseline any paid product has to beat:
+  - GridStatus: launched an Interconnection Queues app in Feb 2026, and runs the
+    open-source library we couldn't install.
+  - Grid8: free public queue dashboard.
+  - interconnection.fyi: queue data provider; LBNL compiled its queue dataset
+    with them.
+  - LBNL Queued Up: free national queue dataset.
+  - ISO heatmaps: the grid operators' own capacity heatmaps, published under
+    FERC Order 2023.
+
+  Land and environmental siting: Transect covers parcels, permitting, community
+  sentiment and an interconnection layer. Acres.com covers land data and
+  publishes a data-center siting playbook.
+
+  Data-center "power acceleration": GridCARE uses physics-based AI to find spare
+  capacity on today's grid for AI data centers. It claims to cut connection
+  timelines from years to months, and reports 2 GW in its pipeline, including a
+  400 MW project with Portland General Electric. This is the closest company to
+  your reconductoring idea, but it is aimed at large loads and uses flexibility
+  rather than new conductors.
+
+  What this means for your venture
+
+  - Don't pitch "another capacity map." Nira, LandGate, PVcase, Paces and PRISM
+    all sell it, with better grid models than public data allows.
+  - Possible gaps. These are based on what I found, so confirm them in
+    interviews:
+    a. Acting on constraints, not just mapping them. I found nobody prominent
+       organising developers stuck behind the same line to fund a reconductoring
+       fix. GridCARE does something adjacent, but for data centers.
+    b. Queue-risk audits for off-takers and investors. Most tools target
+       developers.
+    c. Cheaper self-serve access. The incumbents appear to sell enterprise
+       contracts (no prices are published), which leaves small developers,
+       landowners and community choice aggregators underserved.
+  - Who could be a partner instead of a rival. Nira or LandGate data could feed
+    a constraint-relief business rather than you rebuilding their models.
+    Enverus and Wood Mackenzie are likely acquirers if you build something they
+    don't have.
+  - For interviews: ask developers which of these tools they already pay for,
+    what they pay, and what the tools still don't answer. That gap is your
+    positioning.
+
+  Treat the figures above (accuracy, coverage, customer counts, funding) as
+  vendors' own claims or third-party reports, since most sources are marketing
+  material. None of them published prices.
+
+  Sources:
+  - Nira Energy: Nira Energy (https://link.axios.com/click/40073568.194337/aHR0c
+    DovL3d3dy5uaXJhZW5lcmd5LmNvbT91dG1fc291cmNlPW5ld3NsZXR0ZXImdXRtX21lZGl1bT1lb
+    WFpbCZ1dG1fY2FtcGFpZ249bmV3c2xldHRlcl9heGlvc3Byb3JhdGEmc3RyZWFtPXRvcA/66bd4b
+    4eea94b092730469c9B943376c0) · FMI on Energize investment
+    (https://fmicorp.com/about/news/fmi-advises-nira-energy-in-strategic-growth-
+    investment-from-energize-capital) · DCD profile
+    (https://www.datacenterdynamics.com/en/company/nira-energy/)
+  - LandGate: offtake capacity
+    (https://landgate.com/energy-markets/offtake-capacity) · data centers
+    (https://www.landgate.com/energy-markets/data-centers) · pv magazine: Wood
+    Mackenzie acquires LandGate
+    (https://pv-magazine-usa.com/2026/06/24/wood-mackenzie-acquires-landgate-as-
+    data-centers-forecast-to-drive-68-of-u-s-load-growth/) · PVcase: LandGate vs
+    PVcase Prospect (https://pvcase.com/blog/landgate-vs-pvcase-prospect-data-c
+    enter-interconnection) · G2 alternatives
+    (https://www.g2.com/products/landgate/competitors/alternatives)
+  - Pearl Street: Renewable Energy World: Pearl Street acquired
+    (https://renewableenergyworld.com/power-grid/one-year-after-winning-dtechs-i
+    nitiate-startup-spotlight-pearl-street-gets-acquired/) · startup spotlight
+    (https://www.renewableenergyworld.com/power-grid/transmission/startup-spotli
+    ght-pearl-street-technologies-solution-for-interconnection-woes/) ·
+    pearlstreettechnologies.com (https://pearlstreettechnologies.com/)
+  - PVcase: Prospect (https://tourial.pvcase.com/answers/prospect) · data-center
+    siting (https://pvcase.com/data-center-siting)
+  - Paces: DCD profile (https://www.datacenterdynamics.com/en/company/paces/) ·
+    pv magazine: $11M raise (https://pv-magazine-usa.com/?p=13437)
+  - Enverus: PRISM siting blog (https://www.enverus.com/blog/how-enverus-prism-d
+    rives-success-in-siting-power-assets/) · optimal points of interconnection
+    (https://enverus.com/blog/mastering-grid-connections-and-identifying-optimal
+    -points-of-interconnection) · Accelerate Interconnection
+    (https://www.enverus.com/?p=321492) · PRISM in Europe
+    (https://www.enverus.com/newsroom/enverus-prism-now-available-for-europe)
+  - Wood Mackenzie: queue data and insights (https://www.woodmac.com/lens-power-
+    and-renewables-feature-releases/interconnection-queue-data-and-insights/)
+  - Hitachi Energy: data-center site selection on a constrained grid
+    (https://www.hitachienergy.com/us/en/news-and-events/blogs/2026/05/data-cent
+    er-site-selection-finding-power-on-a-constrained-grid) · Data Center
+    Knowledge: early grid insight (https://www.datacenterknowledge.com/energy-po
+    wer-supply/de-risking-data-centers-through-early-grid-insight)
+  - Yes Energy: solutions (https://www.yesenergy.com/solutions) · asset
+    developers (https://get.yesenergy.com/asset-developers)
+  - GridStatus: Feb 2026 queue app changelog (https://docs.gridstatus.io/changel
+    og/february-2026/4-february-release-interconnection-queues-application) ·
+    open-source docs (https://opensource.gridstatus.io/en/0.17.0/_sources/autoap
+    i/gridstatus/index.rst.txt)
+  - Grid8: free dashboard (https://techedgeai.com/grid8-launches-free-dashboard-
+    to-demystify-u-s-grid-interconnection-chaos/)
+  - Transect: solar siting
+    (https://www.transect.com/industries/solar-energy-siting)
+  - Acres.com: 2026 data-center playbook
+    (https://www.acres.com/hubfs/Guides%20and%20Playbooks/2026%20Data%20Center%2
+    0Site%20Selection%20Playbook%20by%20Acres.com.pdf)
+  - GridCARE: ESG Today: $64M Series A (https://esgtoday.com/gridcare-raises-64-
+    million-to-squeeze-more-power-out-of-grids) · Pulse 2.0
+    (https://pulse2.com/gridcare-64-million-series-a-raised-to-create-new-power-
+    acceleration-category-for-ai/) · simplify.jobs profile
+    (https://simplify.jobs/c/GridCARE)
+  - JLL: Data Centre Magazine: AI and the power market (https://datacentremagazi
+    ne.com/news/jll-how-ai-is-reshaping-the-power-market-for-data-centres)
+  - Zero Emission Grid: queue insights (https://www.zeroemissiongrid.com/grid-in
+    terconnection-solutions-rest-sitra/interconnection-queue-insights/)
+
+> fill out this document:
+  Section
+  What to include
+  Problem and target customer
+  What problem you solve, who experiences it, and who would actually pay.
+  Market sizing
+  How many potential customers exist, what they might spend, and the resulting
+  revenue opportunity.
+  Competitive landscape
+  Direct competitors, alternative solutions, and how customers handle the
+  problem today—including doing nothing.
+  Competitor comparison
+  Target customers, capabilities, pricing where available, strengths,
+  weaknesses, and traction.
+  Your positioning
+  The specific customer need you could serve better and why customers might
+  switch.
+  Sources and assumptions
+  Evidence behind your estimates, uncertainties, and what you need to validate
+  through interviews.
+
+
+  Market sizing typically distinguishes three levels:
+  TAM — Total Addressable Market: The total annual revenue opportunity if you
+  served everyone relevant.
+  SAM — Serviceable Available Market: The portion your product and geographic
+  scope could realistically serve.
+  SOM — Serviceable Obtainable Market: The portion you could plausibly win
+  within a stated period, such as three to five years.
+
+
+
+  What problem do you solve?
+
+  Ans: Large interconnection queues in the grid have led to a significant delay
+  in the installation of new renewable energy development and AI data center
+  growth
+
+  Who experiences it?
+
+  Ans: New solar and wind projects, new battery storage and integration
+  projects, other renewables, AI companies, policymakers and government
+  officials, Transmission planners, utility companies, grid operators.
+
+  What is a potential solution?
+
+  Ans: AI-based transmission mapping leverages AI, ML, and optimization tools
+  to monitor grid power parameters, backed by power flow study data. It will
+  generate a visual map of the transmission lines and add red and green
+  markers: red to indicate to utilities areas with weaker power or aging issues
+  so they can fix them, and green to identify locations on the grid where
+  interconnection is possible.
+
+  Helps reduce the time it takes for new data centers to locate where to build
+  Helps utility companies and data centers to collaborate
+
+  Who pays for it?
+
+  Ans: The projects/companies that want to connect to the grid and are stuck in
+  a queue (Renewables + AI companies)
+
+  How many potential customers exist?
+
+  Ans: Number of Applications in Queue - Speculative Applications = Total
+  Number of Projects seeking interconnection
+
+  Total number of projects seeking interconnection + Total number of utility
+  companies for that region = total number of potential customers
+
+  How much are they willing to spend?
+
+  Ans: AI data centers would be likely to spend a good amount of money since
+  their alternative is to invest in BESS or microgrids which is super
+  expensive; moreover, political and market pressures are driving the growth of
+  data center projects, and therefore they would be willing to pay a premium
+  for this kind of technology
+
+  Sidenote: But we are literally using AI to develop the map that we need, and
+  the scale of this map would require massive compute, and this compute comes
+  from the data centers, so we would literally be the cost, hmm, must think
+  about this.
+
+  Utility companies would significantly reduce their costs if they could know
+  where interconnection was possible and where bottlenecks in the current
+  infrastructure existed, by automating most of the fault-checking protocol or
+  whatever.
+
+
+
+
+
+
+
+
+  Direct competitors, alternative solutions, and how customers handle the
+  problem today—including doing nothing.  [Eino]
+
+  Paces = In a map, offers site analytics to power developers
+  Use cases: 1) Find viable sites  2) validate grid capacity 3) accelerate to
+  site control for enterprise 4) local utility hosting maps
+  Disadvantage: No view of interconnection bottleneck
+  Customers: Power Generators
+
+  Gridstatus = Real live Map of North America showing datapoints
+  Use case: 1) Takes in public queue data and shows it 2) market LMP prices 3)
+  operational grid metrics across all major North American ISOs (CAISO, ERCOT,
+  PJM, MISO, SPP). Ideal for market analysts, traders, and high-level queue
+  tracking
+  Disadvantage:  Out of the data, they dont provide actionable data to power
+  developers that would allow for faster interconnection
+  Customers: Policy Makers, Research
+
+  d
+  Give it out as a new .md file
+
+● I'll ground the market-sizing section in our own data: count the distinct
+  developers, new requests per year, and transmission providers from the LBNL
+  and live ISO queue files.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" &&
+      ./.venv/Scripts/python -I -c "
+      import p…)  ⎿  (No output)
+
+● I've gathered solid data on interconnection requests, active studies,
+  transmission providers, and historical completion/withdrawal rates, though
+  developer counts remain fuzzy since most active requests don't name an
+  identifiable developer. I'll start drafting the document now.
+
+● Write(Market_Analysis.md)
+  ⎿  Wrote 259 lines to Market_Analysis.md
+       1 # Interconnection Headroom Atlas: Market Analysis
+       3 *Sustainable Ventures, UC Berkeley · Draft, October 2026*
+       4
+       5 | Section | What it covers |
+       7 | [1. Problem and target customer](#1-problem-and-target-custome
+         r) | What we solve, who experiences it, who would pay |
+          TAM / SAM / SOM |
+       9 | [3. Competitive landscape](#3-competitive-landscape) | Direct
+         competitors, alternatives, what customers do today |
+         rs, capabilities, pricing, strengths, weaknesses, traction |
+     … +537 lines (ctrl+o to expand)
+
+● Fixing one number: the LBNL report says ~8,200 active projects, while the data
+  file has 8,513 rows marked active.
+
+● Bash(cd "/c/Users/einos/Documents/LMU Master/3. UC Berkeley/Attended
+      Courses/Sustainable ventures/Interconnection MAP MVP" && python - <<'EOF'
+      from pathlib import Pa…)
+  ⎿  (No output)
+
+● Written for: your Sustainable Ventures team and the course instructors.
+
+  The document is filled out and saved as Market_Analysis.md. It keeps your
+  team's draft answers and adds:
+  - Market sizing: TAM ≈ $97M a year, SAM ≈ $65M, SOM ≈ $4.3M recurring revenue
+    by year 5.
+  - Competitor comparison: 12 rows.
+  - Positioning: a positioning statement, plus our honest weaknesses.
+  - Sources and assumptions: an evidence table, an assumptions table rated by
+    confidence, and an interview plan.
+
+  Corrections to your draft (explained in the document):
+  - Customers are organisations, not projects. One developer files many
+    requests, and speculative applicants are customers too, because they're the
+    ones who need screening before they apply. So I counted buying organisations
+    per segment instead of using "applications − speculative + utilities".
+  - "Monitoring grid parameters / aging issues" isn't possible with public data,
+    so I described what the MVP actually does and put monitoring in a later
+    phase.
+  - "AI-based" is reframed as physics-based modelling enhanced by AI, which is
+    more accurate and more credible to utility engineers.
+  - The compute sidenote is resolved. Our full national model runs in about 10
+    minutes on a laptop, so compute isn't a cost concern.
+  - Paces "no view of bottlenecks" was too strong. Paces does run power-flow
+    studies. I softened it to "depth of queue-competition analysis unclear;
+    check in a demo". GridStatus's new queue app (Feb 2026) is also added.
+
+  Figures from our own analysis of the queue data:
+  - Only 20% of requests filed in 2000–2019 reached operation; 71% withdrew.
+  - There are 2,300–3,400 new requests a year.
+  - There are 57 transmission providers.
+  - The data shows 1,871 named developers, but only a third of active requests
+    name one.
+
+  The main finding: the market for interconnection data on its own is only about
+  $100M a year and already has well-funded competitors. That supports pairing
+  the map with constraint relief (reconductoring) rather than selling another
+  capacity map.
+
+  Before submitting:
+  - Most spend figures, and the data-center and investor counts, are my
+    assumptions, rated low confidence and listed in the interview plan.
+  - Competitor claims come mostly from their own marketing.
+  - The CAISO IPE 5.0 details come from your context.md and still need checking
+    against the actual filings.
+  - The document doesn't link the MVP map. If you add it (⧉
+    https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq), share it from the map's
+    Share menu first, otherwise teammates and instructors can't open it.
+
+> translate this to german: Injection and offtake capacity at ~21k connection
+  points, upgrade costs, subtransmission data, land marketplace
+
+● Einspeise- und Abnahmekapazität an rund 21.000 Netzanschlusspunkten, Kosten
+  für Netzausbaumaßnahmen, Daten zum Hochspannungs-Verteilnetz, Marktplatz für
+  Flächen
+
+  Zwei Begriffe sind frei übersetzt:
+  - Subtransmission ist in Deutschland meist das 110-kV-Hochspannungsnetz, also
+    die Ebene zwischen Übertragungs- und Mittelspannungsnetz. Im deutschen
+    Kontext passt deshalb „Hochspannungs-Verteilnetz“ besser als eine wörtliche
+    Übersetzung.
+  - Upgrade costs heißen im Netzanschlussprozess üblicherweise
+    „Netzausbaukosten“ oder „Kosten für Netzverstärkungen“.
+
+> what does this mean:
+  Ignores N-1 contingencies
+
+● It means the tool calculates grid capacity as if every line and transformer is
+  always in service, without checking what happens when one of them fails.
+
+  What N-1 means. Grid operators must plan so the grid stays safe if any single
+  element fails, such as one line, one transformer or one generator. "N" is all
+  the elements in the grid, and "N-1" is the grid with one of them out. Every
+  interconnection study checks this: a new power plant is only allowed if no
+  line overloads, even with any single element out.
+
+  Why ignoring it matters. Take a substation connected by two lines of 200 MW
+  each:
+  - Without N-1: both lines are in service, so it looks like there's room for
+    about 400 MW.
+  - With N-1: if one line trips, all the power must flow over the other, so the
+    real safe limit is about 200 MW.
+
+  A tool that ignores N-1 can therefore overstate available capacity, sometimes
+  by half or more. A developer might see "green" where the utility's study would
+  later say "red" or require expensive upgrades.
+
+  Context for that claim:
+  - It comes from PVcase, a competitor of LandGate, in a comparison article, so
+    it's a vendor's claim and not independently verified.
+  - Our own map doesn't run a full N-1 analysis either. It approximates it in
+    two ways: it only uses 85% of each line's rating as a safety margin, and it
+    caps each substation at its N-1 branch capacity (the sum of its lines minus
+    the largest one). That is why it's a screening tool, not a study. The README
+    lists this as a known limitation.
+
+> what does injection refer to in our context?
+
+● Injection means power flowing into the grid at a specific point. A solar farm,
+  wind farm, gas plant or discharging battery connected at a substation
+  "injects" power there.
+
+  The opposite is withdrawal, also called offtake or load: power taken out of
+  the grid. A data center, factory, city or charging battery withdraws power.
+
+  How the terms appear in our work:
+  - Injection capacity (LandGate, Nira and others) is the number of megawatts of
+    new generation you could connect at a substation before some line or
+    transformer would overload. In our map this is the Generation lens: "new
+    generation this bus can take".
+  - Offtake capacity is the number of megawatts of new load a substation could
+    supply. In our map this is the Large load lens: "new load this bus can serve
+    at peak", the data-center question.
+  - Net injection is a term inside the model. At every substation it's
+    generation minus load in a given scenario. Positive means the bus exports
+    power to the grid; negative means it imports. The power-flow calculation
+    uses these numbers to work out the flow on every line.
+
+  The same substation can score differently in each direction. A rural
+  substation surrounded by wind farms may have no room for more injection,
+  because its lines are already full exporting power. The same substation may
+  still have plenty of room for offtake, because a data center there would
+  consume power locally and relieve those lines. That's why the map shows both
+  lenses separately.
+
+  Batteries do both: they withdraw when charging and inject when discharging.
+
+> simplify this statement:
+  Simulates Grid Studies, Screen map for capacity of voltages >69kV, In-Queue
+  Risk Modeling that runs active interconnection queues to track risks
+
+● Shorter version:
+
+  Simulates utility grid studies, maps available capacity at substations above
+  69 kV, and tracks risk for projects already in the interconnection queue.
+
+  Even shorter, for a table cell:
+
+  Grid-study simulation, capacity map (>69 kV), queue risk tracking
+
+> explain this in simple terms: Uses the ISOs' own power-flow models; claims
+  >97% match with ISO study results
+
+● In simple terms: Nira uses the same detailed grid model the grid operator
+  uses, and says its answers almost always match the official results.
+
+  - ISOs are the grid operators that run the regional power grids and the
+    interconnection queues, e.g. CAISO in California, PJM in the Mid-Atlantic
+    and ERCOT in Texas.
+  - Power-flow models are the ISO's detailed computer model of its grid: every
+    line, transformer and power plant, with their real ratings. The ISO uses
+    this model to decide whether a new project can connect and which upgrades it
+    must pay for. Outsiders can only get it under a confidentiality agreement,
+    because it's classified as sensitive infrastructure data.
+  - The "97% match" claim: Nira runs its own calculations on those same models.
+    It says that when it compares its predictions with the official study
+    results the ISO later publishes, they agree more than 97% of the time.
+
+  Why it matters for us: this is Nira's main advantage over our map. We
+  approximate the grid from public data, with estimated line ratings and no
+  outage checks, so our results are a rough screening. Nira's should be much
+  closer to what the utility will actually decide.
+
+  Caveat: the 97% figure is Nira's own marketing claim. It's not independently
+  verified, and it doesn't say what exactly "match" means: whether a project
+  passes, the upgrade costs, or something else. It's a good question for a demo
+  or an interview.
+
+> Data-center offtake; claims AC power-flow models
+
+● This is the "strengths" cell for LandGate in the competitor table. It covers
+  two things.
+
+  "Data-center offtake": LandGate shows how much power a data center could draw
+  from the grid at each substation. That's the offtake (load) capacity from
+  earlier, the reverse of injection. With the data-center boom it's in high
+  demand, and many competitors still focus mainly on generation.
+
+  "Claims AC power-flow models": this is about how detailed LandGate's grid
+  calculations are.
+  - DC power flow is a simplified, fast approximation that only tracks how real
+    power (MW) splits across the lines. It ignores voltage levels and reactive
+    power. Our map uses this method, as do many screening tools.
+  - AC power flow is the full physics. It also models voltages and reactive
+    power, so it can catch problems a DC model misses, such as voltage dropping
+    too low when a large data center is connected. Grid operators use AC models
+    in their official studies.
+
+  So LandGate's claim is that its calculations are closer to the physics the
+  utilities use than a simplified DC model like ours.
+
+  Caveats:
+  - It's LandGate's own marketing claim.
+  - A detailed AC model is only as good as its inputs: real line ratings and the
+    actual grid model.
+  - A competitor (PVcase) says LandGate still skips outage checks (N-1), which
+    can matter more than AC versus DC.
+
+> what does this mean?
+  "How much will be left after everyone ahead of me?" Our headroom after the
+  queue weights every queued request by its odds of reaching operation
+  (historically about 20%) before counting what remains. This is part of our
+  MVP, not a promise.
+
+● It describes one specific feature of our map and how it works.
+
+  The question a developer asks: "If I connect at this substation, how much
+  capacity will actually be left for me?" Today's free capacity isn't the
+  answer, because other projects are already waiting in line (the queue) for the
+  same substation. If they get built first, they use up part of that capacity.
+
+  The simple approach most tools take: show today's capacity and ignore the
+  queue, or assume every queued project gets built. Neither is realistic,
+  because most queued projects never get built: historically only about 1 in 5
+  (20%) reached operation, and the rest dropped out.
+
+  What our map does instead: it counts each queued project by how likely it is
+  to be built. The weights depend on how far along the project is:
+  - early study: 10%
+  - late study: 25%
+  - interconnection agreement signed: 55%
+  - under construction: 90%
+
+  These average out to roughly the 20% historical rate.
+
+  Example:
+  - A substation has 300 MW free today.
+  - 1,000 MW of projects are queued there, mostly in early study.
+  - Counting all 1,000 MW would make it look full.
+  - Weighted by their odds, they're expected to use about 150 MW.
+  - So the map shows about 150 MW left for you, rather than 300 MW or zero.
+
+  The real model does this through the power-flow calculation across nearby
+  lines, not with simple subtraction, but the idea is the same.
+
+  "This is part of our MVP, not a promise" means the feature already exists in
+  the map we built. It's not just a plan for the future. That gives the claim
+  more credibility in the pitch.
+
+  The sentence is a bit dense for a reader. A clearer version:
+
+  ▎ "How much capacity will be left for me after the projects ahead of me?" Our
+  ▎ map answers this by counting each queued project by its likelihood of being
+  ▎ built (historically only about 1 in 5), not by assuming all or none get
+  ▎ built. This feature already works in our prototype.
+
+> translate:
+  "How much will be left after everyone ahead of me?" Our headroom after the
+  queue weights every queued request by its odds of reaching operation
+  (historically about 20%) before counting what remains. This is part of our
+  MVP, not a promise.
+  "What would it take to fix the red?" Every red substation in our model points
+  to the line that limits it and how many megawatts are queued behind that
+  line. That turns a red marker into a reconductoring or storage opportunity,
+  which competitors mostly leave to the customer.
+  Affordable access for smaller buyers. The incumbents sell enterprise
+  contracts. Small and mid-sized developers, CCAs, landowners and smaller
+  investors are underserved.
+
+● 1. „Wie viel bleibt für mich übrig, nachdem alle vor mir angeschlossen sind?“
+     Unsere Restkapazität nach der Warteschlange gewichtet jeden Antrag in der
+     Warteschlange mit seiner Wahrscheinlichkeit, tatsächlich in Betrieb zu
+     gehen (historisch etwa 20 %), bevor wir berechnen, was übrig bleibt. Diese
+     Funktion ist bereits Teil unseres MVP und kein bloßes Versprechen.
+  2. „Was wäre nötig, um aus Rot Grün zu machen?“ Jedes rote Umspannwerk in
+     unserem Modell zeigt auf die Leitung, die es begrenzt, und darauf, wie
+     viele Megawatt hinter dieser Leitung in der Warteschlange stehen. So wird
+     aus einer roten Markierung eine Chance für eine Umbeseilung
+     (Reconductoring) oder einen Speicher. Diese Analyse überlassen Wettbewerber
+     meist dem Kunden.
+  3. Bezahlbarer Zugang für kleinere Käufer. Die etablierten Anbieter verkaufen
+     teure Unternehmensverträge. Kleine und mittelgroße Projektentwickler,
+     kommunale Strombeschaffer (CCAs), Grundstückseigentümer und kleinere
+     Investoren werden bisher kaum bedient.
+
+  Two translation notes:
+  - Reconductoring heißt im Deutschen üblicherweise Umbeseilung, bei modernen
+    Leitern auch „Umbeseilung mit Hochtemperaturleiterseilen (HTLS)“. Für ein
+    deutsches Publikum habe ich den englischen Begriff in Klammern ergänzt.
+  - CCAs (Community Choice Aggregators) gibt es in Deutschland so nicht.
+    „Kommunale Strombeschaffer“ trifft es am ehesten; man könnte auch kurz
+    erklären: „Gemeinden, die Strom gebündelt für ihre Bürger einkaufen“.
+
+> How can i share this claude session for my coworker to join?
+
+● As far as I know, a coworker can't join this live session: a Claude Code
+  session in VS Code runs on your machine under your account. I'm not certain
+  there isn't a newer sharing feature, so if you want I can check the current
+  Claude Code docs.
+
+  Here's what does work today.
+
+  1. Share the conversation itself
+  - Type /export in this chat. It saves the whole conversation to a file, or
+    copies it to the clipboard, which you can send to your coworker. They can
+    read it but can't continue it.
+  - To pick up this session yourself later on this machine, run claude --resume.
+
+  2. Share the outputs (usually what a coworker actually needs)
+  - The map: ⧉ https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq. It's private,
+    so open it, use the Share menu, and add your coworker.
+  - The project folder: it contains the pipeline, data, README.md and
+    Market_Analysis.md. You can send it as a zip or put it on a shared drive.
+    The raw data is about 200 MB; your coworker can re-download it with
+    run_all.py --fetch instead.
+
+  3. Let your coworker continue with their own Claude
+
+  This gets them closest to "joining". If they open the same project folder in
+  their own Claude Code, it can read the code, README.md and Market_Analysis.md.
+  The background lives only in this chat, though, so I can write a short
+  CLAUDE.md handoff file into the project. Claude Code reads that file
+  automatically, so their session would start with:
+  - what we built;
+  - the key modelling decisions and why we made them;
+  - the open questions;
+  - the next steps.
+
+  I can also turn the folder into a Git repository and push it to GitHub. That's
+  the cleanest way for two people to keep working on the same code. You'd need
+  a GitHub account, and I'd check with you before pushing anything.
+
+  Should I write the CLAUDE.md handoff file, set up the Git repo, or both?
