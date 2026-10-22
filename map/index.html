@@ -1,0 +1,680 @@
+<title>Interconnection Headroom Atlas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Public+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: full-bleed map; a control rail floats on the left, an inspector slides in on the right;
+   both become bottom sheets on phones. Neutrals are cool slate; copper is the single accent. */
+:root {
+  --bg: #e9eef0; --land: #f7f8f7; --state: #c9d1d5; --panel: #ffffff; --panel-2: #f2f5f6;
+  --ink: #16202a; --muted: #5a6772; --rule: #d6dde1;
+  --accent: #b05d27; --accent-ink: #ffffff;
+  --line-lo: #a3afb7; --line-mid: #6b7a86; --line-hi: #24313c;
+  --good: #16905c; --warn: #c98f00; --bad: #cc3a3a; --na: #a9b2b8; --store: #6a4cc0;
+  --ba: #7f8c96; --blm: #d9a441;
+  --shadow: 0 1px 2px rgb(16 24 32 / .08), 0 8px 24px rgb(16 24 32 / .10);
+  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
+  --f-body: "Public Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0c1217; --land: #141c23; --state: #2a3640; --panel: #121a21; --panel-2: #18222a;
+  --ink: #e5ebee; --muted: #93a0aa; --rule: #26323c;
+  --accent: #e0894d; --accent-ink: #1a0f08;
+  --line-lo: #3f4c57; --line-mid: #7d8b96; --line-hi: #d2dbe0;
+  --good: #35c486; --warn: #f0b62a; --bad: #ff6a6a; --na: #4c5862; --store: #a68cff;
+  --ba: #7b8892; --blm: #d9a441;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .35); color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0c1217; --land: #141c23; --state: #2a3640; --panel: #121a21; --panel-2: #18222a;
+  --ink: #e5ebee; --muted: #93a0aa; --rule: #26323c;
+  --accent: #e0894d; --accent-ink: #1a0f08;
+  --line-lo: #3f4c57; --line-mid: #7d8b96; --line-hi: #d2dbe0;
+  --good: #35c486; --warn: #f0b62a; --bad: #ff6a6a; --na: #4c5862; --store: #a68cff;
+  --ba: #7b8892; --blm: #d9a441;
+  --shadow: 0 1px 2px rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .35); color-scheme: dark; }
+
+html, body { height: 100%; }
+body { background: var(--bg); color: var(--ink); font: 14px/1.45 var(--f-body); overflow: hidden; }
+#map { position: absolute; inset: 0; }
+.maplibregl-map { overflow: hidden; position: relative; -webkit-tap-highlight-color: transparent; }
+.maplibregl-canvas { position: absolute; left: 0; top: 0; }
+.maplibregl-canvas-container.maplibregl-interactive { cursor: grab; }
+.maplibregl-canvas-container.maplibregl-interactive:active { cursor: grabbing; }
+.maplibregl-ctrl-bottom-left, .maplibregl-ctrl-bottom-right, .maplibregl-ctrl-top-left, .maplibregl-ctrl-top-right { display: none; }
+
+button, input, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.num { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.eyebrow { font: 600 11px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+/* ---- rail ---- */
+.rail {
+  position: absolute; z-index: 5; display: flex; flex-direction: column;
+  top: calc(12px + env(safe-area-inset-top, 0px)); left: max(12px, env(safe-area-inset-left, 0px));
+  bottom: calc(12px + env(safe-area-inset-bottom, 0px)); width: 340px;
+  background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; box-shadow: var(--shadow);
+  overflow: hidden;
+}
+.rail-head { padding: 14px 16px 12px; border-bottom: 1px solid var(--rule); display: grid; gap: 4px; }
+.brand { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.brand h1 { margin: 0; font: 700 23px/1 var(--f-display); letter-spacing: .01em; text-wrap: balance; }
+.brand h1 span { color: var(--accent); }
+.sub { margin: 0; color: var(--muted); font-size: 12.5px; }
+.rail-toggle { display: none; border: 1px solid var(--rule); background: var(--panel-2); border-radius: 6px; padding: 2px 8px; font-size: 12px; }
+.rail-body { overflow-y: auto; padding: 12px 16px 16px; display: grid; gap: 16px; align-content: start; }
+
+.lens { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.lens button {
+  text-align: left; border: 1px solid var(--rule); background: var(--panel-2); border-radius: 8px;
+  padding: 8px 10px; display: grid; gap: 1px;
+}
+.lens button b { font: 600 16px/1.1 var(--f-display); letter-spacing: .01em; }
+.lens button small { color: var(--muted); font-size: 11.5px; line-height: 1.3; }
+.lens button[aria-pressed="true"] { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--panel)); box-shadow: inset 0 0 0 1px var(--accent); }
+
+.tally { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.tally div { border-radius: 8px; padding: 8px 10px; background: var(--panel-2); display: grid; gap: 2px; }
+.tally .v { font: 600 18px/1 var(--f-mono); }
+.tally .k { font-size: 11px; color: var(--muted); display: flex; align-items: center; gap: 5px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex: none; }
+
+.legend { display: grid; gap: 6px; font-size: 12.5px; }
+.legend .row { display: flex; align-items: center; gap: 8px; }
+.legend .ramp { height: 8px; border-radius: 4px; flex: 1; }
+
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 7px; }
+legend { padding: 0; margin-bottom: 4px; }
+.check { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+.check input { accent-color: var(--accent); margin: 0; }
+.check em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: auto; }
+.ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.ctl-row label, .search label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+select, input[type="search"] {
+  border: 1px solid var(--rule); background: var(--panel-2); border-radius: 6px; padding: 6px 8px; width: 100%; min-width: 0;
+}
+.search { position: relative; }
+.results { list-style: none; margin: 4px 0 0; padding: 0; border: 1px solid var(--rule); border-radius: 6px; max-height: 220px; overflow-y: auto; background: var(--panel); }
+.results li button { width: 100%; text-align: left; border: 0; background: none; padding: 6px 8px; display: flex; justify-content: space-between; gap: 8px; }
+.results li button:hover { background: var(--panel-2); }
+.results small { color: var(--muted); }
+
+.sites { display: grid; gap: 4px; }
+.sites-head { display: flex; justify-content: space-between; align-items: baseline; }
+.site { display: grid; grid-template-columns: 10px 1fr auto; align-items: center; gap: 8px; border: 0; background: none; padding: 5px 4px; border-radius: 6px; text-align: left; }
+.site:hover { background: var(--panel-2); }
+.site span:nth-child(2) { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.site small { color: var(--muted); }
+.site .num { font-size: 12.5px; }
+.empty { color: var(--muted); font-size: 12.5px; margin: 0; }
+
+.rail-foot { border-top: 1px solid var(--rule); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted); }
+.linkbtn { border: 0; background: none; color: var(--accent); padding: 0; font-weight: 600; font-size: 12.5px; }
+
+/* ---- zoom ---- */
+.zoom { position: absolute; z-index: 4; right: max(12px, env(safe-area-inset-right, 0px)); bottom: calc(24px + env(safe-area-inset-bottom, 0px)); display: grid; border: 1px solid var(--rule); border-radius: 8px; overflow: hidden; box-shadow: var(--shadow); background: var(--panel); }
+.zoom button { width: 34px; height: 34px; border: 0; background: var(--panel); font: 500 18px/1 var(--f-mono); }
+.zoom button + button { border-top: 1px solid var(--rule); }
+.attrib { position: absolute; z-index: 3; right: 58px; bottom: calc(6px + env(safe-area-inset-bottom, 0px)); font-size: 10.5px; color: var(--muted); background: color-mix(in srgb, var(--panel) 80%, transparent); padding: 1px 6px; border-radius: 4px; }
+
+/* ---- tooltip ---- */
+.tip { position: absolute; z-index: 6; pointer-events: none; background: var(--panel); border: 1px solid var(--rule); border-radius: 6px; padding: 6px 8px; box-shadow: var(--shadow); font-size: 12px; max-width: 260px; }
+.tip b { font-weight: 600; }
+
+/* ---- inspector ---- */
+.inspector {
+  position: absolute; z-index: 5; top: calc(12px + env(safe-area-inset-top, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+  bottom: calc(70px + env(safe-area-inset-bottom, 0px)); width: 380px; background: var(--panel);
+  border: 1px solid var(--rule); border-radius: 10px; box-shadow: var(--shadow); display: flex; flex-direction: column; overflow: hidden;
+}
+.insp-head { padding: 14px 16px 12px; border-bottom: 1px solid var(--rule); display: grid; gap: 6px; position: relative; }
+.insp-head h2 { margin: 0; font: 700 24px/1.05 var(--f-display); padding-right: 32px; text-wrap: balance; overflow-wrap: anywhere; }
+.insp-head .meta { color: var(--muted); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 4px 10px; }
+.close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border: 1px solid var(--rule); border-radius: 6px; background: var(--panel-2); font-size: 16px; line-height: 1; }
+.insp-body { overflow-y: auto; padding: 14px 16px 18px; display: grid; gap: 18px; align-content: start; }
+.verdict { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; align-items: center; padding: 12px; border-radius: 8px; background: var(--panel-2); border-left: 4px solid var(--sig, var(--na)); }
+.verdict .big { font: 600 30px/1 var(--f-mono); grid-row: span 2; }
+.verdict .big small { font-size: 14px; color: var(--muted); }
+.verdict .lab { font-weight: 600; }
+.verdict .exp { font-size: 12px; color: var(--muted); }
+.pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 1px 8px; font-size: 11.5px; font-weight: 600; background: color-mix(in srgb, var(--c) 16%, transparent); color: var(--c); }
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 5px 12px; font-size: 13px; margin: 0; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; text-align: right; font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+.sec { display: grid; gap: 8px; }
+.sec h3 { margin: 0; }
+.bar { display: flex; height: 10px; border-radius: 5px; overflow: hidden; background: var(--panel-2); }
+.bar span { height: 100%; }
+.bar-key { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 11.5px; color: var(--muted); }
+.plist { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; max-height: 260px; overflow-y: auto; border: 1px solid var(--rule); border-radius: 6px; }
+.plist li { padding: 6px 8px; display: grid; grid-template-columns: 1fr auto; gap: 1px 10px; font-size: 12.5px; background: var(--panel); }
+.plist li + li { border-top: 1px solid var(--rule); }
+.plist .n { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 500; }
+.plist .d { grid-column: 1 / -1; color: var(--muted); font-size: 11.5px; }
+.constraint { border: 1px solid var(--rule); border-radius: 8px; padding: 10px 12px; display: grid; gap: 4px; background: none; text-align: left; }
+.constraint:hover { border-color: var(--accent); }
+.constraint b { font-weight: 600; }
+.constraint small { color: var(--muted); }
+.note { font-size: 11.5px; color: var(--muted); margin: 0; }
+
+/* ---- method dialog ---- */
+dialog { border: 1px solid var(--rule); border-radius: 12px; background: var(--panel); color: var(--ink); padding: 0; width: min(760px, calc(100vw - 32px)); max-height: calc(100vh - 48px); box-shadow: var(--shadow); }
+dialog::backdrop { background: rgb(10 16 22 / .45); }
+.dlg { padding: 22px 26px 26px; display: grid; gap: 14px; overflow-y: auto; max-height: calc(100vh - 50px); }
+.dlg h2 { margin: 0; font: 700 28px/1.05 var(--f-display); }
+.dlg h3 { margin: 6px 0 0; font: 600 18px/1.2 var(--f-display); letter-spacing: .01em; }
+.dlg p, .dlg li { max-width: 68ch; }
+.dlg p { margin: 0; }
+.dlg ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 12.5px; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; }
+td a { color: var(--accent); overflow-wrap: anywhere; }
+
+.loading { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--bg); }
+.loading div { display: grid; gap: 6px; justify-items: center; color: var(--muted); }
+.loading b { font: 700 26px/1 var(--f-display); color: var(--ink); }
+
+@media (max-width: 760px) {
+  .rail { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 62%; border-radius: 12px 12px 0 0; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .rail.collapsed .rail-body, .rail.collapsed .rail-foot { display: none; }
+  .rail-head { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  .rail-toggle { display: inline-block; }
+  .inspector { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 70%; border-radius: 12px 12px 0 0; z-index: 7; padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .zoom { top: calc(12px + env(safe-area-inset-top, 0px)); bottom: auto; }
+  .attrib { top: calc(12px + env(safe-area-inset-top, 0px)); bottom: auto; right: auto; left: max(12px, env(safe-area-inset-left, 0px)); }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<div id="map" role="application" aria-label="Map of US transmission substations and lines"></div>
+
+<div class="loading" id="loading"><div><b>Interconnection Headroom Atlas</b><span id="loadmsg">Loading grid model…</span></div></div>
+
+<aside class="rail" id="rail" aria-label="Map controls">
+  <div class="rail-head">
+    <div class="brand"><h1>Interconnection <span>Headroom</span> Atlas</h1><button class="rail-toggle" id="railToggle" aria-expanded="true">Hide</button></div>
+    <p class="sub" id="subline">Contiguous US · screening model</p>
+  </div>
+  <div class="rail-body">
+    <div class="sec">
+      <span class="eyebrow">What are you siting?</span>
+      <div class="lens" role="group" aria-label="Map lens">
+        <button data-lens="gen" aria-pressed="true"><b>Generation</b><small>MW injectable after the queue ahead</small></button>
+        <button data-lens="load" aria-pressed="false"><b>Large load</b><small>MW a data center could draw at peak</small></button>
+        <button data-lens="queue" aria-pressed="false"><b>Queue pressure</b><small>Queued MW ÷ substation capacity</small></button>
+        <button data-lens="storage" aria-pressed="false"><b>Storage</b><small>Congested nodes with trapped renewables</small></button>
+      </div>
+    </div>
+    <div class="tally" id="tally"></div>
+    <div class="legend" id="legend"></div>
+    <div class="sec search">
+      <label for="q">Find a substation<input type="search" id="q" placeholder="e.g. Lamont, Vincent, Bearkat" autocomplete="off"></label>
+      <ul class="results" id="results" hidden></ul>
+    </div>
+    <div class="ctl-row">
+      <label for="minkv">Bus voltage<select id="minkv"><option value="0">All (≥100 kV)</option><option value="115">≥ 115 kV</option><option value="230" selected>≥ 230 kV</option><option value="345">≥ 345 kV</option><option value="500">≥ 500 kV</option></select></label>
+      <label for="linecolor">Lines colored by<select id="linecolor"><option value="kv">Voltage</option><option value="load">Modeled loading</option><option value="loadq">Loading with queue</option></select></label>
+    </div>
+    <fieldset>
+      <legend class="eyebrow">Layers</legend>
+      <label class="check"><input type="checkbox" id="L-lines" checked> Transmission lines <em id="c-lines"></em></label>
+      <label class="check"><input type="checkbox" id="L-buses" checked> Substations &amp; taps <em id="c-buses"></em></label>
+      <label class="check"><input type="checkbox" id="L-named"> Named substations only</label>
+      <label class="check"><input type="checkbox" id="L-queue"> Active queue at each bus <em id="c-queue"></em></label>
+      <label class="check"><input type="checkbox" id="L-plants"> Existing power plants <em id="c-plants"></em></label>
+      <label class="check"><input type="checkbox" id="L-ba"> Balancing authorities</label>
+      <label class="check"><input type="checkbox" id="L-blm"> BLM land open to solar</label>
+    </fieldset>
+    <div class="sites">
+      <div class="sites-head"><span class="eyebrow" id="sitesTitle">Best sites in view</span><small class="note" id="sitesNote"></small></div>
+      <div id="sites"></div>
+    </div>
+  </div>
+  <div class="rail-foot"><span id="vintage"></span><button class="linkbtn" id="openMethod">Method &amp; sources</button></div>
+</aside>
+
+<section class="inspector" id="insp" hidden aria-live="polite">
+  <div class="insp-head" id="inspHead"></div>
+  <div class="insp-body" id="inspBody"></div>
+</section>
+
+<div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
+<div class="attrib">HIFLD · EIA · ISO/RTO queues · LBNL · Census · © OpenStreetMap contributors</div>
+<div class="tip" id="tip" hidden></div>
+
+<dialog id="method" aria-labelledby="mTitle"><div class="dlg" id="methodBody"></div></dialog>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js"></script>
+<script>
+(() => {
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fmt = (v, d = 0) => (v == null || Number.isNaN(v)) ? "–" : Number(v).toLocaleString("en-US", { maximumFractionDigits: d, minimumFractionDigits: d });
+const mw = (v) => v == null ? "–" : (v >= 2999 ? "3,000+" : fmt(v));
+const tok = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+
+let D = {}; let map; let lens = "gen"; let selected = null;
+const SIG_NAME = ["Headroom", "Limited", "Congested", "Not modeled"];
+const TECH_COLORS = { "Solar": "#e3b505", "Wind": "#2a9d8f", "Offshore wind": "#1b6f8a", "Battery": "#8a63d2", "Gas CC": "#6c7a89", "Gas CT/other": "#9aa5b1", "Coal": "#5b4636", "Nuclear": "#c2417b", "Hydro": "#3a7bd5", "Pumped storage": "#3a7bd5", "Oil": "#7a5c3c", "Geothermal": "#c0672f", "Biomass/other": "#7f9a52" };
+const PHASES = [["qC", "Construction", "--line-hi"], ["qI", "IA executed", "--accent"], ["qL", "Late study", "--line-mid"], ["qE", "Early study", "--line-lo"]];
+
+function decode(str) {
+  let i = 0, lat = 0, lon = 0; const out = [];
+  while (i < str.length) {
+    let b, s = 0, r = 0;
+    do { b = str.charCodeAt(i++) - 63; r |= (b & 31) << s; s += 5; } while (b >= 32);
+    lat += (r & 1) ? ~(r >> 1) : (r >> 1);
+    s = 0; r = 0;
+    do { b = str.charCodeAt(i++) - 63; r |= (b & 31) << s; s += 5; } while (b >= 32);
+    lon += (r & 1) ? ~(r >> 1) : (r >> 1);
+    out.push([lon / 1e4, lat / 1e4]);
+  }
+  return out;
+}
+const lineGeom = (parts) => parts.length === 1 ? { type: "LineString", coordinates: decode(parts[0]) } : { type: "MultiLineString", coordinates: parts.map(decode) };
+function polyGeom(parts) {
+  // context polygons are exported ring by ring; draw each ring as its own polygon (outlines + light fills)
+  return { type: "MultiPolygon", coordinates: parts.map((p) => [decode(p)]) };
+}
+
+async function load() {
+  const names = ["meta", "buses", "lines", "queue", "plants", "context"];
+  const res = await Promise.all(names.map((n) => fetch(`data/${n}.json`).then((r) => { if (!r.ok) throw new Error(n); return r.json(); })));
+  names.forEach((n, i) => D[n] = res[i]);
+  const B = D.buses, Q = D.queue, P = D.plants, L = D.lines;
+  B.n = B.id.length; L.n = L.id.length;
+  B.idx = new Map(B.id.map((id, i) => [id, i]));
+  L.idx = new Map(L.id.map((id, i) => [id, i]));
+  B.proj = new Map(); Q.node.forEach((nd, i) => { if (!B.proj.has(nd)) B.proj.set(nd, []); B.proj.get(nd).push(i); });
+  B.plants = new Map(); P.node.forEach((nd, i) => { if (!B.plants.has(nd)) B.plants.set(nd, []); B.plants.get(nd).push(i); });
+}
+
+function qcat(i) { const B = D.buses; if (!B.q[i]) return 3; const r = B.qcap[i]; if (r == null) return 2; return r < 0.5 ? 0 : (r <= 1.5 ? 1 : 2); }
+
+function busFC() {
+  const B = D.buses, f = [];
+  for (let i = 0; i < B.n; i++) {
+    f.push({ type: "Feature", id: i, geometry: { type: "Point", coordinates: [B.lon[i], B.lat[i]] },
+      properties: { i, kv: B.kv[i] || 0, t: B.type[i], sig: B.sig[i], lsig: B.lsig[i], qc: qcat(i), sto: B.sto[i], stoS: B.stoS[i] || 0, q: B.q[i] || 0, mod: B.mod[i] } });
+  }
+  return { type: "FeatureCollection", features: f };
+}
+function lineFC() {
+  const L = D.lines, f = [];
+  for (let i = 0; i < L.n; i++) {
+    if (!L.g[i].length) continue;
+    f.push({ type: "Feature", id: i, geometry: lineGeom(L.g[i]), properties: { i, kv: L.kv[i], ld: Math.max(L.ldP[i] ?? -1, L.ldL[i] ?? -1), lq: L.ldQ[i] ?? -1 } });
+  }
+  return { type: "FeatureCollection", features: f };
+}
+function plantFC() {
+  const P = D.plants, f = [];
+  for (let i = 0; i < P.id.length; i++) f.push({ type: "Feature", geometry: { type: "Point", coordinates: [P.lon[i], P.lat[i]] }, properties: { i, tech: P.tech[i], mw: P.mw[i] } });
+  return { type: "FeatureCollection", features: f };
+}
+const polyFC = (o, props = () => ({})) => ({ type: "FeatureCollection", features: o.g.map((g, i) => ({ type: "Feature", geometry: polyGeom(g), properties: props(i) })) });
+
+// ---------------- styling ----------------
+function busColor() {
+  const g = tok("--good"), w = tok("--warn"), r = tok("--bad"), na = tok("--na"), st = tok("--store");
+  if (lens === "gen") return ["match", ["get", "sig"], 0, g, 1, w, 2, r, na];
+  if (lens === "load") return ["match", ["get", "lsig"], 0, g, 1, w, 2, r, na];
+  if (lens === "queue") return ["match", ["get", "qc"], 0, g, 1, w, 2, r, na];
+  return ["case", ["==", ["get", "sto"], 1], st, na];
+}
+function busRadius() {
+  const base = (z) => ["case", [">=", ["get", "kv"], 500], 1.8 * z, [">=", ["get", "kv"], 345], 1.5 * z, [">=", ["get", "kv"], 230], 1.2 * z, 0.9 * z];
+  if (lens === "storage") return ["interpolate", ["linear"], ["zoom"], 3, ["case", ["==", ["get", "sto"], 1], ["min", 6, ["+", 2, ["*", 0.3, ["sqrt", ["get", "stoS"]]]]], 1], 9, ["case", ["==", ["get", "sto"], 1], ["min", 14, ["+", 5, ["sqrt", ["get", "stoS"]]]], 3]];
+  return ["interpolate", ["linear"], ["zoom"], 3, base(1.6), 6, base(3), 9, base(5), 12, base(7)];
+}
+function lineColor() {
+  const mode = $("#linecolor").value;
+  if (mode === "kv") return ["interpolate", ["linear"], ["get", "kv"], 100, tok("--line-lo"), 230, tok("--line-mid"), 500, tok("--line-hi")];
+  const key = mode === "load" ? "ld" : "lq";
+  return ["case", ["<", ["get", key], 0], tok("--line-lo"), ["interpolate", ["linear"], ["get", key], 0, tok("--line-lo"), 60, tok("--good"), 85, tok("--warn"), 100, tok("--bad")]];
+}
+function minKvFilter() {
+  const v = +$("#minkv").value; const f = ["all", [">=", ["get", "kv"], v]];
+  if ($("#L-named").checked) f.push(["==", ["get", "t"], 0]);
+  return f;
+}
+
+function addLayers() {
+  map.addSource("states", { type: "geojson", data: polyFC(D.context.states) });
+  map.addSource("ba", { type: "geojson", data: polyFC(D.context.ba, (i) => ({ name: D.context.ba.name[i] })) });
+  map.addSource("blm", { type: "geojson", data: polyFC(D.context.blm) });
+  map.addSource("lines", { type: "geojson", data: lineFC() });
+  map.addSource("buses", { type: "geojson", data: busFC() });
+  map.addSource("plants", { type: "geojson", data: plantFC() });
+  map.addSource("hl", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+  map.addSource("sel", { type: "geojson", data: { type: "FeatureCollection", features: [] } });
+
+  map.addLayer({ id: "land", type: "fill", source: "states", paint: { "fill-color": tok("--land") } });
+  map.addLayer({ id: "blm", type: "fill", source: "blm", layout: { visibility: "none" }, paint: { "fill-color": tok("--blm"), "fill-opacity": 0.28 } });
+  map.addLayer({ id: "state-line", type: "line", source: "states", paint: { "line-color": tok("--state"), "line-width": 0.8 } });
+  map.addLayer({ id: "ba", type: "line", source: "ba", layout: { visibility: "none" }, paint: { "line-color": tok("--ba"), "line-width": 1.1, "line-dasharray": [3, 2] } });
+  map.addLayer({ id: "lines", type: "line", source: "lines", layout: { "line-cap": "round", "line-sort-key": ["get", "kv"] },
+    paint: { "line-color": lineColor(), "line-opacity": 0.9,
+      "line-width": ["interpolate", ["linear"], ["zoom"], 3, ["interpolate", ["linear"], ["get", "kv"], 100, 0.25, 345, 0.8, 765, 1.6], 8, ["interpolate", ["linear"], ["get", "kv"], 100, 0.8, 345, 2, 765, 3.5], 12, ["interpolate", ["linear"], ["get", "kv"], 100, 2, 345, 4, 765, 6]] } });
+  map.addLayer({ id: "hl-casing", type: "line", source: "hl", layout: { "line-cap": "round" }, paint: { "line-color": tok("--panel"), "line-width": 9 } });
+  map.addLayer({ id: "hl", type: "line", source: "hl", layout: { "line-cap": "round" }, paint: { "line-color": tok("--accent"), "line-width": 4.5 } });
+  map.addLayer({ id: "plants", type: "circle", source: "plants", layout: { visibility: "none" },
+    paint: { "circle-color": ["match", ["get", "tech"], ...Object.entries(TECH_COLORS).flat(), "#8b959c"],
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, ["min", 5, ["*", 0.12, ["sqrt", ["get", "mw"]]]], 9, ["min", 16, ["*", 0.45, ["sqrt", ["get", "mw"]]]]],
+      "circle-opacity": 0.75, "circle-stroke-width": 0.5, "circle-stroke-color": tok("--panel") } });
+  map.addLayer({ id: "queue", type: "circle", source: "buses", layout: { visibility: "none" }, filter: [">", ["get", "q"], 0],
+    paint: { "circle-color": tok("--accent"), "circle-opacity": 0.14, "circle-stroke-color": tok("--accent"), "circle-stroke-width": 1.2,
+      "circle-radius": ["interpolate", ["linear"], ["zoom"], 3, ["*", 0.11, ["sqrt", ["get", "q"]]], 9, ["*", 0.5, ["sqrt", ["get", "q"]]]] } });
+  map.addLayer({ id: "buses", type: "circle", source: "buses", filter: minKvFilter(),
+    layout: { "circle-sort-key": lens === "gen" ? ["-", 3, ["get", "sig"]] : 0 },
+    paint: { "circle-color": busColor(), "circle-radius": busRadius(), "circle-stroke-color": tok("--panel"), "circle-stroke-width": ["interpolate", ["linear"], ["zoom"], 4, 0, 7, 0.8] } });
+  map.addLayer({ id: "sel", type: "circle", source: "sel", paint: { "circle-radius": 11, "circle-color": "rgba(0,0,0,0)", "circle-stroke-color": tok("--accent"), "circle-stroke-width": 2.5 } });
+}
+
+function restyle() {
+  if (!map || !map.getLayer("buses")) return;
+  map.setPaintProperty("buses", "circle-color", busColor());
+  map.setPaintProperty("buses", "circle-radius", busRadius());
+  map.setLayoutProperty("buses", "circle-sort-key", lens === "storage" ? ["get", "sto"] : (lens === "gen" ? ["-", 3, ["get", "sig"]] : (lens === "load" ? ["-", 3, ["get", "lsig"]] : ["-", 3, ["get", "qc"]])));
+  map.setPaintProperty("lines", "line-color", lineColor());
+  map.setPaintProperty("land", "fill-color", tok("--land"));
+  map.setPaintProperty("state-line", "line-color", tok("--state"));
+  map.setPaintProperty("ba", "line-color", tok("--ba"));
+  map.setPaintProperty("queue", "circle-color", tok("--accent"));
+  map.setPaintProperty("queue", "circle-stroke-color", tok("--accent"));
+  map.setPaintProperty("hl", "line-color", tok("--accent"));
+  map.setPaintProperty("hl-casing", "line-color", tok("--panel"));
+  map.setPaintProperty("sel", "circle-stroke-color", tok("--accent"));
+  map.setPaintProperty("buses", "circle-stroke-color", tok("--panel"));
+  map.setPaintProperty("plants", "circle-stroke-color", tok("--panel"));
+  const bgLayer = map.getLayer("bg"); if (bgLayer) map.setPaintProperty("bg", "background-color", tok("--bg"));
+}
+
+// ---------------- rail ----------------
+const LENS = {
+  gen: { key: "sig", title: "Best sites in view", note: "≥115 kV, most MW after queue", metric: "hGq",
+    legend: [["--good", "Headroom", "≥ 250 MW injectable after the active queue"], ["--warn", "Limited", "75–250 MW"], ["--bad", "Congested", "< 75 MW, or queue > 1.5× substation capacity"], ["--na", "Not modeled", "Island in the line data (structural estimate only)"]] },
+  load: { key: "lsig", title: "Best sites for large load", note: "≥115 kV, most MW at peak", metric: "hLq",
+    legend: [["--good", "Headroom", "≥ 250 MW withdrawable at summer peak"], ["--warn", "Limited", "75–250 MW"], ["--bad", "Constrained", "< 75 MW"], ["--na", "Not modeled", "Island in the line data"]] },
+  queue: { key: "qc", title: "Most crowded substations", note: "queued MW ÷ N-1 branch capacity", metric: "qcap",
+    legend: [["--good", "Room", "Queue < 0.5× substation capacity"], ["--warn", "Crowded", "0.5–1.5×"], ["--bad", "Oversubscribed", "> 1.5× (red in the original scoring rule)"], ["--na", "No active queue", ""]] },
+  storage: { key: "sto", title: "Storage & reconductoring candidates", note: "renewables per MW of headroom", metric: "stoS",
+    legend: [["--store", "Candidate", "< 100 MW gen headroom, ≥ 150 MW of solar/wind (incl. 30% of queue)"], ["--na", "Other buses", ""]] },
+};
+
+function renderTally() {
+  const B = D.buses, cfg = LENS[lens], minkv = +$("#minkv").value; const c = [0, 0, 0, 0];
+  for (let i = 0; i < B.n; i++) {
+    if ((B.kv[i] || 0) < minkv) continue;
+    if (lens === "storage") { c[B.sto[i] ? 0 : 3]++; continue; }
+    const v = lens === "gen" ? B.sig[i] : lens === "load" ? B.lsig[i] : qcat(i); c[v]++;
+  }
+  const items = lens === "storage" ? [[c[0], cfg.legend[0][0], "candidates"]] :
+    [[c[0], cfg.legend[0][0], cfg.legend[0][1]], [c[1], cfg.legend[1][0], cfg.legend[1][1]], [c[2], cfg.legend[2][0], cfg.legend[2][1]]];
+  $("#tally").style.gridTemplateColumns = `repeat(${items.length}, 1fr)`;
+  $("#tally").innerHTML = items.map(([v, t, k]) => `<div><span class="v">${fmt(v)}</span><span class="k"><i class="dot" style="background:var(${t})"></i>${esc(k)}</span></div>`).join("");
+  $("#legend").innerHTML = cfg.legend.filter((l) => l[2]).map(([t, k, d]) => `<div class="row"><i class="dot" style="background:var(${t})"></i><span><b>${esc(k)}</b> · ${esc(d)}</span></div>`).join("") +
+    `<div class="row"><span class="ramp" style="background:linear-gradient(90deg,var(--line-lo),var(--line-mid),var(--line-hi))"></span><small class="note">Lines: 100 → 765 kV</small></div>`;
+}
+
+function renderSites() {
+  if (!map) return;
+  const B = D.buses, b = map.getBounds(), cfg = LENS[lens], m = B[cfg.metric]; const cand = [];
+  for (let i = 0; i < B.n; i++) {
+    const lon = B.lon[i], lat = B.lat[i];
+    if (lon < b.getWest() || lon > b.getEast() || lat < b.getSouth() || lat > b.getNorth()) continue;
+    if ((B.kv[i] || 0) < Math.max(115, +$("#minkv").value) || !B.mod[i] || B.type[i] !== 0) continue;
+    if (lens === "queue" && !B.q[i]) continue;
+    if (lens === "storage" && !B.sto[i]) continue;
+    if (m[i] == null) continue;
+    cand.push(i);
+  }
+  cand.sort((a, c) => m[c] - m[a]);
+  $("#sitesTitle").textContent = cfg.title; $("#sitesNote").textContent = cfg.note;
+  const top = cand.slice(0, 8);
+  $("#sites").innerHTML = top.length ? top.map((i) => {
+    const color = lens === "storage" ? "--store" : cfg.legend[lens === "gen" ? B.sig[i] : lens === "load" ? B.lsig[i] : qcat(i)][0];
+    const val = lens === "queue" ? `${fmt(m[i], 1)}×` : lens === "storage" ? fmt(m[i], 1) : `${mw(m[i])} MW`;
+    return `<button class="site" data-bus="${i}"><i class="dot" style="background:var(${color})"></i><span>${esc(B.name[i])} <small>${esc(B.kvl[i])} kV · ${esc(B.st[i] || "")}</small></span><span class="num">${val}</span></button>`;
+  }).join("") : `<p class="empty">No modeled substations match in this view. Zoom out or lower the voltage filter.</p>`;
+}
+
+// ---------------- inspector ----------------
+function sigPill(s, names = SIG_NAME) { const t = ["--good", "--warn", "--bad", "--na"][s]; return `<span class="pill" style="--c:var(${t})">${esc(names[s])}</span>`; }
+function lineLabel(j) {
+  const L = D.lines; const a = L.s1[j], b = L.s2[j];
+  const clean = (s) => (!s || /^(Unknown|Tap|Not Available)/i.test(s)) ? null : s;
+  const nm = [clean(a), clean(b)].filter(Boolean).join(" – ") || "Unnamed segment";
+  return `${nm} · ${fmt(L.kv[j])} kV`;
+}
+
+function showBus(i) {
+  const B = D.buses, Q = D.queue, P = D.plants; selected = { kind: "bus", i };
+  map.getSource("sel").setData({ type: "FeatureCollection", features: [{ type: "Feature", geometry: { type: "Point", coordinates: [B.lon[i], B.lat[i]] } }] });
+  const isLoad = lens === "load";
+  const head = `<button class="close" id="close" aria-label="Close">×</button>
+    <span class="eyebrow">${["Substation", "Substation (unnamed in source)", "Line tap"][B.type[i]]} · ${esc(B.ic[i])}</span>
+    <h2>${esc(B.name[i])}</h2>
+    <div class="meta"><span class="num">${esc(B.kvl[i])} kV</span><span>${esc([B.cty[i], B.st[i]].filter(Boolean).join(", "))}</span>${B.own[i] ? `<span>${esc(B.own[i])}</span>` : ""}<span>${fmt(B.deg[i])} line terminations</span></div>`;
+  let body = "";
+  if (B.mod[i]) {
+    const val = isLoad ? B.hLq[i] : B.hGq[i], s = isLoad ? B.lsig[i] : B.sig[i];
+    const t = ["--good", "--warn", "--bad", "--na"][s];
+    body += `<div class="verdict" style="--sig:var(${t})"><div class="big">${mw(val)}<small> MW</small></div>
+      <div class="lab">${isLoad ? "New load this bus can serve at peak" : "New generation this bus can take"} ${sigPill(s)}</div>
+      <div class="exp">${isLoad ? "After the active queue is added (phase-weighted)." : "After the active queue ahead is added (phase-weighted). Worst of summer peak and light-load scenarios."}</div></div>`;
+    body += `<dl class="kv">
+      <dt>Generation headroom, existing grid</dt><dd>${mw(B.hG[i])} MW</dd>
+      <dt>…summer peak / light load</dt><dd>${mw(B.hGp[i])} / ${mw(B.hGl[i])}</dd>
+      <dt>Generation headroom after queue</dt><dd>${mw(B.hGq[i])} MW</dd>
+      <dt>Deliverability screen (5% DF), existing grid</dt><dd>${mw(B.hGd[i])} MW</dd>
+      <dt>Load headroom (peak), existing grid</dt><dd>${mw(B.hL[i])} MW</dd>
+      <dt>Load headroom after queue</dt><dd>${mw(B.hLq[i])} MW</dd></dl>`;
+    const bl = isLoad ? B.bL[i] : B.bG[i]; const j = D.lines.idx.get(bl);
+    if (bl === -2) {
+      body += `<div class="sec"><span class="eyebrow">Binding constraint</span><div class="constraint"><b>Substation outlet capacity</b>
+        <small>The lines leaving this bus can carry ${fmt(0.85 * B.n1[i])} MW with the largest one out of service (85% of N-1 branch capacity), and part of that is already used by existing ${isLoad ? "load" : "generation"}${isLoad ? "" : " and the queue"}.</small></div></div>`;
+    } else if (j != null) {
+      const L = D.lines;
+      body += `<div class="sec"><span class="eyebrow">Binding constraint</span><button class="constraint" data-line="${j}"><b>${esc(lineLabel(j))}</b>
+        ${!isLoad && B.bdf[i] != null ? `<small>${fmt(100 * Math.abs(B.bdf[i]))}% of a new injection here flows on this line</small>` : ""}
+        <small>Screening limit ${fmt(L.lim[j])} MW (${L.basis[j] ? "stability, St. Clair" : "thermal"}) · loading ${fmt(Math.max(L.ldP[j] ?? 0, L.ldL[j] ?? 0))}% today, ${fmt(L.ldQ[j])}% with queue</small>
+        <small>Limits ${fmt(L.bb[j])} buses · ${fmt(L.qb[j])} MW queued behind it. Show on map →</small></button></div>`;
+    }
+  } else {
+    body += `<div class="verdict" style="--sig:var(--na)"><div class="big">${mw(B.hGq[i])}<small> MW</small></div><div class="lab">Structural estimate ${sigPill(3)}</div><div class="exp">This bus sits on a fragment of the line data that is not connected to the main network, so no power flow was run. The figure is N-1 branch capacity × 0.85, less existing and expected queued generation.</div></div>`;
+  }
+  const qtot = B.q[i] || 0;
+  body += `<div class="sec"><span class="eyebrow">Substation capacity check</span><dl class="kv">
+    <dt>N-1 branch capacity (sum of line limits less the largest)</dt><dd>${fmt(B.n1[i])} MW</dd>
+    <dt>Active queue at this bus</dt><dd>${fmt(qtot)} MW</dd>
+    <dt>Queue ÷ capacity</dt><dd>${B.qcap[i] == null ? "–" : fmt(B.qcap[i], 2) + "×"} ${qtot ? sigPill(qcat(i), ["Room", "Crowded", "Oversubscribed", "–"]) : ""}</dd>
+    <dt>Allocated peak load</dt><dd>${fmt(B.load[i])} MW</dd></dl></div>`;
+  if (qtot) {
+    const seg = PHASES.map(([k, n, t]) => ({ v: B[k][i] || 0, n, t })).filter((x) => x.v > 0);
+    body += `<div class="sec"><span class="eyebrow">Queue ahead · ${fmt(B.qn[i])} requests · expected ${fmt(B.qx[i])} MW</span>
+      <div class="bar">${seg.map((x) => `<span style="width:${100 * x.v / qtot}%;background:var(${x.t})" title="${esc(x.n)}"></span>`).join("")}</div>
+      <div class="bar-key">${seg.map((x) => `<span><i class="dot" style="background:var(${x.t})"></i> ${esc(x.n)} ${fmt(x.v)} MW</span>`).join("")}</div>
+      <ul class="plist">${(B.proj.get(B.id[i]) || []).sort((a, c) => Q.mw[c] - Q.mw[a]).map((k) => `<li><span class="n">${esc(Q.name[k] || Q.uid[k])}</span><span class="num">${fmt(Q.mw[k])} MW</span>
+        <span class="d">${esc(Q.type[k])} · ${esc(Q.phase[k])} · ${esc(Q.iso[k])} ${esc(Q.uid[k].split(":")[1])}${Q.cod[k] ? ` · COD ${Q.cod[k]}` : ""} · POI “${esc(Q.poi[k] || "n/a")}” (${esc(Q.how[k])})</span></li>`).join("")}</ul></div>`;
+  }
+  const pl = B.plants.get(B.id[i]) || [];
+  if (B.gen[i]) {
+    const mix = [["genS", "Solar"], ["genW", "Wind"], ["genB", "Battery"], ["genG", "Gas CC"], ["genC", "Coal"], ["genN", "Nuclear"], ["genH", "Hydro"]].map(([k, n]) => ({ n, v: B[k][i] || 0 }));
+    const other = Math.max(0, B.gen[i] - mix.reduce((s, x) => s + x.v, 0)); if (other > 0.5) mix.push({ n: "Biomass/other", v: other });
+    const segs = mix.filter((x) => x.v > 0);
+    body += `<div class="sec"><span class="eyebrow">Existing generation at this bus · ${fmt(B.gen[i])} MW</span>
+      <div class="bar">${segs.map((x) => `<span style="width:${100 * x.v / B.gen[i]}%;background:${TECH_COLORS[x.n] || "#8b959c"}"></span>`).join("")}</div>
+      <div class="bar-key">${segs.map((x) => `<span><i class="dot" style="background:${TECH_COLORS[x.n] || "#8b959c"}"></i> ${esc(x.n)} ${fmt(x.v)}</span>`).join("")}</div>
+      ${pl.length ? `<ul class="plist">${pl.sort((a, c) => P.mw[c] - P.mw[a]).slice(0, 12).map((k) => `<li><span class="n">${esc(P.name[k])}</span><span class="num">${fmt(P.mw[k])} MW</span><span class="d">${esc(P.tech[k])}${P.kv[k] ? ` · grid ${fmt(P.kv[k], 1)} kV` : ""} · ${esc(P.own[k] || "")}</span></li>`).join("")}</ul>` : ""}</div>`;
+  }
+  body += `<p class="note">Screening estimate from public data, not a utility interconnection study. Ratings, topology and dispatch are approximated; see Method &amp; sources.</p>`;
+  openInspector(head, body);
+}
+
+function showLine(j) {
+  const L = D.lines, B = D.buses; selected = { kind: "line", j };
+  highlightLine(j, false);
+  const fr = B.idx.get(L.fr[j]), to = B.idx.get(L.to[j]);
+  const head = `<button class="close" id="close" aria-label="Close">×</button><span class="eyebrow">Transmission line · ${esc(L.owners[L.own[j]])}</span>
+    <h2>${esc(lineLabel(j))}</h2><div class="meta"><span class="num">${fmt(L.len[j], 1)} km</span><span>${L.cal[j] ? "rating raised to fit today's modeled flow" : "rating from voltage class"}</span></div>`;
+  const ld = Math.max(L.ldP[j] ?? 0, L.ldL[j] ?? 0); const s = ld >= 100 ? 2 : ld >= 85 ? 1 : 0;
+  let body = `<div class="verdict" style="--sig:var(${["--good", "--warn", "--bad"][s]})"><div class="big">${fmt(ld)}<small> %</small></div><div class="lab">Modeled loading, worst scenario</div><div class="exp">Of the usable limit (85% of the screening rating). With the phase-weighted queue: ${fmt(L.ldQ[j])}%.</div></div>
+    <dl class="kv"><dt>Screening rating</dt><dd>${fmt(L.lim0[j])} MW (${L.basis[j] ? "St. Clair" : "thermal"})</dd><dt>Rating used in the model</dt><dd>${fmt(L.lim[j])} MW</dd>
+    <dt>Flow, summer peak</dt><dd>${fmt(Math.abs(L.fP[j] ?? 0))} MW</dd><dt>Flow, light load / high renewables</dt><dd>${fmt(Math.abs(L.fL[j] ?? 0))} MW</dd>
+    <dt>Buses whose headroom it sets</dt><dd>${fmt(L.bb[j])}</dd><dt>Queued MW behind it</dt><dd>${fmt(L.qb[j])}</dd></dl>
+    <div class="sec"><span class="eyebrow">Ends</span>${[fr, to].filter((x) => x != null).map((i) => `<button class="site" data-bus="${i}"><i class="dot" style="background:var(${["--good", "--warn", "--bad", "--na"][B.sig[i]]})"></i><span>${esc(B.name[i])} <small>${esc(B.kvl[i])} kV</small></span><span class="num">${mw(B.hGq[i])} MW</span></button>`).join("")}</div>
+    <p class="note">A high share of buses limited by one line marks it as a candidate for reconductoring or storage.</p>`;
+  openInspector(head, body);
+}
+
+function openInspector(head, body) {
+  $("#inspHead").innerHTML = head; $("#inspBody").innerHTML = body; $("#insp").hidden = false;
+  $("#close").onclick = closeInspector;
+}
+function closeInspector() {
+  $("#insp").hidden = true; selected = null;
+  map.getSource("sel").setData({ type: "FeatureCollection", features: [] });
+  map.getSource("hl").setData({ type: "FeatureCollection", features: [] });
+}
+function highlightLine(j, fit = true) {
+  const L = D.lines; const geom = lineGeom(L.g[j]);
+  map.getSource("hl").setData({ type: "Feature", geometry: geom, properties: {} });
+  if (fit) {
+    const pts = geom.type === "LineString" ? geom.coordinates : geom.coordinates.flat();
+    const lons = pts.map((p) => p[0]), lats = pts.map((p) => p[1]);
+    map.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 120, maxZoom: 10, duration: 600 });
+  }
+}
+function flyToBus(i) { map.flyTo({ center: [D.buses.lon[i], D.buses.lat[i]], zoom: Math.max(map.getZoom(), 8.5), duration: 700 }); showBus(i); }
+
+// ---------------- method dialog ----------------
+function renderMethod() {
+  const m = D.meta, s = m.summary, p = s.params, c = m.counts;
+  const ic = Object.entries(s.interconnections).map(([k, v]) => `<tr><td>${esc(k)}</td><td class="num">${fmt(v.buses)}</td><td class="num">${fmt(v.lines)}</td><td class="num">${fmt(v.gen_gw, 0)}</td><td class="num">${fmt(v.peak_load_gw, 0)}</td><td class="num">${fmt(100 * v.share_lines_calibrated, 1)}%</td></tr>`).join("");
+  const src = m.sources.map((x) => `<tr><td>${esc(x.source)}</td><td>${esc(x.retrieved)}</td><td><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//, "").slice(0, 70))}</a></td></tr>`).join("");
+  $("#methodBody").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:start;gap:12px"><h2 id="mTitle">How the atlas is built</h2><button class="close" style="position:static" id="mClose" aria-label="Close">×</button></div>
+  <p>The atlas joins public grid data into one network model and asks a single question at every substation: how many megawatts can connect here before a transmission line reaches its limit? It is a screening tool for choosing where to look, built ${esc(m.built)} from ${fmt(c.lines)} line segments (${fmt(c.line_km)} km), ${fmt(c.buses)} buses, ${fmt(c.plants)} operating plants (${fmt(c.gen_gw)} GW) and ${fmt(c.queue_projects)} active interconnection requests (${fmt(c.queue_gw)} GW).</p>
+  <h3>The model</h3>
+  <ul>
+    <li><b>Network.</b> HIFLD transmission lines (100–765 kV) are snapped end to end within 300 m to form buses. Bus names come from the HIFLD endpoint labels and OpenStreetMap. Lines that cross between interconnections are cut, since the Eastern, Western and ERCOT grids meet only through DC ties.</li>
+    <li><b>Ratings.</b> Each line gets a typical reactance and thermal rating for its voltage class, capped by the St. Clair loadability curve for long lines.</li>
+    <li><b>Load.</b> Summer-2026 peak demand for each balancing authority (EIA-930, third-highest hour) is spread over Census tracts by population and attached to the nearest bus.</li>
+    <li><b>Generation.</b> ${fmt(c.gen_gw)} GW of operating units from EIA-860M (Aug 2026) are attached to the nearest bus at their reported grid voltage, then dispatched for two scenarios: summer peak, and light load (55%) with high solar and wind output. Each balancing authority first meets its own load; the remainder is traded across the interconnection.</li>
+    <li><b>Power flow.</b> A DC power flow is solved for each interconnection and scenario. Where the approximated ratings cannot carry today's modeled flow, the rating is raised so that existing flows use ${fmt(100 * p.CALIB_UTIL)}% of the usable limit (share of lines adjusted is in the table below).</li>
+    <li><b>Headroom.</b> For every bus, power transfer distribution factors give the MW that can be injected (generation) or withdrawn (load) before any line carrying ${fmt(100 * p.DF_MIN)}% or more of the change reaches ${fmt(100 * p.ALPHA)}% of its rating. That is the energy-only (ERIS-style) cut-off MISO and SPP use. As in ISO studies, each new megawatt is absorbed by scaling back non-nuclear generation inside the same balancing authority or ISO. The inspector also shows a stricter deliverability-style figure that counts every line above ${fmt(100 * p.DF_DELIV)}%.</li>
+    <li><b>Queue ahead.</b> Active requests from the seven ISO/RTO queues (Oct 2026) and the LBNL Queued Up dataset (end of 2025, for non-ISO utilities) are matched to buses by point-of-interconnection name, or by county when the name cannot be matched. Each request is weighted by its odds of being built: early study ${p.PHASE_WEIGHT["Early study"]}, late study ${p.PHASE_WEIGHT["Late study"]}, IA executed ${p.PHASE_WEIGHT["IA executed"]}, under construction ${p.PHASE_WEIGHT["Construction"]}. The weighted queue is added to the base case, capped at what each balancing authority can displace, and headroom is recomputed.</li>
+    <li><b>Substation outlet.</b> No bus can export more than 85% of its N-1 branch capacity, less what it already exports. This stops large 500 kV hubs, where no single line carries a fifth of the injection, from reading as unlimited. Counterflow from queued projects is never credited, since those projects may withdraw.</li>
+    <li><b>Substation capacity.</b> As a structural check, each bus's N-1 branch capacity is the sum of its line limits less the largest. Queue pressure is queued MW divided by that capacity, coloured red above 1.5× and green below 0.5×.</li>
+  </ul>
+  <div class="tbl-wrap"><table><thead><tr><th>Interconnection</th><th>Buses</th><th>Lines</th><th>Gen GW</th><th>Peak load GW</th><th>Lines re-rated</th></tr></thead><tbody>${ic}</tbody></table></div>
+  <h3>What it cannot see yet</h3>
+  <ul>
+    <li>Real line ratings, transformer and breaker-bay limits, and N-1 contingencies. These live in CEII-protected base cases (PSS/E, PSLF) that need an NDA with each ISO.</li>
+    <li>Lines below 100 kV and distribution feeders. Utility hosting-capacity maps (PG&amp;E, SCE, SDG&amp;E and others) cover that level.</li>
+    <li>Planned transmission upgrades, and network upgrade costs already assigned in cluster studies.</li>
+    <li>Location-specific load such as data centers, which is not proportional to population.</li>
+    <li>About ${fmt(100 * (m.queue_by_match["county proximity"] || 0) / c.queue_projects)}% of queue requests are placed by county rather than by POI name, so individual assignments can be wrong even when regional totals are right.</li>
+  </ul>
+  <h3>Sources</h3>
+  <div class="tbl-wrap"><table><thead><tr><th>Dataset</th><th>Retrieved</th><th>Link</th></tr></thead><tbody>${src}</tbody></table></div>
+  <p class="note">LBNL Queued Up data is CC BY 4.0 (Lawrence Berkeley National Laboratory and GridTracker). OpenStreetMap data © OpenStreetMap contributors, ODbL.</p>`;
+  $("#mClose").onclick = () => $("#method").close();
+}
+
+// ---------------- wiring ----------------
+function setLens(l) {
+  lens = l; document.querySelectorAll(".lens button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lens === l)));
+  restyle(); renderTally(); renderSites();
+  if (selected?.kind === "bus") showBus(selected.i);
+}
+
+function wire() {
+  document.querySelectorAll(".lens button").forEach((b) => b.onclick = () => setLens(b.dataset.lens));
+  const vis = (id, on) => map.setLayoutProperty(id, "visibility", on ? "visible" : "none");
+  $("#L-lines").onchange = (e) => vis("lines", e.target.checked);
+  $("#L-buses").onchange = (e) => vis("buses", e.target.checked);
+  $("#L-queue").onchange = (e) => vis("queue", e.target.checked);
+  $("#L-plants").onchange = (e) => vis("plants", e.target.checked);
+  $("#L-ba").onchange = (e) => vis("ba", e.target.checked);
+  $("#L-blm").onchange = (e) => vis("blm", e.target.checked);
+  $("#L-named").onchange = () => { map.setFilter("buses", minKvFilter()); renderSites(); };
+  $("#minkv").onchange = () => { map.setFilter("buses", minKvFilter()); renderTally(); renderSites(); };
+  $("#linecolor").onchange = restyle;
+  $("#zin").onclick = () => map.zoomIn(); $("#zout").onclick = () => map.zoomOut();
+  $("#openMethod").onclick = () => $("#method").showModal();
+  $("#railToggle").onclick = () => { const r = $("#rail"); const c = r.classList.toggle("collapsed"); $("#railToggle").textContent = c ? "Show" : "Hide"; $("#railToggle").setAttribute("aria-expanded", String(!c)); };
+  document.addEventListener("click", (e) => {
+    const s = e.target.closest("[data-bus]"); if (s) { flyToBus(+s.dataset.bus); $("#results").hidden = true; return; }
+    const c = e.target.closest("[data-line]"); if (c) { highlightLine(+c.dataset.line, true); }
+  });
+  // search
+  const B = D.buses; const named = []; for (let i = 0; i < B.n; i++) if (B.type[i] === 0 || B.osm[i]) named.push(i);
+  $("#q").oninput = (e) => {
+    const t = e.target.value.trim().toLowerCase(); const ul = $("#results");
+    if (t.length < 2) { ul.hidden = true; return; }
+    const hits = named.filter((i) => B.name[i].toLowerCase().includes(t) || (B.osm[i] || "").toLowerCase().includes(t))
+      .sort((a, c) => (B.kv[c] || 0) - (B.kv[a] || 0)).slice(0, 12);
+    ul.innerHTML = hits.length ? hits.map((i) => `<li><button data-bus="${i}"><span>${esc(B.name[i])}</span><small>${esc(B.kvl[i])} kV · ${esc(B.st[i] || "")}</small></button></li>`).join("") : `<li><p class="empty" style="padding:6px 8px">No substation named “${esc(t)}”.</p></li>`;
+    ul.hidden = false;
+  };
+  // map interaction
+  const tip = $("#tip");
+  map.on("mousemove", (e) => {
+    const f = map.queryRenderedFeatures(e.point, { layers: ["buses", "lines"].filter((l) => map.getLayoutProperty(l, "visibility") !== "none") });
+    map.getCanvas().style.cursor = f.length ? "pointer" : "";
+    if (!f.length) { tip.hidden = true; return; }
+    const ft = f.find((x) => x.layer.id === "buses") || f[0];
+    if (ft.layer.id === "buses") {
+      const i = ft.properties.i; const v = lens === "load" ? B.hLq[i] : B.hGq[i];
+      tip.innerHTML = `<b>${esc(B.name[i])}</b> · ${esc(B.kvl[i])} kV<br>${lens === "load" ? "Load" : "Generation"} headroom after queue: <span class="num">${mw(v)} MW</span>${B.q[i] ? `<br>Queue: <span class="num">${fmt(B.q[i])} MW</span>` : ""}`;
+    } else {
+      const j = ft.properties.i; const L = D.lines;
+      tip.innerHTML = `<b>${esc(lineLabel(j))}</b><br>Modeled loading <span class="num">${fmt(Math.max(L.ldP[j] ?? 0, L.ldL[j] ?? 0))}%</span> of ${fmt(L.lim[j])} MW`;
+    }
+    tip.hidden = false; tip.style.left = `${e.point.x + 14}px`; tip.style.top = `${e.point.y + 14}px`;
+  });
+  map.on("mouseout", () => { tip.hidden = true; });
+  map.on("click", (e) => {
+    const box = [[e.point.x - 4, e.point.y - 4], [e.point.x + 4, e.point.y + 4]];
+    const fb = map.queryRenderedFeatures(box, { layers: ["buses"] });
+    if (fb.length) { showBus(fb[0].properties.i); return; }
+    const fq = map.getLayoutProperty("queue", "visibility") === "visible" ? map.queryRenderedFeatures(box, { layers: ["queue"] }) : [];
+    if (fq.length) { showBus(fq[0].properties.i); return; }
+    const fl = map.queryRenderedFeatures(box, { layers: ["lines"] });
+    if (fl.length) { showLine(fl[0].properties.i); return; }
+  });
+  map.on("moveend", renderSites);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("#insp").hidden) closeInspector(); });
+  const mq = matchMedia("(prefers-color-scheme: dark)"); mq.addEventListener?.("change", restyle);
+  new MutationObserver(restyle).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+}
+
+async function main() {
+  try { await load(); } catch (err) {
+    $("#loadmsg").textContent = "The model data could not be loaded. If you opened this file directly, serve the map folder over HTTP (python -m http.server) and reload.";
+    return;
+  }
+  const m = D.meta;
+  $("#subline").textContent = `Contiguous US · ${fmt(m.counts.buses_modeled)} modeled buses · ${fmt(m.counts.queue_gw)} GW in active queues`;
+  $("#vintage").textContent = `Model built ${m.built}`;
+  $("#c-lines").textContent = fmt(m.counts.lines); $("#c-buses").textContent = fmt(m.counts.buses);
+  $("#c-queue").textContent = `${fmt(m.counts.queue_located)} req.`; $("#c-plants").textContent = fmt(D.plants.id.length);
+  map = new maplibregl.Map({
+    container: "map", attributionControl: false, renderWorldCopies: false, dragRotate: false, pitchWithRotate: false,
+    style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": tok("--bg") } }] },
+    bounds: [[-124.8, 24.4], [-66.9, 49.4]], fitBoundsOptions: { padding: { top: 30, bottom: 30, left: innerWidth > 760 ? 360 : 20, right: 20 } },
+    minZoom: 2.5, maxZoom: 13,
+  });
+  map.touchZoomRotate.disableRotation();
+  map.on("load", () => {
+    addLayers(); wire(); renderTally(); renderSites(); renderMethod();
+    $("#loading").hidden = true;
+  });
+}
+main();
+})();
+</script>

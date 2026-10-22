@@ -1,0 +1,19 @@
+# Python environment
+.venv/
+__pycache__/
+*.pyc
+
+# Data: re-create with `python -I pipeline/run_all.py --fetch`
+# (raw files exceed GitHub limits; the provenance manifest is kept)
+data/*
+!data/raw/
+data/raw/*
+!data/raw/manifest.json
+
+# Local conversation export (a redacted copy lives in docs/)
+2026-10-22-*.txt
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/

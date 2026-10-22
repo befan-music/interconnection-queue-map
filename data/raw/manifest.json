@@ -1,0 +1,538 @@
+{
+  "data/raw/blm/BLM_lands_open_to_solar_application.geojson": {
+    "bytes": 1829,
+    "note": "6 features",
+    "retrieved_utc": "2026-10-22T01:13:44+00:00",
+    "sha256": "053fd5ac121f0a360dc326aa9d0e0dc305940e0230457926f2c6bc105555482d",
+    "source": "BLM via HIFLD: BLM_lands_open_to_solar_application",
+    "url": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/BLM_lands_open_to_solar_application/FeatureServer/0"
+  },
+  "data/raw/blm/Not_open_to_solar_application.geojson": {
+    "bytes": 8746,
+    "note": "1 features",
+    "retrieved_utc": "2026-10-22T01:13:44+00:00",
+    "sha256": "6888630dfb7b657f2c045b4316f0b6317029bd82e6f33aecaa67b9b9e05abe4b",
+    "source": "BLM via HIFLD: Not_open_to_solar_application",
+    "url": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Not_open_to_solar_application/FeatureServer/0"
+  },
+  "data/raw/census/CenPop2020_Mean_TR.txt": {
+    "bytes": 3583604,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:12:55+00:00",
+    "sha256": "137d5b7bc8139a385c2022f54a9aca00ea56bc5ad81c936cf8134e977d50d2c5",
+    "source": "US Census 2020 tract centers of population",
+    "url": "https://www2.census.gov/geo/docs/reference/cenpop2020/tract/CenPop2020_Mean_TR.txt"
+  },
+  "data/raw/census/cb_2024_us_county_500k.zip": {
+    "bytes": 11626066,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:12:55+00:00",
+    "sha256": "da4051717caec55c75e3748c3608c2a3dbde8d1ff401bbaf4f952e3c3fb63ef1",
+    "source": "US Census cartographic boundaries",
+    "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_county_500k.zip"
+  },
+  "data/raw/census/cb_2024_us_state_20m.zip": {
+    "bytes": 187671,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:12:55+00:00",
+    "sha256": "7bc773d83c01b6df69b8aada9c2b5983d97f22f4551947cc5c00b87c663223ef",
+    "source": "US Census cartographic boundaries",
+    "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_20m.zip"
+  },
+  "data/raw/eia860/eia8602025.zip": {
+    "bytes": 23622347,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:11:26+00:00",
+    "sha256": "2b27929d26cc1da9ad6a530da1cac6718cd8496098ee560c4d47cfffd96d08ba",
+    "source": "EIA-860",
+    "url": "https://www.eia.gov/electricity/data/eia860/xls/eia8602025.zip"
+  },
+  "data/raw/eia860m/august_generator2026.xlsx": {
+    "bytes": 13955142,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:11:29+00:00",
+    "sha256": "b4b70abb4c217e8e2658c3bde7608a3d530e86a81279ccc572ced82a200e9f1c",
+    "source": "EIA-860M",
+    "url": "https://www.eia.gov/electricity/data/eia860m/xls/august_generator2026.xlsx"
+  },
+  "data/raw/eia930/EIA930_BALANCE_Jul_Dec.csv": {
+    "bytes": 29542945,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:31:39+00:00",
+    "sha256": "88e390dee44ff45297e2b75c03b9b8ae9a7cf768ce3df1e0c504439b415412d2",
+    "source": "EIA-930",
+    "url": "https://www.eia.gov/electricity/gridmonitor/sixMonthFiles/EIA930_BALANCE_2026_Jul_Dec.csv"
+  },
+  "data/raw/hifld/control_areas.geojson": {
+    "bytes": 1103033,
+    "note": "71 features",
+    "retrieved_utc": "2026-10-22T01:13:21+00:00",
+    "sha256": "af4c44aed928c3a9062fb72257f2ba464bd880e6750b6cacda95452c4b169ebc",
+    "source": "HIFLD Control Areas (mirror)",
+    "url": "https://services5.arcgis.com/HDRa0B57OVrv2E1q/ArcGIS/rest/services/Control_Areas/FeatureServer/0"
+  },
+  "data/raw/hifld/transmission_lines.geojson": {
+    "bytes": 108473610,
+    "note": "52244 features",
+    "retrieved_utc": "2026-10-22T01:14:56+00:00",
+    "sha256": "e42408238867bfc32a33de8c9e5a0dfb6999bc18a0a872241ad4823dc8c2f586",
+    "source": "HIFLD Electric Power Transmission Lines",
+    "url": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0"
+  },
+  "data/raw/osm/substations_US-AL.json": {
+    "bytes": 568509,
+    "note": "power=substation US-AL",
+    "retrieved_utc": "2026-10-22T01:20:37+00:00",
+    "sha256": "c6d81339ac4f228ad3cb749327898cb229f2bce20097673bc915735f94fe128d",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-AR.json": {
+    "bytes": 289699,
+    "note": "power=substation US-AR",
+    "retrieved_utc": "2026-10-22T01:29:01+00:00",
+    "sha256": "914171ee23f327bf6343f66ce07c541da04840afba9660b082a8abb9cf05e8f0",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-AZ.json": {
+    "bytes": 400053,
+    "note": "power=substation US-AZ",
+    "retrieved_utc": "2026-10-22T01:24:41+00:00",
+    "sha256": "2782ffc7679da63652ddefacafff265bf302be8d966059fbc62c712be4f80c0b",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-CA.json": {
+    "bytes": 1034840,
+    "note": "power=substation US-CA",
+    "retrieved_utc": "2026-10-22T01:32:43+00:00",
+    "sha256": "46bd73d6deae425d918cb3bdccfc51d794c1d4dbb99abac709d7c7fdcfcdff27",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-CO.json": {
+    "bytes": 766138,
+    "note": "power=substation US-CO",
+    "retrieved_utc": "2026-10-22T01:35:11+00:00",
+    "sha256": "085ff1fe0d891f428bceb437746d41a8689e76ecca7f625de0fd2a41ec32a39b",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-CT.json": {
+    "bytes": 83995,
+    "note": "power=substation US-CT",
+    "retrieved_utc": "2026-10-22T01:40:19+00:00",
+    "sha256": "09d9dfa613d549c5592aec214385373df43c183f36d087d4560a36035124088f",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-DC.json": {
+    "bytes": 21174,
+    "note": "power=substation US-DC",
+    "retrieved_utc": "2026-10-22T01:43:50+00:00",
+    "sha256": "5e61aea8324abc73ee68ccdbe542bef07b6261ba5dcfb1fed5395be014d5e006",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-DE.json": {
+    "bytes": 101676,
+    "note": "power=substation US-DE",
+    "retrieved_utc": "2026-10-22T01:42:14+00:00",
+    "sha256": "d8d34d87749921f04a0d7715ac826efd5e8c132c76dd8441411ceae19ab299c2",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-FL.json": {
+    "bytes": 795911,
+    "note": "power=substation US-FL",
+    "retrieved_utc": "2026-10-22T01:46:42+00:00",
+    "sha256": "82f114aa74de2dab7148bd38d11bcc88aef55831a42218a6cd3964f735233799",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-GA.json": {
+    "bytes": 780656,
+    "note": "power=substation US-GA",
+    "retrieved_utc": "2026-10-22T01:53:15+00:00",
+    "sha256": "276906a291c7bb1487c2fc8c50cc51e9a784cbb747e66592c2d33d92c73ecbc5",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-IA.json": {
+    "bytes": 468134,
+    "note": "power=substation US-IA",
+    "retrieved_utc": "2026-10-22T02:39:50+00:00",
+    "sha256": "b5d86546e06e9d98577d685046135344a014337fa950cc73f91ea11900523873",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-ID.json": {
+    "bytes": 121650,
+    "note": "power=substation US-ID",
+    "retrieved_utc": "2026-10-22T01:58:21+00:00",
+    "sha256": "b9cf004d0ce9ff38229d94485aa6a582ce773a35b549739d3231697b3ef242ee",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-IL.json": {
+    "bytes": 638629,
+    "note": "power=substation US-IL",
+    "retrieved_utc": "2026-10-22T02:03:48+00:00",
+    "sha256": "18b044249f40c4326edd8353101e0783c7445295b68f1ed307699f52e2981cc1",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-IN.json": {
+    "bytes": 515019,
+    "note": "power=substation US-IN",
+    "retrieved_utc": "2026-10-22T02:34:59+00:00",
+    "sha256": "9a6fdb30f27277d742a516f4423ffdf9b3cbafa0a3d967cbd0fef7641f098993",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-KS.json": {
+    "bytes": 305279,
+    "note": "power=substation US-KS",
+    "retrieved_utc": "2026-10-22T02:42:26+00:00",
+    "sha256": "ae7e6776b27645afbcc8f71b15e6ad56890ae70da5bba832ae0287e0d588ebfd",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-KY.json": {
+    "bytes": 406242,
+    "note": "power=substation US-KY",
+    "retrieved_utc": "2026-10-22T02:45:03+00:00",
+    "sha256": "111e32da48d5a4a085ab7b23ef0ca27ce3a11019575f37f61502e18aab4ea4e9",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-LA.json": {
+    "bytes": 370215,
+    "note": "power=substation US-LA",
+    "retrieved_utc": "2026-10-22T02:46:33+00:00",
+    "sha256": "57dff73e22005a6e36bedbb32025a9f69a1af2afd0ad429bda252bd178ed92a4",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-MA.json": {
+    "bytes": 275625,
+    "note": "power=substation US-MA",
+    "retrieved_utc": "2026-10-22T02:58:39+00:00",
+    "sha256": "30a62ec00335f0121e98981276975119ec1d57063c823c8104f6e66cf335a494",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-MD.json": {
+    "bytes": 406272,
+    "note": "power=substation US-MD",
+    "retrieved_utc": "2026-10-22T02:53:17+00:00",
+    "sha256": "a8e704b8a12202f5d724b8968231fc2af4b3a3b4d3cce6724494887d40b36200",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-ME.json": {
+    "bytes": 3417,
+    "note": "power=substation US-ME",
+    "retrieved_utc": "2026-10-22T02:50:49+00:00",
+    "sha256": "29faf8aff314a4a72f1ca839ed05cded15afb17c53929cd31cf1f701a7c8fb52",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-MI.json": {
+    "bytes": 997761,
+    "note": "power=substation US-MI",
+    "retrieved_utc": "2026-10-22T03:02:58+00:00",
+    "sha256": "fae30829a1f3c5f42212d1ec736d78157aac42e43a2b116f0f15a0c50779ceac",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-MN.json": {
+    "bytes": 420807,
+    "note": "power=substation US-MN",
+    "retrieved_utc": "2026-10-22T03:05:22+00:00",
+    "sha256": "1d9cbb04cd01417a802f8430e99c0e4c9241d5f029bf1a3054cd6069f51c118b",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-MO.json": {
+    "bytes": 396000,
+    "note": "power=substation US-MO",
+    "retrieved_utc": "2026-10-22T03:12:58+00:00",
+    "sha256": "cd1bb5524b78eaf40e961128a065667b54efeaa6640dbe45d7b552812359cb28",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-MS.json": {
+    "bytes": 264082,
+    "note": "power=substation US-MS",
+    "retrieved_utc": "2026-10-22T03:09:25+00:00",
+    "sha256": "06cdf888046efc27b30ff65c7a0953da39580da79e91e604ac7d95915f6d06c8",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-MT.json": {
+    "bytes": 143118,
+    "note": "power=substation US-MT",
+    "retrieved_utc": "2026-10-22T03:16:34+00:00",
+    "sha256": "e6675a51edcf150a8e7ad6552578772408949f56d5281fd2cc7a6c3c62501fda",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-NC.json": {
+    "bytes": 637934,
+    "note": "power=substation US-NC",
+    "retrieved_utc": "2026-10-22T03:34:15+00:00",
+    "sha256": "6df4a916cc76b139e902080c7f6983f4f06508f334c8b2587865cb4ef9119925",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-ND.json": {
+    "bytes": 276771,
+    "note": "power=substation US-ND",
+    "retrieved_utc": "2026-10-22T03:32:47+00:00",
+    "sha256": "573c1c36d28eb08c10b107be1d9acb7ebc205446e03d631efaa0d8877efbedd2",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-NE.json": {
+    "bytes": 263823,
+    "note": "power=substation US-NE",
+    "retrieved_utc": "2026-10-22T03:21:02+00:00",
+    "sha256": "f4ac0a84c8c0524f240ea1adb2047cd271a840e63a1748a34a5c192933685fa8",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-NH.json": {
+    "bytes": 72910,
+    "note": "power=substation US-NH",
+    "retrieved_utc": "2026-10-22T03:27:13+00:00",
+    "sha256": "6533302fcec93e5a137c7d1c061157ad8950458f8c903299e25f9596662bbe0c",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-NJ.json": {
+    "bytes": 622338,
+    "note": "power=substation US-NJ",
+    "retrieved_utc": "2026-10-22T03:28:33+00:00",
+    "sha256": "f1df175d504bcfd0c330fe713718b174bfb2c09f2197962a54e39529ef76089c",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-NM.json": {
+    "bytes": 38143,
+    "note": "power=substation US-NM",
+    "retrieved_utc": "2026-10-22T03:29:58+00:00",
+    "sha256": "c7dc1ed9bf9c84c5b3d6396c4db4bda96774e6a49e8d9177b58d3b8d7da54a9e",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass.private.coffee/api/interpreter"
+  },
+  "data/raw/osm/substations_US-NV.json": {
+    "bytes": 117989,
+    "note": "power=substation US-NV",
+    "retrieved_utc": "2026-10-22T03:24:45+00:00",
+    "sha256": "2ab804bae27059dd0782ffd5eeeca1a414e2c0f635a79d7ce72358fa6fab2f15",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-NY.json": {
+    "bytes": 710726,
+    "note": "power=substation US-NY",
+    "retrieved_utc": "2026-10-22T03:32:26+00:00",
+    "sha256": "c9a31d71b75f6325e9416c8ed731cda82ceb4f00db9f63da700f1adbc74ad595",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-OH.json": {
+    "bytes": 995147,
+    "note": "power=substation US-OH",
+    "retrieved_utc": "2026-10-22T03:32:29+00:00",
+    "sha256": "ecdbdc8a7916ee9a5edf8e7b4d95b8fe1a4fa5ffeb382fe7f9e691605853ae5f",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-OK.json": {
+    "bytes": 361436,
+    "note": "power=substation US-OK",
+    "retrieved_utc": "2026-10-22T03:32:04+00:00",
+    "sha256": "eade0aeaed93867d1c34a28aed61c788bc4439f6d7edd8429a6c25f1a68a7cfd",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-OR.json": {
+    "bytes": 286466,
+    "note": "power=substation US-OR",
+    "retrieved_utc": "2026-10-22T03:31:47+00:00",
+    "sha256": "71b9a20caa58ccf7d117ccfdb81cf732fe96a038b936e9b5b1b3d73a7a8bf4ad",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-PA.json": {
+    "bytes": 886416,
+    "note": "power=substation US-PA",
+    "retrieved_utc": "2026-10-22T03:31:23+00:00",
+    "sha256": "461d04c0358733a27f3f5f0fc4a2af06d836f7c289e226dd89f5927682689346",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-RI.json": {
+    "bytes": 61291,
+    "note": "power=substation US-RI",
+    "retrieved_utc": "2026-10-22T03:29:38+00:00",
+    "sha256": "998b964f3067a6bc47523f8a5e4cbf1dd746093301d991892ba69c313ea00e37",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-SC.json": {
+    "bytes": 458968,
+    "note": "power=substation US-SC",
+    "retrieved_utc": "2026-10-22T03:29:15+00:00",
+    "sha256": "8655ae2ecfffca6683cc0a35751867418739380cbca35124f20e7133de6cea7b",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-SD.json": {
+    "bytes": 247638,
+    "note": "power=substation US-SD",
+    "retrieved_utc": "2026-10-22T03:27:57+00:00",
+    "sha256": "f99558a6081e535341dc2e65589bc66a0ac52be8faf09e342e27afa318d06f23",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-TN.json": {
+    "bytes": 473114,
+    "note": "power=substation US-TN",
+    "retrieved_utc": "2026-10-22T03:27:32+00:00",
+    "sha256": "963cb562fa73bd77d0878d4130756fb1f3499636584dfe9143f0b957cc0e3bfd",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-TX.json": {
+    "bytes": 1901416,
+    "note": "power=substation US-TX",
+    "retrieved_utc": "2026-10-22T03:27:08+00:00",
+    "sha256": "fc2d27b9ecb09745a9c65a4c4e333fc7fc404e04202403b317e2e8559942bd48",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-UT.json": {
+    "bytes": 189957,
+    "note": "power=substation US-UT",
+    "retrieved_utc": "2026-10-22T03:26:14+00:00",
+    "sha256": "c4e08eeca41ba8a7d6572a9d62a48e9c468658260bccb37a18f0db343f4e05f5",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-VA.json": {
+    "bytes": 452645,
+    "note": "power=substation US-VA",
+    "retrieved_utc": "2026-10-22T03:25:11+00:00",
+    "sha256": "023cd3ef55d211a8a89803dd2662d284ca5c9696d96910f42fd9d0cc61ded273",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-VT.json": {
+    "bytes": 105657,
+    "note": "power=substation US-VT",
+    "retrieved_utc": "2026-10-22T03:25:51+00:00",
+    "sha256": "a8df5a3fe63dfa0de0ef8c7419e1dfd9ee780a47e7fcb1fd3d4d345409d5393a",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/osm/substations_US-WA.json": {
+    "bytes": 414912,
+    "note": "power=substation US-WA",
+    "retrieved_utc": "2026-10-22T03:23:47+00:00",
+    "sha256": "f8adf3b906295f68a5e35ead7d6a151d0bda0045fe03365b7aaadc1f8376f4bc",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-WI.json": {
+    "bytes": 381517,
+    "note": "power=substation US-WI",
+    "retrieved_utc": "2026-10-22T03:23:00+00:00",
+    "sha256": "330c03ec3cfac933f77cdf27c88f964a94d3cf6a6fbfda00913aaf1a36e3b2d3",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-WV.json": {
+    "bytes": 165046,
+    "note": "power=substation US-WV",
+    "retrieved_utc": "2026-10-22T03:23:24+00:00",
+    "sha256": "00b5ad8a381889cdceb9749716792bc93b5e5db9e35548d6fbbe461074ba8b51",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://maps.mail.ru/osm/tools/overpass/api/interpreter"
+  },
+  "data/raw/osm/substations_US-WY.json": {
+    "bytes": 137544,
+    "note": "power=substation US-WY",
+    "retrieved_utc": "2026-10-22T03:22:38+00:00",
+    "sha256": "ab173a40b09791ac034a00b08793aedd50153572a42e7989ebc3496d6e468fdd",
+    "source": "OpenStreetMap via Overpass API",
+    "url": "https://overpass-api.de/api/interpreter"
+  },
+  "data/raw/queues/caiso_public_queue.xlsx": {
+    "bytes": 384370,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:09:18+00:00",
+    "sha256": "3ea04c206ccde598228bd516ff1e9ce394aba9f782b0ddda057901c3a004949f",
+    "source": "CAISO Public Queue Report",
+    "url": "https://www.caiso.com/PublishedDocuments/PublicQueueReport.xlsx"
+  },
+  "data/raw/queues/ercot_gis_report.xlsx": {
+    "bytes": 673369,
+    "note": "GIS_Report_September2026",
+    "retrieved_utc": "2026-10-22T01:10:36+00:00",
+    "sha256": "016cddbb7082fd30e02ede6242e3f33adc79ca0f2e7fb49bc9079ebde2671d58",
+    "source": "ERCOT GIS Report",
+    "url": "https://www.ercot.com/misdownload/servlets/mirDownload?doclookupId=1281327706"
+  },
+  "data/raw/queues/isone_queue.html": {
+    "bytes": 3670809,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:10:41+00:00",
+    "sha256": "a9e0a891a68fdfa33e4fad2d1884ccad1776d44e69ddfd0d5b5330a0f67834a7",
+    "source": "ISO-NE IRTT public queue",
+    "url": "https://irtt.iso-ne.com/reports/external"
+  },
+  "data/raw/queues/lbnl_queued_up_thru2025.xlsx": {
+    "bytes": 15571236,
+    "note": "CC BY 4.0, LBNL & GridTracker",
+    "retrieved_utc": "2026-10-22T01:06:29+00:00",
+    "sha256": "794582d3281c6a305e9615fcfec3fae9dc85be2165216d33760b677e976a08b6",
+    "source": "LBNL Queued Up (2026 ed.)",
+    "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx"
+  },
+  "data/raw/queues/miso_queue.json": {
+    "bytes": 2317165,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:10:02+00:00",
+    "sha256": "519e9429dbf778e38c6fbafe3a0b88452cb7d11087823dd3f889936dc94b8e1a",
+    "source": "MISO GI Queue API",
+    "url": "https://www.misoenergy.org/api/giqueue/getprojects"
+  },
+  "data/raw/queues/nyiso_queue.xlsx": {
+    "bytes": 482652,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:10:06+00:00",
+    "sha256": "d9ddb49a2d791020700b014521ee64beab7d1babe9b83699dd8e89017c1c2234",
+    "source": "NYISO Interconnection Queue",
+    "url": "https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx"
+  },
+  "data/raw/queues/pjm_queue.xlsx": {
+    "bytes": 1749005,
+    "note": "public key embedded in pjm.com queue page",
+    "retrieved_utc": "2026-10-22T01:10:34+00:00",
+    "sha256": "4bae497008919be6bbfa2d067230bc59d598ed0476511944e4f80b36fafb6959",
+    "source": "PJM Planning API queue export",
+    "url": "https://services.pjm.com/PJMPlanningApi/api/Queue/ExportToXls"
+  },
+  "data/raw/queues/spp_active_queue.csv": {
+    "bytes": 242008,
+    "note": "",
+    "retrieved_utc": "2026-10-22T01:10:04+00:00",
+    "sha256": "745cec618baa167ec3d7b8ce86647b564bb9a0716916bfede50494bd5c1b33c7",
+    "source": "SPP GI Active Queue",
+    "url": "https://opsportal.spp.org/Studies/GenerateActiveCSV"
+  }
+}
