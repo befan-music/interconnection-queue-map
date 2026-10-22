@@ -173,6 +173,21 @@ th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule
 th { color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: .05em; }
 td a { color: var(--accent); overflow-wrap: anywhere; }
 
+.foot-links { display: flex; gap: 12px; flex-wrap: wrap; justify-content: flex-end; }
+.claims-list { display: grid; gap: 8px; }
+details.claim { border: 1px solid var(--rule); border-radius: 8px; background: var(--panel); }
+details.claim[open] { border-color: var(--accent); }
+details.claim summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: auto 1fr auto; gap: 4px 10px; align-items: baseline; padding: 10px 12px; }
+details.claim summary::-webkit-details-marker { display: none; }
+details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
+.cid { font: 600 12px/1 var(--f-mono); color: var(--accent); }
+.ctitle { font-weight: 600; min-width: 0; }
+.cval { font: 500 12.5px/1.3 var(--f-mono); color: var(--muted); text-align: right; }
+.cbody { padding: 2px 12px 14px; display: grid; gap: 10px; min-width: 0; }
+.cbody h4 { margin: 4px 0 0; font: 600 11px/1 var(--f-body); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.cbody ol, .cbody ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+.cbody .pill { justify-self: start; }
+@media (max-width: 560px) { details.claim summary { grid-template-columns: auto 1fr; } .cval { grid-column: 1 / -1; text-align: left; } }
 .loading { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--bg); }
 .loading div { display: grid; gap: 6px; justify-items: center; color: var(--muted); }
 .loading b { font: 700 26px/1 var(--f-display); color: var(--ink); }
@@ -233,7 +248,7 @@ td a { color: var(--accent); overflow-wrap: anywhere; }
       <div id="sites"></div>
     </div>
   </div>
-  <div class="rail-foot"><span id="vintage"></span><button class="linkbtn" id="openMethod">Method &amp; sources</button></div>
+  <div class="rail-foot"><span id="vintage"></span><span class="foot-links"><button class="linkbtn" id="openClaims">Claims &amp; calculations</button><button class="linkbtn" id="openMethod">Method &amp; sources</button></span></div>
 </aside>
 
 <section class="inspector" id="insp" hidden aria-live="polite">
@@ -246,6 +261,7 @@ td a { color: var(--accent); overflow-wrap: anywhere; }
 <div class="tip" id="tip" hidden></div>
 
 <dialog id="method" aria-labelledby="mTitle"><div class="dlg" id="methodBody"></div></dialog>
+<dialog id="claims" aria-labelledby="cTitle"><div class="dlg" id="claimsBody"></div></dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js"></script>
 <script>
@@ -281,7 +297,7 @@ function polyGeom(parts) {
 }
 
 async function load() {
-  const names = ["meta", "buses", "lines", "queue", "plants", "context"];
+  const names = ["meta", "buses", "lines", "queue", "plants", "context", "claims"];
   const res = await Promise.all(names.map((n) => fetch(`data/${n}.json`).then((r) => { if (!r.ok) throw new Error(n); return r.json(); })));
   names.forEach((n, i) => D[n] = res[i]);
   const B = D.buses, Q = D.queue, P = D.plants, L = D.lines;
@@ -558,6 +574,7 @@ function renderMethod() {
   const src = m.sources.map((x) => `<tr><td>${esc(x.source)}</td><td>${esc(x.retrieved)}</td><td><a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.url.replace(/^https?:\/\//, "").slice(0, 70))}</a></td></tr>`).join("");
   $("#methodBody").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:start;gap:12px"><h2 id="mTitle">How the atlas is built</h2><button class="close" style="position:static" id="mClose" aria-label="Close">×</button></div>
   <p>The atlas joins public grid data into one network model and asks a single question at every substation: how many megawatts can connect here before a transmission line reaches its limit? It is a screening tool for choosing where to look, built ${esc(m.built)} from ${fmt(c.lines)} line segments (${fmt(c.line_km)} km), ${fmt(c.buses)} buses, ${fmt(c.plants)} operating plants (${fmt(c.gen_gw)} GW) and ${fmt(c.queue_projects)} active interconnection requests (${fmt(c.queue_gw)} GW).</p>
+  <p>Every number we cite here, in the README and in the market analysis is recomputed, with its source files and steps, under <button class="linkbtn" id="mClaims">Claims &amp; calculations</button>.</p>
   <h3>The model</h3>
   <ul>
     <li><b>Network.</b> HIFLD transmission lines (100–765 kV) are snapped end to end within 300 m to form buses. Bus names come from the HIFLD endpoint labels and OpenStreetMap. Lines that cross between interconnections are cut, since the Eastern, Western and ERCOT grids meet only through DC ties.</li>
@@ -583,6 +600,45 @@ function renderMethod() {
   <div class="tbl-wrap"><table><thead><tr><th>Dataset</th><th>Retrieved</th><th>Link</th></tr></thead><tbody>${src}</tbody></table></div>
   <p class="note">LBNL Queued Up data is CC BY 4.0 (Lawrence Berkeley National Laboratory and GridTracker). OpenStreetMap data © OpenStreetMap contributors, ODbL.</p>`;
   $("#mClose").onclick = () => $("#method").close();
+  $("#mClaims").onclick = () => { $("#method").close(); $("#claims").showModal(); };
+}
+
+// ---------------- claims & calculations ----------------
+const KIND_TOKEN = { "Calculation": "--good", "Model output": "--accent", "Assumption-based arithmetic": "--warn" };
+function claimTable(t) {
+  if (!t || !t.rows.length) return "";
+  return `<div class="tbl-wrap"><table><thead><tr>${t.columns.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead>
+    <tbody>${t.rows.map((r) => `<tr>${r.map((v, i) => `<td${i ? ' class="num"' : ""}>${esc(v)}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+}
+function renderClaims() {
+  const c = D.claims;
+  const item = (cl) => `<details class="claim" id="${esc(cl.id)}">
+    <summary><span class="cid">${esc(cl.id)}</span><span class="ctitle">${esc(cl.title)}</span><span class="cval">${esc(cl.value)}</span></summary>
+    <div class="cbody">
+      <p>${esc(cl.statement)}</p>
+      <span class="pill" style="--c:var(${KIND_TOKEN[cl.kind] || "--muted"})">${esc(cl.kind)}</span>
+      <h4>Sources</h4>
+      <ul>${cl.sources.map((s) => `<li>${s.url ? `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.name)}</a>` : esc(s.name)}
+        <span class="note">· ${esc(s.file)}${s.detail ? ` · ${esc(s.detail)}` : ""}${s.retrieved ? ` · retrieved ${esc(s.retrieved)}` : ""}</span></li>`).join("")}</ul>
+      <h4>Method</h4>
+      <ol>${cl.method.map((m) => `<li>${esc(m)}</li>`).join("")}</ol>
+      ${claimTable(cl.table)}
+      ${cl.caveats ? `<p class="note"><b>Caveats.</b> ${esc(cl.caveats)}</p>` : ""}
+      <p class="note">Used in: ${esc(cl.used_in.join(" · "))} · Code: <a href="${esc(cl.code)}" target="_blank" rel="noopener">${esc(cl.code.split("/").pop())}</a></p>
+    </div></details>`;
+  $("#claimsBody").innerHTML = `<div style="display:flex;justify-content:space-between;align-items:start;gap:12px"><h2 id="cTitle">Claims &amp; calculations</h2><button class="close" style="position:static" id="cClose" aria-label="Close">×</button></div>
+    <p>Every number we cite in the README, the market analysis and this atlas, recomputed from the pipeline's own files on ${esc(c.generated)} by <span class="num">pipeline/claims.py</span>. Open a claim to see its source files, filters, steps and result table. To link to one, add its ID to the atlas address, for example <span class="num">#C3</span>.</p>
+    <div class="bar-key"><span><i class="dot" style="background:var(--good)"></i> Calculation from source data</span><span><i class="dot" style="background:var(--accent)"></i> Output of our grid model</span><span><i class="dot" style="background:var(--warn)"></i> Arithmetic on stated assumptions</span></div>
+    <div class="claims-list">${c.claims.map(item).join("")}</div>`;
+  $("#cClose").onclick = () => $("#claims").close();
+}
+function openClaimFromHash() {
+  const h = decodeURIComponent(location.hash.slice(1));
+  if (!/^C\d+$/.test(h)) return;
+  const d = document.getElementById(h);
+  if (!d) return;
+  if (!$("#claims").open) $("#claims").showModal();
+  d.open = true; d.scrollIntoView({ block: "start" });
 }
 
 // ---------------- wiring ----------------
@@ -606,6 +662,8 @@ function wire() {
   $("#linecolor").onchange = restyle;
   $("#zin").onclick = () => map.zoomIn(); $("#zout").onclick = () => map.zoomOut();
   $("#openMethod").onclick = () => $("#method").showModal();
+  $("#openClaims").onclick = () => $("#claims").showModal();
+  addEventListener("hashchange", openClaimFromHash);
   $("#railToggle").onclick = () => { const r = $("#rail"); const c = r.classList.toggle("collapsed"); $("#railToggle").textContent = c ? "Show" : "Hide"; $("#railToggle").setAttribute("aria-expanded", String(!c)); };
   document.addEventListener("click", (e) => {
     const s = e.target.closest("[data-bus]"); if (s) { flyToBus(+s.dataset.bus); $("#results").hidden = true; return; }
@@ -671,7 +729,7 @@ async function main() {
   });
   map.touchZoomRotate.disableRotation();
   map.on("load", () => {
-    addLayers(); wire(); renderTally(); renderSites(); renderMethod();
+    addLayers(); wire(); renderTally(); renderSites(); renderMethod(); renderClaims(); openClaimFromHash();
     $("#loading").hidden = true;
   });
 }

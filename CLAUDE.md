@@ -15,6 +15,9 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
   5. `match_queue.py`: queue requests to buses (fuzzy POI name, else county proximity)
   6. `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case
   7. `export_map.py`: compact JSON for the web map
+  8. `claims.py`: recomputes every quantitative claim (C1–C16) with sources and steps into
+     `map/data/claims.json`, shown in the map's "Claims & calculations" panel. Rule: any new number
+     we cite must be added here, not computed ad hoc in the terminal.
 - `map/index.html` + `map/data/*.json`: MapLibre web map (serve over HTTP: `python -m http.server -d map`)
 - `data/`: git-ignored, re-create with `python -I pipeline/run_all.py --fetch` (~1 h, OSM is slowest)
 
@@ -59,7 +62,7 @@ clusters). ~51% of queue requests are placed by county, not POI name. Lines < 10
 ## Current state (2026-10-22)
 
 - National model built: ~29k modelled buses, ~41k lines, 7,323 active queue requests (1,686 GW).
-- Published map (private Claude artifact, owner must share it): https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq
+- Published map (Claude artifact, shared with anyone who has the link): https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq
 - Business conclusion so far: a pure data/map product is a ~$100M/yr US market with funded competitors
   (Nira, LandGate/Wood Mackenzie, Paces, Enverus PRISM). The stronger angle is turning red constraints
   into reconductoring or storage projects, plus queue-risk audits for investors and off-takers.

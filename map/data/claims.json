@@ -1,0 +1,1487 @@
+{
+ "generated": "2026-10-22",
+ "claims": [
+  {
+   "id": "C1",
+   "title": "Active interconnection queue, October 2026",
+   "value": "7,323 requests \u00b7 1,686 GW",
+   "statement": "The seven ISO/RTO queues (retrieved October 2026) plus LBNL data for non-ISO utilities contain 7,323 active requests totalling 1,686 GW.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "CAISO Public Queue Report",
+     "file": "data/raw/queues/caiso_public_queue.xlsx",
+     "detail": "active requests",
+     "url": "https://www.caiso.com/PublishedDocuments/PublicQueueReport.xlsx",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "MISO GI Queue API",
+     "file": "data/raw/queues/miso_queue.json",
+     "detail": "active requests",
+     "url": "https://www.misoenergy.org/api/giqueue/getprojects",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "SPP GI Active Queue",
+     "file": "data/raw/queues/spp_active_queue.csv",
+     "detail": "active requests",
+     "url": "https://opsportal.spp.org/Studies/GenerateActiveCSV",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "NYISO Interconnection Queue",
+     "file": "data/raw/queues/nyiso_queue.xlsx",
+     "detail": "active requests",
+     "url": "https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "PJM Planning API queue export",
+     "file": "data/raw/queues/pjm_queue.xlsx",
+     "detail": "active requests",
+     "url": "https://services.pjm.com/PJMPlanningApi/api/Queue/ExportToXls",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "ERCOT GIS Report",
+     "file": "data/raw/queues/ercot_gis_report.xlsx",
+     "detail": "active requests",
+     "url": "https://www.ercot.com/misdownload/servlets/mirDownload?doclookupId=1281327706",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "ISO-NE IRTT public queue",
+     "file": "data/raw/queues/isone_queue.html",
+     "detail": "active requests",
+     "url": "https://irtt.iso-ne.com/reports/external",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "active requests",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Read each ISO's live queue and keep active requests. Per-ISO rules are in normalize_queues.py: SPP drops 'IA FULLY EXECUTED/COMMERCIAL OPERATION'; ERCOT drops projects already approved for synchronisation (they are in EIA's operating fleet); PJM keeps Active, Confirmed, Engineering and Procurement, Suspended, Under Construction and Partially in Service.",
+    "MW per request = the ISO's injection or net-to-grid figure (CAISO 'Net MWs to Grid', PJM 'MFO', NYISO 'SP (MW)', ERCOT 'Capacity (MW)', MISO/SPP/ISO-NE the largest MW field).",
+    "Add LBNL active requests for regions 'West' and 'Southeast' (utilities outside ISOs, end-2025).",
+    "For CAISO, MISO, NYISO, PJM and ISO-NE, whose live files also list withdrawn or completed requests, add LBNL active requests whose ID never appears in the live file (e.g. CAISO Cluster 15).",
+    "Drop requests with missing or non-positive MW, then duplicate ISO:ID pairs.",
+    "Count rows and sum MW: 7,323 requests, 1,685,552.9 MW."
+   ],
+   "table": {
+    "columns": [
+     "Region",
+     "Source",
+     "Requests",
+     "GW"
+    ],
+    "rows": [
+     [
+      "ERCOT",
+      "ERCOT live queue (Oct 2026)",
+      "1,576",
+      "419.0"
+     ],
+     [
+      "West",
+      "LBNL Queued Up (end-2025)",
+      "1,570",
+      "383.6"
+     ],
+     [
+      "MISO",
+      "MISO live queue (Oct 2026)",
+      "1,222",
+      "282.7"
+     ],
+     [
+      "SPP",
+      "SPP live queue (Oct 2026)",
+      "677",
+      "139.7"
+     ],
+     [
+      "Southeast",
+      "LBNL Queued Up (end-2025)",
+      "909",
+      "133.8"
+     ],
+     [
+      "PJM",
+      "PJM live queue (Oct 2026)",
+      "629",
+      "132.5"
+     ],
+     [
+      "CAISO",
+      "CAISO live queue (Oct 2026)",
+      "261",
+      "73.8"
+     ],
+     [
+      "CAISO",
+      "LBNL Queued Up (end-2025) backfill",
+      "108",
+      "37.9"
+     ],
+     [
+      "NYISO",
+      "NYISO live queue (Oct 2026)",
+      "220",
+      "36.3"
+     ],
+     [
+      "MISO",
+      "LBNL Queued Up (end-2025) backfill",
+      "101",
+      "35.8"
+     ],
+     [
+      "ISO-NE",
+      "ISO-NE live queue (Oct 2026)",
+      "46",
+      "9.9"
+     ],
+     [
+      "NYISO",
+      "LBNL Queued Up (end-2025) backfill",
+      "4",
+      "0.5"
+     ],
+     [
+      "Total",
+      "",
+      "7,323",
+      "1,685.6"
+     ]
+    ]
+   },
+   "caveats": "Mixed vintages: ISO data is from October 2026, non-ISO utilities are LBNL end-2025. Hybrids are counted once at their injection limit, so the total is not comparable with LBNL's separate generation + storage figures (1,312 GW + 749 GW).",
+   "used_in": [
+    "Market_Analysis.md \u00a71, \u00a76",
+    "CLAUDE.md"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/normalize_queues.py"
+  },
+  {
+   "id": "C2",
+   "title": "LBNL dataset: requests by status",
+   "value": "8,513 active \u00b7 24,221 withdrawn",
+   "statement": "The LBNL Queued Up data file (through end-2025) lists 38,201 requests: 8,513 active and 24,221 withdrawn.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns q_id, q_status, mw_1",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Load every row of the project-level sheet (all years, all statuses).",
+    "Group by q_status; count rows and sum mw_1 (capacity of the main resource type)."
+   ],
+   "table": {
+    "columns": [
+     "Status",
+     "Requests",
+     "Share",
+     "GW (mw_1)"
+    ],
+    "rows": [
+     [
+      "withdrawn",
+      "24,221",
+      "63.4%",
+      "4,396"
+     ],
+     [
+      "active",
+      "8,513",
+      "22.3%",
+      "1,745"
+     ],
+     [
+      "operational",
+      "4,789",
+      "12.5%",
+      "562"
+     ],
+     [
+      "suspended",
+      "668",
+      "1.7%",
+      "136"
+     ],
+     [
+      "unknown",
+      "10",
+      "0.0%",
+      "1"
+     ],
+     [
+      "Total",
+      "38,201",
+      "100%",
+      "6,840"
+     ]
+    ]
+   },
+   "caveats": "LBNL's report cites about 8,200 active projects and 1,312 GW generation + 749 GW storage. Those are its own cleaned figures and are quoted, not recomputed here. The data file marks more rows as active.",
+   "used_in": [
+    "Market_Analysis.md \u00a71, \u00a75"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C3",
+   "title": "Most requests never get built",
+   "value": "20% built \u00b7 71% withdrew",
+   "statement": "Of 19,779 requests that entered a queue in 2000\u20132019, 4,015 (20.3%) reached commercial operation and 14,088 (71.2%) withdrew. By capacity, 13.9% of the requested MW was built.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns q_year, q_status, mw_1",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Load the project-level sheet.",
+    "Keep rows whose q_year (year the request entered the queue) is 2000\u20132019 inclusive: 19,779 rows (665 rows without q_year excluded).",
+    "Operational share = rows with q_status 'operational' \u00f7 all kept rows = 4,015 \u00f7 19,779.",
+    "Withdrawn share = rows with q_status 'withdrawn' \u00f7 all kept rows = 14,088 \u00f7 19,779.",
+    "Repeat by 5-year cohort (table)."
+   ],
+   "table": {
+    "columns": [
+     "Queue-entry years",
+     "Requests",
+     "Operational",
+     "Withdrawn",
+     "Still active",
+     "Suspended"
+    ],
+    "rows": [
+     [
+      "2000\u201304",
+      "1,752",
+      "29.1%",
+      "69.7%",
+      "1.1%",
+      "0.0%"
+     ],
+     [
+      "2005\u201309",
+      "4,486",
+      "23.2%",
+      "74.9%",
+      "1.4%",
+      "0.4%"
+     ],
+     [
+      "2010\u201314",
+      "4,488",
+      "22.9%",
+      "74.7%",
+      "1.8%",
+      "0.5%"
+     ],
+     [
+      "2015\u201319",
+      "9,053",
+      "15.9%",
+      "67.9%",
+      "13.9%",
+      "2.3%"
+     ],
+     [
+      "2000\u201319 total",
+      "19,779",
+      "20.3%",
+      "71.2%",
+      "7.2%",
+      "1.3%"
+     ]
+    ]
+   },
+   "caveats": "Counts requests, not MW. The 2015\u201319 cohort still has active requests that may yet be built or withdraw, so its final completion rate is not settled. 2020+ cohorts are excluded for that reason.",
+   "used_in": [
+    "Market_Analysis.md \u00a71, \u00a75",
+    "Atlas: queue weights"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C4",
+   "title": "New interconnection requests per year",
+   "value": "2,323\u20133,435 per year (2019\u201325)",
+   "statement": "Between 2,323 and 3,435 new requests entered US queues each year in 2019\u20132025.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns q_year, q_id, mw_1",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Load the project-level sheet (all statuses: requests that later withdrew still count as filed).",
+    "Group by q_year; count rows and sum mw_1."
+   ],
+   "table": {
+    "columns": [
+     "Year",
+     "New requests",
+     "GW requested"
+    ],
+    "rows": [
+     [
+      "2015",
+      "1,145",
+      "144"
+     ],
+     [
+      "2016",
+      "1,669",
+      "209"
+     ],
+     [
+      "2017",
+      "1,866",
+      "236"
+     ],
+     [
+      "2018",
+      "2,044",
+      "309"
+     ],
+     [
+      "2019",
+      "2,329",
+      "341"
+     ],
+     [
+      "2020",
+      "2,569",
+      "354"
+     ],
+     [
+      "2021",
+      "3,135",
+      "512"
+     ],
+     [
+      "2022",
+      "3,435",
+      "649"
+     ],
+     [
+      "2023",
+      "3,400",
+      "800"
+     ],
+     [
+      "2024",
+      "2,603",
+      "530"
+     ],
+     [
+      "2025",
+      "2,323",
+      "542"
+     ]
+    ]
+   },
+   "caveats": "2025 may be slightly undercounted if some requests were added to queues after LBNL's data cut-off.",
+   "used_in": [
+    "Market_Analysis.md \u00a72 (demand signal, cross-check)"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C5",
+   "title": "Transmission providers in the queue data",
+   "value": "57 entities",
+   "statement": "The LBNL data covers 57 distinct transmission-provider entities (54 with active requests).",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns entity, region, q_status",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Count distinct values of 'entity' (transmission provider: ISO or utility), overall and among active requests."
+   ],
+   "table": {
+    "columns": [
+     "Region",
+     "Entities (all)",
+     "Entities (active)"
+    ],
+    "rows": [
+     [
+      "West",
+      "36",
+      "33"
+     ],
+     [
+      "Southeast",
+      "13",
+      "13"
+     ],
+     [
+      "MISO",
+      "2",
+      "2"
+     ],
+     [
+      "CAISO",
+      "1",
+      "1"
+     ],
+     [
+      "ERCOT",
+      "1",
+      "1"
+     ],
+     [
+      "NYISO",
+      "1",
+      "1"
+     ],
+     [
+      "ISO-NE",
+      "1",
+      "1"
+     ],
+     [
+      "SPP",
+      "1",
+      "1"
+     ],
+     [
+      "PJM",
+      "1",
+      "1"
+     ],
+     [
+      "Total (distinct)",
+      "57",
+      "54"
+     ]
+    ]
+   },
+   "caveats": "Each ISO counts as one entity even though it covers many transmission owners.",
+   "used_in": [
+    "Market_Analysis.md \u00a72 (utility segment, TAM)"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C6",
+   "title": "Developers named in the active queue",
+   "value": "1,871 names on 33% of requests",
+   "statement": "Only 33% of 8,513 active requests name a developer, and those show 1,871 distinct developer names (359 with 2+ requests, 41 with 5+).",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns developer, q_status, region",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Keep active requests.",
+    "Drop empty developer fields ('nan', 'unknown', 'n/a', 'not available').",
+    "Normalise names: lower-case; remove LLC, Inc, LP, Corp, Corporation, Company, Co, Ltd; remove commas and full stops.",
+    "Count distinct normalised names and requests per name."
+   ],
+   "table": {
+    "columns": [
+     "Region",
+     "Active requests",
+     "With developer",
+     "Share named"
+    ],
+    "rows": [
+     [
+      "ERCOT",
+      "1,796",
+      "1,796",
+      "100%"
+     ],
+     [
+      "MISO",
+      "1,646",
+      "54",
+      "3%"
+     ],
+     [
+      "West",
+      "1,603",
+      "200",
+      "12%"
+     ],
+     [
+      "PJM",
+      "1,134",
+      "313",
+      "28%"
+     ],
+     [
+      "Southeast",
+      "957",
+      "266",
+      "28%"
+     ],
+     [
+      "SPP",
+      "683",
+      "0",
+      "0%"
+     ],
+     [
+      "CAISO",
+      "432",
+      "0",
+      "0%"
+     ],
+     [
+      "NYISO",
+      "190",
+      "190",
+      "100%"
+     ],
+     [
+      "ISO-NE",
+      "72",
+      "0",
+      "0%"
+     ],
+     [
+      "Total",
+      "8,513",
+      "2,819",
+      "33%"
+     ]
+    ]
+   },
+   "caveats": "Many names are project-specific companies (one LLC per project), so parent developers are fewer than the distinct names. Several ISOs publish no developer names at all, so the national count is uncertain.",
+   "used_in": [
+    "Market_Analysis.md \u00a72 (developer count)"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C7",
+   "title": "Requests still in study",
+   "value": "4,646 requests \u00b7 1,148 GW",
+   "statement": "4,646 of the 7,323 active requests (1,148 GW) have not yet signed an interconnection agreement.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "CAISO Public Queue Report",
+     "file": "data/raw/queues/caiso_public_queue.xlsx",
+     "detail": "status / study phase",
+     "url": "https://www.caiso.com/PublishedDocuments/PublicQueueReport.xlsx",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "MISO GI Queue API",
+     "file": "data/raw/queues/miso_queue.json",
+     "detail": "status / study phase",
+     "url": "https://www.misoenergy.org/api/giqueue/getprojects",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "SPP GI Active Queue",
+     "file": "data/raw/queues/spp_active_queue.csv",
+     "detail": "status / study phase",
+     "url": "https://opsportal.spp.org/Studies/GenerateActiveCSV",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "NYISO Interconnection Queue",
+     "file": "data/raw/queues/nyiso_queue.xlsx",
+     "detail": "status / study phase",
+     "url": "https://www.nyiso.com/documents/20142/1407078/NYISO-Interconnection-Queue.xlsx",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "PJM Planning API queue export",
+     "file": "data/raw/queues/pjm_queue.xlsx",
+     "detail": "status / study phase",
+     "url": "https://services.pjm.com/PJMPlanningApi/api/Queue/ExportToXls",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "ERCOT GIS Report",
+     "file": "data/raw/queues/ercot_gis_report.xlsx",
+     "detail": "status / study phase",
+     "url": "https://www.ercot.com/misdownload/servlets/mirDownload?doclookupId=1281327706",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "ISO-NE IRTT public queue",
+     "file": "data/raw/queues/isone_queue.html",
+     "detail": "status / study phase",
+     "url": "https://irtt.iso-ne.com/reports/external",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "status / study phase",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Start from the active-queue table of C1.",
+    "Each ISO's status is mapped to four phases in normalize_queues.py (e.g. MISO DPP Phase 2/3 \u2192 late study; PJM 'Engineering and Procurement' \u2192 IA executed; NYISO status codes 10\u201311 \u2192 IA executed).",
+    "Group by phase; count requests and sum MW."
+   ],
+   "table": {
+    "columns": [
+     "Phase",
+     "Requests",
+     "GW",
+     "Share of requests"
+    ],
+    "rows": [
+     [
+      "Early study",
+      "2,627",
+      "683",
+      "35.9%"
+     ],
+     [
+      "Late study",
+      "2,019",
+      "465",
+      "27.6%"
+     ],
+     [
+      "IA executed",
+      "2,423",
+      "487",
+      "33.1%"
+     ],
+     [
+      "Construction",
+      "254",
+      "50",
+      "3.5%"
+     ]
+    ]
+   },
+   "caveats": "ISO-NE publishes no study phase, so its requests are counted as early study.",
+   "used_in": [
+    "Atlas: queue weights"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/normalize_queues.py"
+  },
+  {
+   "id": "C8",
+   "title": "How queue requests were placed on the map",
+   "value": "51% by county only",
+   "statement": "46% of requests are placed by matching their point-of-interconnection name to a substation; 51% by county proximity only.",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "county FIPS",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "OpenStreetMap substations + HIFLD line endpoint labels",
+     "file": "data/raw/osm, data/raw/hifld",
+     "detail": "substation names",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Geocode each request's county (Census boundaries; LBNL FIPS where available).",
+    "Clean the POI text (remove kV, 'substation', bus numbers, \u2026) and fuzzy-match it (score \u2265 87) to named substations within 150 km of the county, favouring matching voltage and proximity. 'Line endpoint' means the POI named a line (A\u2013B) and one end matched.",
+    "Otherwise place it at the nearest substation of plausible voltage to the county centre.",
+    "Requests with neither county nor matchable name stay unlocated."
+   ],
+   "table": {
+    "columns": [
+     "Method",
+     "Requests",
+     "Share",
+     "GW"
+    ],
+    "rows": [
+     [
+      "county proximity",
+      "3,761",
+      "51.4%",
+      "806"
+     ],
+     [
+      "POI name match",
+      "1,761",
+      "24.0%",
+      "450"
+     ],
+     [
+      "POI line endpoint match",
+      "1,579",
+      "21.6%",
+      "352"
+     ],
+     [
+      "unlocated",
+      "222",
+      "3.0%",
+      "77"
+     ]
+    ]
+   },
+   "caveats": "County-proximity placements are right in aggregate but can be wrong for an individual project.",
+   "used_in": [
+    "Market_Analysis.md \u00a76",
+    "README.md",
+    "Atlas"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/match_queue.py"
+  },
+  {
+   "id": "C9",
+   "title": "Size of the network model",
+   "value": "29,170 buses \u00b7 41,484 lines",
+   "statement": "The power-flow model solves 29,170 buses and 41,484 lines in three interconnections for two scenarios; building network, queue matching, model and map export took 6 minutes on a laptop (data/rebuild.log).",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "Model summary",
+     "file": "data/processed/model_summary.json",
+     "detail": "interconnections",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Count buses and lines inside the three main connected networks (islands excluded).",
+    "Runtime = first to last timestamp in data/rebuild.log (steps 4\u20137 of the pipeline; downloads excluded)."
+   ],
+   "table": {
+    "columns": [
+     "Interconnection",
+     "Buses",
+     "Lines",
+     "Gen GW",
+     "Peak load GW",
+     "Lines re-rated"
+    ],
+    "rows": [
+     [
+      "Eastern",
+      "20,827",
+      "29,859",
+      "844",
+      "578",
+      "10.4%"
+     ],
+     [
+      "Western",
+      "5,977",
+      "8,237",
+      "272",
+      "150",
+      "6.7%"
+     ],
+     [
+      "ERCOT",
+      "2,366",
+      "3,388",
+      "155",
+      "87",
+      "21.0%"
+     ],
+     [
+      "Total",
+      "29,170",
+      "41,484",
+      "",
+      "",
+      ""
+     ]
+    ]
+   },
+   "caveats": "Runtime depends on the machine; downloads (\u22481 hour, mostly OpenStreetMap) are not included.",
+   "used_in": [
+    "Market_Analysis.md \u00a71 (compute sidenote)",
+    "CLAUDE.md"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/build_model.py"
+  },
+  {
+   "id": "C10",
+   "title": "Substations with room for new generation",
+   "value": "28% green \u00b7 47% yellow \u00b7 25% red",
+   "statement": "Of 16,674 named, modelled substations at 115 kV or above, 28% are green, 47% are yellow, 25% are red.",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "Model buses",
+     "file": "data/processed/buses.parquet",
+     "detail": "gen_signal, kv_max, node_type, modeled",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Keep buses in the three modelled networks, with a name, at \u2265 115 kV.",
+    "Signal: green \u2265 250 MW of generation headroom after the queue; yellow 75\u2013250 MW; red < 75 MW or queued MW > 1.5 \u00d7 the substation's N-1 branch capacity.",
+    "Count by signal."
+   ],
+   "table": {
+    "columns": [
+     "Signal",
+     "Substations",
+     "Share"
+    ],
+    "rows": [
+     [
+      "green",
+      "4,686",
+      "28.1%"
+     ],
+     [
+      "yellow",
+      "7,889",
+      "47.3%"
+     ],
+     [
+      "red",
+      "4,099",
+      "24.6%"
+     ]
+    ]
+   },
+   "caveats": "Screening model: estimated ratings, no N-1 contingency analysis (see README limitations).",
+   "used_in": [
+    "Earlier summaries",
+    "Atlas legend"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/build_model.py"
+  },
+  {
+   "id": "C11",
+   "title": "Congestion where projects are queued, by region",
+   "value": "ERCOT 71%, PJM 43%, SPP 38% red",
+   "statement": "Among named substations at \u2265 115 kV that host queued requests, the share rated red differs sharply by region.",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "Model buses + located queue",
+     "file": "data/processed/buses.parquet, data/processed/queue.parquet",
+     "detail": "gen_signal, headroom_gen_after_queue_mw, iso",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Keep named, modelled substations at \u2265 115 kV with at least one queued request.",
+    "Assign each substation the region (ISO, or LBNL 'West'/'Southeast') that most of its queued requests come from.",
+    "Per region: share of substations with a red signal, and median generation headroom after the queue."
+   ],
+   "table": {
+    "columns": [
+     "Region",
+     "Substations with queue",
+     "Red",
+     "Median MW left after queue"
+    ],
+    "rows": [
+     [
+      "ERCOT",
+      "320",
+      "71%",
+      "0"
+     ],
+     [
+      "PJM",
+      "290",
+      "43%",
+      "126"
+     ],
+     [
+      "SPP",
+      "234",
+      "38%",
+      "172"
+     ],
+     [
+      "West",
+      "391",
+      "29%",
+      "341"
+     ],
+     [
+      "NYISO",
+      "98",
+      "27%",
+      "180"
+     ],
+     [
+      "MISO",
+      "483",
+      "26%",
+      "207"
+     ],
+     [
+      "CAISO",
+      "104",
+      "24%",
+      "380"
+     ],
+     [
+      "Southeast",
+      "257",
+      "15%",
+      "411"
+     ],
+     [
+      "ISO-NE",
+      "28",
+      "11%",
+      "304"
+     ]
+    ]
+   },
+   "caveats": "Screening model; a region's red share also reflects how large its queue is.",
+   "used_in": [
+    "Earlier summaries"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C12",
+   "title": "Lines holding back the queue (reconductoring candidates)",
+   "value": "316 heat-limited lines < 80 km \u00b7 634 GW behind",
+   "statement": "393 line segments (18,755 km) set the limit for substations holding 890 GW of queued requests. Of these, 316 are limited by heat rather than stability and shorter than 80 km (7,633 km, 634 GW behind), the lines where new conductors add capacity.",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "Model lines",
+     "file": "data/processed/lines.parquet",
+     "detail": "queue_mw_behind, limit_basis, length_km, binding_buses",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "For every substation, the model records which line sets its generation headroom after the queue (the binding constraint).",
+    "'Queued MW behind' a line = total queued MW at the substations whose limit is that line. Each substation is counted once, so totals do not double count.",
+    "Keep lines with \u2265 500 MW behind them; then those whose screening limit is thermal (not the St. Clair stability limit) and that are \u2264 80 km long."
+   ],
+   "table": {
+    "columns": [
+     "Line (ends)",
+     "kV",
+     "Owner",
+     "km",
+     "Loading with queue",
+     "Substations limited",
+     "GW behind"
+    ],
+    "rows": [
+     [
+      "Odessa \u2013 \u2013",
+      "345",
+      "Oncor Electric Delivery Co.",
+      "88",
+      "135%",
+      "89",
+      "36.4"
+     ],
+     [
+      "Holcomb \u2013 \u2013",
+      "345",
+      "Pioneer Electric Coop, Inc - (Ks)",
+      "1",
+      "153%",
+      "223",
+      "29.0"
+     ],
+     [
+      "Sotex5 \u2013 \u2013",
+      "345",
+      "Aep Texas Central Company",
+      "226",
+      "107%",
+      "38",
+      "11.6"
+     ],
+     [
+      "Midway \u2013 Lincoln",
+      "230",
+      "Tri-State G & T Assn, Inc",
+      "113",
+      "239%",
+      "24",
+      "10.2"
+     ],
+     [
+      "Los Mirasoles \u2013 Del Sol",
+      "345",
+      "Aep Texas Central Company",
+      "31",
+      "133%",
+      "18",
+      "9.9"
+     ],
+     [
+      "Red Bluff \u2013 Devers",
+      "500",
+      "Not Available",
+      "129",
+      "76%",
+      "2",
+      "9.8"
+     ],
+     [
+      "\u2013 \u2013 Tonkawa",
+      "345",
+      "Oncor Electric Delivery Co.",
+      "34",
+      "172%",
+      "21",
+      "9.8"
+     ],
+     [
+      "Midlothian \u2013 Carson",
+      "500",
+      "Virginia Electric & Power Co",
+      "60",
+      "121%",
+      "66",
+      "9.5"
+     ],
+     [
+      "Lugo \u2013 Victorville",
+      "500",
+      "Azusa Light & Power",
+      "25",
+      "61%",
+      "3",
+      "9.2"
+     ],
+     [
+      "\u2013 \u2013 Cenizo",
+      "345",
+      "Aep Texas Central Company",
+      "47",
+      "118%",
+      "1",
+      "9.2"
+     ]
+    ]
+   },
+   "caveats": "Screening model. Many queued MW sit at substations placed by county proximity (C8), and line names come from HIFLD endpoint labels.",
+   "used_in": [
+    "Market_Analysis.md \u00a72 (upside), \u00a76",
+    "Reconductoring discussion"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/build_model.py"
+  },
+  {
+   "id": "C13",
+   "title": "Storage and reconductoring candidate substations",
+   "value": "677 substations",
+   "statement": "677 modelled buses have under 100 MW of generation headroom after the queue but at least 150 MW of solar and wind behind them.",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "Model buses",
+     "file": "data/processed/buses.parquet",
+     "detail": "storage_opportunity, gen_solar_mw, gen_wind_mw, queue_mw",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Renewables behind a bus = existing solar + wind at the bus (EIA-860M) + 30% of its queued MW.",
+    "Candidate if modelled, headroom after queue < 100 MW and renewables behind \u2265 150 MW."
+   ],
+   "table": {
+    "columns": [
+     "Interconnection",
+     "Candidates"
+    ],
+    "rows": [
+     [
+      "Eastern",
+      "333"
+     ],
+     [
+      "ERCOT",
+      "195"
+     ],
+     [
+      "Western",
+      "149"
+     ]
+    ]
+   },
+   "caveats": "The 30% share of queued MW and both thresholds are screening assumptions.",
+   "used_in": [
+    "Earlier summaries",
+    "Atlas: Storage lens"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/build_model.py"
+  },
+  {
+   "id": "C14",
+   "title": "Market sizing arithmetic (TAM / SAM / SOM)",
+   "value": "TAM $96.8M \u00b7 SAM $64.6M \u00b7 SOM $4.3M",
+   "statement": "With the stated assumptions, the US market is about $96.8M a year (TAM), $64.6M serviceable (SAM), and $4.3M of recurring revenue plausibly won by year 5 (SOM).",
+   "kind": "Assumption-based arithmetic",
+   "sources": [
+    {
+     "name": "Counts from C4, C5, C6; prices are hypotheses",
+     "file": "Market_Analysis.md \u00a72",
+     "detail": "",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Developers: 1,200 organisations (C6 shows 1,871 names, many project LLCs) \u00d7 weighted price (70% \u00d7 $15k + 25% \u00d7 $50k + 5% \u00d7 $150k = $30.5k).",
+    "Data centers 300 \u00d7 $100k; investors & off-takers 400 \u00d7 $40k; utilities 57 (C5) \u00d7 $250k.",
+    "SAM drops the largest developers, 30% of data-center demand and all utilities.",
+    "SOM = named account targets for year 5.",
+    "Cross-check: new requests per year (C4) \u00d7 5 sites screened \u00d7 $1,000 per report."
+   ],
+   "table": {
+    "columns": [
+     "Line item",
+     "Count",
+     "Price / basis",
+     "Annual value"
+    ],
+    "rows": [
+     [
+      "TAM \u00b7 Developers",
+      "1,200",
+      "$30.5k",
+      "$36.6M"
+     ],
+     [
+      "TAM \u00b7 Data-center developers",
+      "300",
+      "$100.0k",
+      "$30.0M"
+     ],
+     [
+      "TAM \u00b7 Investors & off-takers",
+      "400",
+      "$40.0k",
+      "$16.0M"
+     ],
+     [
+      "TAM \u00b7 Utilities & transmission providers",
+      "57",
+      "$250.0k",
+      "$14.2M"
+     ],
+     [
+      "TAM total",
+      "",
+      "",
+      "$96.8M"
+     ],
+     [
+      "SAM \u00b7 developers (excl. largest 5%)",
+      "1,200",
+      "70% \u00d7 $15k + 25% \u00d7 $50k",
+      "$27.6M"
+     ],
+     [
+      "SAM \u00b7 data centers (70% early-stage siting)",
+      "210",
+      "$100k",
+      "$21.0M"
+     ],
+     [
+      "SAM \u00b7 investors & off-takers",
+      "400",
+      "$40k",
+      "$16.0M"
+     ],
+     [
+      "SAM total",
+      "",
+      "",
+      "$64.6M"
+     ],
+     [
+      "SOM \u00b7 Developer accounts",
+      "80",
+      "$23k",
+      "$1.8M"
+     ],
+     [
+      "SOM \u00b7 Data-center accounts",
+      "15",
+      "$100k",
+      "$1.5M"
+     ],
+     [
+      "SOM \u00b7 Investor accounts",
+      "25",
+      "$40k",
+      "$1.0M"
+     ],
+     [
+      "SOM total (year 5)",
+      "",
+      "6.7% of SAM",
+      "$4.3M"
+     ],
+     [
+      "Cross-check: site reports",
+      "2,300\u20133,400 req/yr \u00d7 5 sites",
+      "$1,000/report",
+      "$11.5M\u2013$17.0M"
+     ],
+     [
+      "Reconductoring upside (illustrative)",
+      "5 GW unlocked",
+      "$10/kW",
+      "$50.0M"
+     ]
+    ]
+   },
+   "caveats": "Only the organisation counts for utilities (C5) and the developer signal (C4, C6) come from data. All prices, the data-center and investor counts, and the SAM/SOM shares are assumptions to test in interviews.",
+   "used_in": [
+    "Market_Analysis.md \u00a72"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C15",
+   "title": "Spot checks at well-known substations",
+   "value": "10 hubs",
+   "statement": "Model values at substations named in our discussion, for comparison with what is known about them.",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "Model buses",
+     "file": "data/processed/buses.parquet",
+     "detail": "",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Look up each name among modelled substations; where a name repeats, take the highest-voltage one."
+   ],
+   "table": {
+    "columns": [
+     "Substation",
+     "State",
+     "kV",
+     "MW today",
+     "MW after queue",
+     "Queued MW",
+     "Queue \u00f7 capacity",
+     "Signal"
+    ],
+    "rows": [
+     [
+      "Vincent",
+      "CA",
+      "500/230",
+      "3,000",
+      "3,000",
+      "3,952",
+      "0.24\u00d7",
+      "green"
+     ],
+     [
+      "Windhub",
+      "CA",
+      "500/230",
+      "3,000",
+      "1,129",
+      "5,119",
+      "1.44\u00d7",
+      "green"
+     ],
+     [
+      "Gates",
+      "CA",
+      "500/230/115",
+      "3,000",
+      "3,000",
+      "6,578",
+      "0.66\u00d7",
+      "green"
+     ],
+     [
+      "Mead",
+      "NV",
+      "500/345/230/138",
+      "3,000",
+      "3,000",
+      "2,800",
+      "0.18\u00d7",
+      "green"
+     ],
+     [
+      "Palo Verde",
+      "AZ",
+      "500",
+      "3,000",
+      "3,000",
+      "275",
+      "0.02\u00d7",
+      "green"
+     ],
+     [
+      "Lamar",
+      "CO",
+      "230/115",
+      "205",
+      "0",
+      "872",
+      "3.41\u00d7",
+      "red"
+     ],
+     [
+      "Comanche",
+      "CO",
+      "345/230/115",
+      "1,410",
+      "1,180",
+      "5,073",
+      "1.29\u00d7",
+      "green"
+     ],
+     [
+      "Sooner",
+      "OK",
+      "345/138",
+      "614",
+      "614",
+      "784",
+      "0.16\u00d7",
+      "green"
+     ],
+     [
+      "Hoskins",
+      "NE",
+      "345/230/115",
+      "1,430",
+      "894",
+      "808",
+      "0.25\u00d7",
+      "green"
+     ],
+     [
+      "Big Hill",
+      "TX",
+      "345",
+      "2,590",
+      "2,307",
+      "1,554",
+      "0.50\u00d7",
+      "green"
+     ]
+    ]
+   },
+   "caveats": "Values at or near 3,000 MW are the display cap: big 500 kV hubs read too high because transformer limits and contingencies are not modelled.",
+   "used_in": [
+    "Earlier summaries",
+    "README limitations"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/build_model.py"
+  },
+  {
+   "id": "C16",
+   "title": "Size of the input datasets",
+   "value": "52,244 line segments \u00b7 26,888 generators",
+   "statement": "Record counts of the main physical-grid inputs.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "HIFLD Electric Power Transmission Lines",
+     "file": "data/raw/hifld/transmission_lines.geojson",
+     "detail": "feature count",
+     "url": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "EIA-860M",
+     "file": "data/raw/eia860m/august_generator2026.xlsx",
+     "detail": "sheet 'Operating', status OP or SB",
+     "url": "https://www.eia.gov/electricity/data/eia860m/xls/august_generator2026.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Count features / rows in each downloaded file (generators: operating or standby units in the contiguous US; capacity = net summer MW)."
+   ],
+   "table": {
+    "columns": [
+     "Dataset",
+     "Records",
+     "Note"
+    ],
+    "rows": [
+     [
+      "HIFLD transmission line segments",
+      "52,244",
+      "all US incl. AK/HI; 51,861 AC segments in CONUS used"
+     ],
+     [
+      "OpenStreetMap substations",
+      "71,510",
+      "49 state queries (contiguous US + DC)"
+     ],
+     [
+      "EIA-860M operating generators (CONUS)",
+      "26,888",
+      "1,305 GW net summer capacity"
+     ],
+     [
+      "Power plants (aggregated)",
+      "14,271",
+      "with coordinates in CONUS"
+     ]
+    ]
+   },
+   "caveats": null,
+   "used_in": [
+    "README.md",
+    "Atlas: Method & sources"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  }
+ ]
+}

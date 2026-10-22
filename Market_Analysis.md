@@ -2,6 +2,8 @@
 
 *Sustainable Ventures, UC Berkeley · Draft, October 2026*
 
+Figures tagged [[C1]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C1)–[[C16]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C16) are our own calculations. Each one is recomputed from the source files by `pipeline/claims.py` and shown, with its sources, filters, steps and result table, in the atlas's **Claims & calculations** panel. Each tag links straight to its claim. Anyone with the atlas link can open it.
+
 | Section | What it covers |
 |---|---|
 | [1. Problem and target customer](#1-problem-and-target-customer) | What we solve, who experiences it, who would pay |
@@ -19,8 +21,8 @@
 
 US interconnection queues have become the main bottleneck for new power plants and for large new loads such as AI data centers.
 
-- **Size of the backlog.** At the end of 2025 about 8,200 projects were waiting in US queues: 1,312 GW of generation plus 749 GW of storage (LBNL *Queued Up*, 2026 edition; the underlying data file marks 8,513 requests as active). Our own merge of the seven ISO/RTO queues (Oct 2026) with LBNL data for non-ISO utilities counts 7,323 active requests totalling 1,686 GW.
-- **Most requests never get built.** Of the requests filed between 2000 and 2019, only **20%** reached commercial operation and **71% withdrew** (our calculation from the LBNL data file).
+- **Size of the backlog.** At the end of 2025 about 8,200 projects were waiting in US queues: 1,312 GW of generation plus 749 GW of storage (LBNL *Queued Up*, 2026 edition; the underlying data file marks 8,513 requests as active [[C2]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C2)). Our own merge of the seven ISO/RTO queues (Oct 2026) with LBNL data for non-ISO utilities counts 7,323 active requests totalling 1,686 GW [[C1]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C1).
+- **Most requests never get built.** Of the requests filed between 2000 and 2019, only **20%** reached commercial operation and **71% withdrew**. By capacity, only **14%** of the requested MW was built [[C3]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C3).
 - **Siting is blind.** Developers pick land first and learn years later whether the substation can take the project. The new rules make that mistake more expensive: CAISO's IPE 5.0 drops pre-application reports and requires a 2× commercial readiness deposit, and FERC Order 2023 penalises speculative requests.
 - **Data centers face the same wall.** Speed to power is now the main criterion in data-center site selection (JLL), and grid capacity is often checked only after land and permitting decisions are made (Hitachi Energy).
 
@@ -59,7 +61,7 @@ Corrections to our first draft:
 
 - **"Monitoring grid power parameters" and "aging issues."** Public data has no real-time measurements or equipment age. The MVP models where capacity is constrained, not equipment condition. Monitoring would need utility data partnerships, so it belongs in a later phase.
 - **"AI-based."** The core is a physics model (power flow). AI and machine learning help at the edges: matching queue requests to substations by fuzzy name, predicting which projects will withdraw, and later learning from real study results. We should describe it as *physics-based modelling enhanced by AI*. That framing is also more credible to utility engineers.
-- **The sidenote about compute cost.** It is not a real concern. Our full national model (about 29,000 substations, 41,000 lines, three interconnections, two scenarios) runs in about 10 minutes on a laptop. Compute is a rounding error in our costs; the expensive inputs are data and engineering time.
+- **The sidenote about compute cost.** It is not a real concern. Our full national model (29,170 buses and 41,484 lines in three interconnections, two scenarios) is built and solved in about 6 minutes on a laptop, excluding the one-off data download [[C9]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C9). Compute is a rounding error in our costs; the expensive inputs are data and engineering time.
 
 Benefits from our draft that still hold:
 - data centers find buildable sites faster;
@@ -76,10 +78,10 @@ Our first-draft formula counted *projects* ("applications − speculative + util
 
 | Segment | Estimate of organisations | Evidence and basis |
 |---|---|---|
-| Renewable and storage developers | **~1,200** (range 1,000–2,000) | The LBNL data names a developer on only 33% of active requests, and those already show **1,871 distinct developer names**. Many are project-specific LLCs, so parent companies are fewer. Demand signal: **2,300–3,400 new requests per year** (2019–2025) |
+| Renewable and storage developers | **~1,200** (range 1,000–2,000) | The LBNL data names a developer on only 33% of active requests, and those already show **1,871 distinct developer names** [[C6]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C6). Many are project-specific LLCs, so parent companies are fewer. Demand signal: **2,300–3,400 new requests per year** (2019–2025) [[C4]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C4) |
 | Data-center developers and site selectors | **~300** (range 150–500) | Assumption: ~10 hyperscalers, ~150 colocation and wholesale developers, ~150 powered-land developers, brokers and site consultants. *To validate.* |
 | Investors, lenders, off-takers | **~400** (range 250–600) | Assumption: ~150 infrastructure/PE funds, ~50 project-finance banks, ~200 off-takers (CCAs, corporate buyers, utilities). *To validate.* |
-| Utilities and transmission providers | **57** | Distinct transmission-provider entities in the LBNL dataset |
+| Utilities and transmission providers | **57** | Distinct transmission-provider entities in the LBNL dataset [[C5]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C5) |
 
 ### What might they spend?
 
@@ -94,6 +96,8 @@ No competitor publishes prices. These annual contract values are hypotheses to t
 
 ### TAM, SAM and SOM (US, annual recurring revenue)
 
+The full arithmetic, with each input, is in [[C14]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C14).
+
 | Level | Definition used | Calculation | Annual value |
 |---|---|---|---|
 | **TAM** | All four segments, whole US, full adoption | 1,200 × $30.5k + 300 × $100k + 400 × $40k + 57 × $250k | **≈ $97M** |
@@ -104,7 +108,7 @@ No competitor publishes prices. These annual contract values are hypotheses to t
 
 **What this tells us.** A pure data or software business for US interconnection intelligence is a **~$100M per year market**. That is real, but modest for a venture-scale company, and it already has well-funded competitors (section 4). The bigger opportunity is to act on the constraints the map reveals:
 
-- **Reconductoring and constraint-relief upside (not counted in the TAM above).** Our model flags **316 heat-limited line segments under 80 km** with about **630 GW of queued projects** behind them (screening estimate).
+- **Reconductoring and constraint-relief upside (not counted in the TAM above).** Our model flags **316 heat-limited line segments under 80 km** with about **630 GW of queued projects** behind them (screening estimate) [[C12]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C12).
   - Reconductoring with advanced conductors can roughly double a line's capacity at about half the cost of a new line (UC Berkeley/GridLab).
   - If we helped unlock 5 GW over five years and charged a $10/kW success fee, that would be about **$50M of cumulative revenue**. These are illustrative numbers, to test with developers.
 
@@ -179,7 +183,7 @@ All are compared in section 4.
 
 Competitors answer *"where is there capacity today?"* Customers also need to know:
 
-1. **"How much will be left after everyone ahead of me?"** Our *headroom after the queue* weights every queued request by its odds of reaching operation (historically about 20%) before counting what remains. This is part of our MVP, not a promise.
+1. **"How much will be left after everyone ahead of me?"** Our *headroom after the queue* weights every queued request by its odds of reaching operation (historically about 20% [[C3]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C3)) before counting what remains. This is part of our MVP, not a promise.
 2. **"What would it take to fix the red?"** Every red substation in our model points to the line that limits it and how many megawatts are queued behind that line. That turns a red marker into a **reconductoring or storage opportunity**, which competitors mostly leave to the customer.
 3. **Affordable access for smaller buyers.** The incumbents sell enterprise contracts. Small and mid-sized developers, CCAs, landowners and smaller investors are underserved.
 
@@ -198,7 +202,7 @@ Competitors answer *"where is there capacity today?"* Customers also need to kno
 ### Honest weaknesses
 
 - **Accuracy.** We use public data and estimated line ratings. Nira and LandGate claim ISO-model or AC-model precision. Mitigations: obtain the grid operators' protected base cases under NDA, partner with these providers, and calibrate against published study results.
-- **Copyable.** A map built only from public data is easy to replicate. Defensibility must come from network-upgrade cost data extracted from ISO cluster studies, completion odds learned from ~24,000 withdrawn requests, data customers contribute, and a constraint-relief service track record.
+- **Copyable.** A map built only from public data is easy to replicate. Defensibility must come from network-upgrade cost data extracted from ISO cluster studies, completion odds learned from ~24,000 withdrawn requests [[C2]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C2), data customers contribute, and a constraint-relief service track record.
 - **Free alternatives** (ISO heatmaps, Grid8) set a low price ceiling for basic maps.
 
 ---
@@ -207,11 +211,13 @@ Competitors answer *"where is there capacity today?"* Customers also need to kno
 
 ### Evidence
 
+Every figure we calculated ourselves is recomputed by `pipeline/claims.py` and shown, step by step, in the atlas's **Claims & calculations** panel (https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq). The claim IDs below link to the matching entry.
+
 | Claim | Source |
 |---|---|
 | ~8,200 active projects; 1,312 GW generation + 749 GW storage (end-2025) | [LBNL *Queued Up* 2026 edition](https://eta-publications.lbl.gov/publications/queued-2026-edition-characteristics) · [LBNL queues page](https://emp.lbl.gov/queues) |
-| 20% of 2000–2019 requests reached operation, 71% withdrew; 2,300–3,400 new requests/yr; 57 transmission providers; 1,871 named developers | Our analysis of the [LBNL data file](https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx) (CC BY 4.0) |
-| 7,323 active requests / 1,686 GW (Oct 2026); 316 heat-limited constraint segments with ~630 GW behind them | Our MVP pipeline (`pipeline/`, `README.md`): CAISO, MISO, SPP, NYISO, PJM, ERCOT and ISO-NE live queues + LBNL |
+| 20% of 2000–2019 requests reached operation, 71% withdrew [[C3]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C3); 2,300–3,400 new requests/yr [[C4]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C4); 57 transmission providers [[C5]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C5); 1,871 named developers [[C6]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C6); status counts [[C2]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C2) | Our analysis of the [LBNL data file](https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx) (CC BY 4.0) |
+| 7,323 active requests / 1,686 GW (Oct 2026) [[C1]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C1); queue placement [[C8]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C8); model size [[C9]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C9); 316 heat-limited constraint segments with ~630 GW behind them [[C12]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C12); TAM/SAM/SOM arithmetic [[C14]](https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq#C14) | Our MVP pipeline (`pipeline/`, `README.md`): CAISO, MISO, SPP, NYISO, PJM, ERCOT and ISO-NE live queues + LBNL |
 | CAISO IPE 5.0 drops pre-application reports and adds 2× deposits; FERC Order 2023 heatmaps and penalties | Course brief (`context.md`); to verify against CAISO and FERC filings |
 | Speed to power is the main data-center siting criterion | [JLL via Data Centre Magazine](https://datacentremagazine.com/news/jll-how-ai-is-reshaping-the-power-market-for-data-centres) · [Hitachi Energy](https://www.hitachienergy.com/us/en/news-and-events/blogs/2026/05/data-center-site-selection-finding-power-on-a-constrained-grid) |
 | Reconductoring roughly doubles capacity at about half the cost of new lines | [GridLab 2035 Reconductoring Report](https://leg.mt.gov/content/Committees/Interim/2023-2024/Energy-and-Telecommunications/Meetings/July-16-17-2024/GridLab_2035-Reconductoring-Technical-Report.pdf) · [Utility Dive](https://www.utilitydive.com/news/reconductoring-power-lines-transmission-capacity-goldman-gridlab/712643/) |

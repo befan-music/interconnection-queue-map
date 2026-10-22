@@ -218,9 +218,25 @@ def isone():
     return df, ids
 
 
+LBNL_FILE = Q / "lbnl_queued_up_thru2025.xlsx"
+LBNL_SHEET = "03. Complete Queue Data"
+
+
+def read_lbnl_raw():
+    """LBNL project-level table (all statuses, 2000-2025), cached as parquet next to the pipeline."""
+    cache = INTERIM / "lbnl_queue_raw.parquet"
+    if cache.exists() and cache.stat().st_mtime >= LBNL_FILE.stat().st_mtime:
+        return pd.read_parquet(cache)
+    df = pd.read_excel(LBNL_FILE, sheet_name=LBNL_SHEET, header=1)
+    for c in df.columns:
+        if df[c].dtype == object:
+            df[c] = df[c].astype("string")
+    df.to_parquet(cache)
+    return df
+
+
 def lbnl():
-    lb = pd.read_parquet(INTERIM / "lbnl_queue_raw.parquet") if (INTERIM / "lbnl_queue_raw.parquet").exists() \
-        else pd.read_excel(Q / "lbnl_queued_up_thru2025.xlsx", sheet_name="03. Complete Queue Data", header=1)
+    lb = read_lbnl_raw()
     a = lb[lb.q_status.eq("active")].copy()
     m = {"IA Executed": "IA executed", "Construction": "Construction", "Facility Study": "Late study",
          "IA Pending": "Late study", "System Impact Study": "Late study"}

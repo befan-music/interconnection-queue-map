@@ -46,6 +46,7 @@ Every downloaded file is logged with URL, retrieval time and SHA-256 in `data/ra
 | 5 | `match_queue.py`: POI-name fuzzy matching within 150 km of the project county, voltage-aware; county fallback | `data/interim/queue_located.parquet` |
 | 6 | `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case | `data/processed/*.parquet`, `model_summary.json` |
 | 7 | `export_map.py`: compact JSON for the browser | `map/data/*.json` |
+| 8 | `claims.py`: recomputes every number cited in our documents, with sources and steps | `map/data/claims.json` (atlas panel *Claims & calculations*) |
 
 ## Model
 
