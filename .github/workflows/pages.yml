@@ -1,0 +1,50 @@
+# Publishes the atlas (map/) to GitHub Pages on every push that changes it.
+# One-time setup: repo Settings -> Pages -> Build and deployment -> Source: "GitHub Actions".
+name: Deploy atlas to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths: ["map/**", ".github/workflows/pages.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # map/index.html is written in the Claude artifact format (page content without the
+      # <!doctype>/<head>/<body> skeleton, which the artifact host adds). Add that skeleton here,
+      # with the two reset rules the page relies on.
+      - name: Build static site
+        run: |
+          mkdir -p _site
+          cp -r map/data _site/data
+          {
+            printf '%s\n' '<!doctype html>' '<html lang="en">' '<head>' '<meta charset="utf-8">' \
+              '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">' \
+              '<style>body{margin:0}[hidden]{display:none!important}</style>' '</head>' '<body>'
+            cat map/index.html
+            printf '%s\n' '</body>' '</html>'
+          } > _site/index.html
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deployment
+        uses: actions/deploy-pages@v4

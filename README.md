@@ -8,6 +8,14 @@ interconnection queue ahead of you. See `context.md` for the product thesis.
 > Screening estimates, not interconnection studies. Real ratings, contingencies and breaker
 > positions sit in CEII-protected base cases. See *Limitations*.
 
+## Live map
+
+- **GitHub Pages:** https://befan-music.github.io/interconnection-queue-map/. It is rebuilt by
+  `.github/workflows/pages.yml` on every push that changes `map/`. One-time setup: Settings → Pages →
+  Source: *GitHub Actions*.
+- **Claude artifact:** https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq
+- Every figure we cite is recomputed in the map's **Claims & calculations** panel; link to one with `#C1`…`#C16`.
+
 ## Quick start
 
 ```bash
