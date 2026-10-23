@@ -598,7 +598,8 @@ function renderMethod() {
   </ul>
   <h3>Sources</h3>
   <div class="tbl-wrap"><table><thead><tr><th>Dataset</th><th>Retrieved</th><th>Link</th></tr></thead><tbody>${src}</tbody></table></div>
-  <p class="note">LBNL Queued Up data is CC BY 4.0 (Lawrence Berkeley National Laboratory and GridTracker). OpenStreetMap data © OpenStreetMap contributors, ODbL.</p>`;
+  <p class="note">LBNL Queued Up data is CC BY 4.0 (Lawrence Berkeley National Laboratory and GridTracker). OpenStreetMap data © OpenStreetMap contributors, ODbL.</p>
+  <p class="note">Code, data pipeline and this page: <a href="https://github.com/befan-music/interconnection-queue-map" target="_blank" rel="noopener">github.com/befan-music/interconnection-queue-map</a></p>`;
   $("#mClose").onclick = () => $("#method").close();
   $("#mClaims").onclick = () => { $("#method").close(); $("#claims").showModal(); };
 }
