@@ -10,12 +10,17 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
 - `pipeline/`: data pipeline, run in order by `run_all.py`
   1. `fetch_data.py`: downloads all public sources into `data/raw/` (logged in `data/raw/manifest.json`)
   2. `normalize_queues.py`: 7 ISO queue formats + LBNL into one active-project table
+     2b. `queue_stats.py`: empirical completion odds (region × stage) and durations from LBNL history
   3. `prepare_eia.py`: EIA-860M/860 fleet by technology, plant grid voltage, NERC region
   4. `build_network.py`: buses from HIFLD line endpoints + OSM names; line parameters; interconnection seam cuts
-  5. `match_queue.py`: queue requests to buses (fuzzy POI name, else county proximity)
-  6. `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case
+  5. `match_queue.py`: queue requests to buses (fuzzy POI name, else county proximity); also the
+     full LBNL history (`lbnl_located.parquet`, used for each substation's track record)
+     5b. `cost_data.py`: LBNL interconnection cost studies (2024 $/kW) placed on buses
+  6. `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case; saves the five
+     tightest constraints per bus (`bus_constraints.parquet`)
+     6b. `risk_model.py`: risk per bus × project size (cost, time, queue-ahead simulation, fit, index)
   7. `export_map.py`: compact JSON for the web map
-  8. `claims.py`: recomputes every quantitative claim (C1–C16) with sources and steps into
+  8. `claims.py`: recomputes every quantitative claim (C1–C23) with sources and steps into
      `map/data/claims.json`, shown in the map's "Claims & calculations" panel. Rule: any new number
      we cite must be added here, not computed ad hoc in the terminal.
 - `map/index.html` + `map/data/*.json`: MapLibre web map (serve over HTTP: `python -m http.server -d map`)
@@ -49,8 +54,13 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
   deliverability figure is reported alongside.
   - Earlier attempts failed: 5% DF with an interconnection-wide sink made ~90% of buses read zero
     after the queue, and one TVA 500 kV line bound 7,800 buses.
-- **Queue weights** (probability of reaching operation): early study 0.10, late study 0.25,
-  IA executed 0.55, construction 0.90. Historically 20% of 2000–2019 requests reached operation.
+- **Queue weights** (probability of reaching operation) are empirical by region and stage
+  (`queue_stats.py`, claim C17): nationally 22% before an IA, 60% after, 90% in construction
+  (assumption). Late study = midpoint (LBNL does not record the stage at which withdrawals left).
+- **Risk model** (`risk_model.py`): cost = MISO connection cost + regional median network cost from LBNL
+  studies × size/headroom multiplier × voltage multiplier × local index; time = regional median to
+  operation × cost-tier multiplier; fit = queue simulation + log-normal model error (σ 0.5); index =
+  100 − weighted score (35/30/35). Validation: red substations' studies cost ~1.8× green (C20).
 - **Signals:** green ≥ 250 MW after queue, yellow 75–250, red < 75 or queue > 1.5× N-1 branch capacity.
 
 ## Known limitations

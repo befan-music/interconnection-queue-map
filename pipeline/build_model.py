@@ -46,9 +46,24 @@ SCENARIOS = {
                                             "Battery": 0.0, "Pumped storage": 0.0, "Hydro": 0.5,
                                             "Biomass/other": 0.6}},
 }
-# probability that an active request reaches operation (screening assumption informed by LBNL
-# completion statistics: ~13-20% overall, much higher once an IA is signed)
+# Probability that an active request reaches operation, by region and stage: empirical, from the
+# LBNL history (queue_stats.py). These defaults are only used if queue_stats.json is missing.
+PHASES = ["Early study", "Late study", "IA executed", "Construction"]
 PHASE_WEIGHT = {"Early study": 0.10, "Late study": 0.25, "IA executed": 0.55, "Construction": 0.90}
+TOP_K = 5              # tightest constraints saved per bus (for size-dependent upgrade estimates)
+
+
+def load_completion_odds():
+    f = PROCESSED / "queue_stats.json"
+    if not f.exists():
+        log("queue_stats.json missing: using default phase weights")
+        return {"national": PHASE_WEIGHT}
+    return json.loads(f.read_text())["completion"]
+
+
+def completion_odds(odds, region, phase):
+    table = odds.get(region) or odds["national"]
+    return float(table.get(phase, odds["national"].get(phase, 0.1)))
 QUEUE_AVAIL = {"peak": {"Solar": 0.5, "Wind": 0.25, "Offshore Wind": 0.35, "Battery": 0.6, "Gas": 0.85,
                         "Nuclear": 0.95, "Hydro": 0.6, "Geothermal": 0.9},
                "light": {"Solar": 0.85, "Wind": 0.45, "Offshore Wind": 0.5, "Battery": 0.0, "Gas": 0.15,
@@ -193,12 +208,13 @@ def main():
         buses[f"gen_{t.lower().replace(' ', '_').replace('/', '_')}_mw"] = buses.node.map(cap.get(t)).fillna(0.0)
 
     # queue per bus
-    queue["weight"] = queue.phase.map(PHASE_WEIGHT).fillna(0.1)
+    odds = load_completion_odds()
+    queue["weight"] = [completion_odds(odds, r, ph) for r, ph in zip(queue.iso, queue.phase.fillna("Early study"))]
     qb = queue[queue.node >= 0]
     buses["queue_mw"] = buses.node.map(qb.groupby("node").mw.sum()).fillna(0.0)
     buses["queue_n"] = buses.node.map(qb.groupby("node").size()).fillna(0).astype(int)
     buses["queue_expected_mw"] = buses.node.map((qb.mw * qb.weight).groupby(qb.node).sum()).fillna(0.0)
-    for ph in PHASE_WEIGHT:
+    for ph in PHASES:
         col = "queue_" + ph.lower().replace(" ", "_") + "_mw"
         buses[col] = buses.node.map(qb[qb.phase.eq(ph)].groupby("node").mw.sum()).fillna(0.0)
     buses["queue_storage_mw"] = buses.node.map(
@@ -226,6 +242,7 @@ def main():
         buses[c] = -1
     buses["bind_gen_df_q"] = np.nan
     summary = {"ba_peaks_mw": ba_used.round(0).to_dict(), "interconnections": {}}
+    constraints = []
 
     for ic in ("Eastern", "Western", "ERCOT"):
         bm = buses.interconnection.eq(ic).values
@@ -314,15 +331,23 @@ def main():
         out = {c: np.full(N, np.nan) for c in res_cols}
         bind = {k: np.full(N, -1) for k in ("gen", "gen_q", "load")}
         bind_df = np.full(N, np.nan)
+        topk_line = np.full((TOP_K, N), -1)
+        topk_mw = np.full((TOP_K, N), np.inf)
+        topk_df = np.full((TOP_K, N), np.nan)
         lid = L.index.values
         to_lid = lambda r: np.where(r >= 0, lid[np.maximum(r, 0)], -1)  # noqa: E731
 
-        def margins(D, rows, f, sign, thr):
+        def margins(D, rows, f, sign, thr, topk=0):
             """MW addable at each candidate bus (column) before a line with |DF| >= thr reaches U.
-            sign=+1 injection, -1 withdrawal. Returns (MW, binding line row, signed DF)."""
+            sign=+1 injection, -1 withdrawal. Returns (MW, binding line row, signed DF), plus the
+            topk tightest (rows, MW, DF) as k x batch arrays when topk > 0."""
             nb = D.shape[1]
             if not len(rows):
-                return np.full(nb, np.inf), np.full(nb, -1), np.full(nb, np.nan)
+                empty = (np.full(nb, np.inf), np.full(nb, -1), np.full(nb, np.nan))
+                if not topk:
+                    return empty
+                return empty + ((np.full((topk, nb), -1), np.full((topk, nb), np.inf),
+                                 np.full((topk, nb), np.nan)),)
             Ds = D[rows]
             a = np.abs(Ds)
             fs, Us = f[rows][:, None], U[rows][:, None]
@@ -332,7 +357,21 @@ def main():
             k = np.argmin(m, axis=0)
             c = np.arange(nb)
             v = m[k, c]
-            return v, np.where(np.isfinite(v), rows[k], -1), Ds[k, c] * sign
+            res = (v, np.where(np.isfinite(v), rows[k], -1), Ds[k, c] * sign)
+            if not topk:
+                return res
+            kk = min(topk, m.shape[0])
+            idx = np.argpartition(m, kk - 1, axis=0)[:kk]
+            vals = np.take_along_axis(m, idx, axis=0)
+            order = np.argsort(vals, axis=0)
+            idx, vals = np.take_along_axis(idx, order, axis=0), np.take_along_axis(vals, order, axis=0)
+            tr = np.full((topk, nb), -1)
+            tv = np.full((topk, nb), np.inf)
+            td = np.full((topk, nb), np.nan)
+            tr[:kk] = np.where(np.isfinite(vals), rows[idx], -1)
+            tv[:kk] = vals
+            td[:kk] = np.take_along_axis(Ds, idx, axis=0) * sign
+            return res + ((tr, tv, td),)
 
         for s0 in range(0, N, BATCH):
             cols = np.arange(s0, min(s0 + BATCH, N))
@@ -348,14 +387,22 @@ def main():
             rows_d = np.nonzero((np.abs(Dp) >= DF_DELIV).any(axis=1))[0]
 
             for sfx, fp, fl in (("", base_f["peak"], base_f["light"]), ("_q", q_f["peak"], q_f["light"])):
-                vp, rp, dp = margins(Dp, rows_p, fp, +1, DF_MIN)
-                vl, rl, dl = margins(Dl, rows_l, fl, +1, DF_MIN)
+                kq = TOP_K if sfx == "_q" else 0
+                rp_ = margins(Dp, rows_p, fp, +1, DF_MIN, topk=kq)
+                rl_ = margins(Dl, rows_l, fl, +1, DF_MIN, topk=kq)
+                (vp, rp, dp), (vl, rl, dl) = rp_[:3], rl_[:3]
                 out[f"hr_gen_peak{sfx}"][cols] = vp
                 out[f"hr_gen_light{sfx}"][cols] = vl
                 worse_light = vl < vp
                 bind["gen" + sfx][cols] = to_lid(np.where(worse_light, rl, rp))
                 if sfx == "_q":
                     bind_df[cols] = np.where(worse_light, dl, dp)
+                    # tightest constraints after the queue, from the worse scenario for each bus
+                    for (tr, tv, td), use in ((rp_[3], ~worse_light), (rl_[3], worse_light)):
+                        cc = cols[use]
+                        topk_line[:, cc] = to_lid(tr[:, use])
+                        topk_mw[:, cc] = tv[:, use]
+                        topk_df[:, cc] = td[:, use]
             v, r, _ = margins(Dp, rows_p, base_f["peak"], -1, DF_MIN)
             out["hr_load_peak"][cols] = v
             bind["load"][cols] = to_lid(r)
@@ -367,6 +414,11 @@ def main():
         buses.loc[bm, "bind_gen_line_q"] = bind["gen_q"]
         buses.loc[bm, "bind_gen_df_q"] = bind_df
         buses.loc[bm, "bind_load_line"] = bind["load"]
+        nodes_ic = buses.loc[bm, "node"].values
+        for k in range(TOP_K):
+            ok = topk_line[k] >= 0
+            constraints.append(pd.DataFrame({"node": nodes_ic[ok], "rank": k, "line": topk_line[k][ok],
+                                             "margin_mw": topk_mw[k][ok], "df": topk_df[k][ok]}))
         summary["interconnections"][ic] = info
         log(f"{ic}: {N:,} buses, {M:,} lines, gen {info['gen_gw']} GW, peak load {info['peak_load_gw']} GW, "
             f"calibrated lines {info['share_lines_calibrated']:.1%}")
@@ -387,6 +439,9 @@ def main():
                                                        (outlet - (p_ + q_).clip(lower=0)).clip(lower=0)])
     outlet_binds = buses[["hr_gen_peak_q", "hr_gen_light_q"]].min(axis=1) < pd.concat(net_q, axis=1).min(axis=1) - 1e-6
     buses.loc[outlet_binds & buses.modeled, ["bind_gen_line_q", "bind_gen_df_q"]] = [-2, np.nan]
+    buses["outlet_room_q_mw"] = np.minimum.reduce([
+        (outlet - (buses[f"inj_{s}_mw"].fillna(0) + buses[f"qinj_{s}_mw"].fillna(0)).clip(lower=0)).clip(lower=0)
+        for s in ("peak", "light")])
     buses["outlet_binding"] = outlet_binds & buses.modeled
     o_load = (outlet - (-buses.inj_peak_mw.fillna(0)).clip(lower=0)).clip(lower=0)
     load_outlet = buses.hr_load_peak > o_load
@@ -435,11 +490,12 @@ def main():
 
     PROCESSED.mkdir(exist_ok=True)
     buses.to_parquet(PROCESSED / "buses.parquet")
+    pd.concat(constraints, ignore_index=True).to_parquet(PROCESSED / "bus_constraints.parquet", index=False)
     lines.to_parquet(PROCESSED / "lines.parquet")
     queue.to_parquet(PROCESSED / "queue.parquet", index=False)
     plants.to_parquet(PROCESSED / "plants.parquet")
     summary["params"] = {"DF_MIN": DF_MIN, "DF_DELIV": DF_DELIV, "ALPHA": ALPHA, "CALIB_UTIL": CALIB_UTIL,
-                         "PHASE_WEIGHT": PHASE_WEIGHT,
+                         "COMPLETION_ODDS": odds,
                          "SCENARIOS": {k: {"load_scale": v["load_scale"]} for k, v in SCENARIOS.items()}}
     m = buses[buses.modeled]
     summary["bus_signal_counts"] = m.gen_signal.value_counts().to_dict()

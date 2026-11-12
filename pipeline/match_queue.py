@@ -1,11 +1,12 @@
-"""Locate every active queue project on a network bus.
+"""Locate queue requests on network buses: the active queue, and the full LBNL history.
 
-1. Geocode the project's county (Census) -> centroid.
+1. Geocode the request's county (Census) -> centroid.
 2. Fuzzy-match the POI name ("Lamont 115 kV", "Helm-Kerman 70 kV Line", "59903 Bearkat 345kV")
    against substation names (HIFLD endpoint labels + OSM) within 150 km of that county,
    rewarding voltage agreement and proximity.
 3. Fall back to the nearest bus of suitable voltage to the county centroid.
-Output: data/interim/queue_located.parquet
+Output: data/interim/queue_located.parquet   active requests (feeds the power-flow model)
+        data/interim/lbnl_located.parquet    every LBNL request 2000-2025, any status (local track record)
 """
 import re
 import sys
@@ -19,6 +20,7 @@ from scipy.spatial import cKDTree
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from common import INTERIM, RAW, log  # noqa: E402
+from normalize_queues import kv_from, norm_id, read_lbnl_raw  # noqa: E402
 
 CRS_M = 5070
 NAME_RADIUS_KM = 150
@@ -62,15 +64,17 @@ def norm_county(s):
     return re.sub(r"\s+", " ", s).strip()
 
 
-def main():
-    q = pd.read_parquet(INTERIM / "queue_projects.parquet")
-    nodes = gpd.read_parquet(INTERIM / "nodes.parquet")
-
+def load_counties():
     county = gpd.read_file(next((RAW / "census").glob("cb_*_us_county_500k.zip")))
     county = county.to_crs(CRS_M)
     county["ctr_x"], county["ctr_y"] = county.geometry.centroid.x, county.geometry.centroid.y
     county["key"] = county.STUSPS + "|" + county.NAME.map(norm_county)
-    county = pd.DataFrame(county.drop(columns="geometry"))
+    return pd.DataFrame(county.drop(columns="geometry"))
+
+
+def locate(q, nodes, county):
+    """Place each row of q (uid, poi_name, poi_kv, state, county, [fips], mw) on a bus."""
+    q = q.copy()
     by_key = county.drop_duplicates("key").set_index("key")
     by_fips = county.set_index(county.GEOID.astype(int))
 
@@ -83,9 +87,10 @@ def main():
     cy = cy.fillna(key.map(by_key.ctr_y))
     q["county_located"] = cx.notna()
     q["cx"], q["cy"] = cx, cy
-    log(f"county geocoded: {q.county_located.mean():.1%} of {len(q):,} projects")
+    log(f"county geocoded: {q.county_located.mean():.1%} of {len(q):,} requests")
 
     # bus name index
+    nodes = nodes.copy()
     nodes["nm_hifld"] = np.where(nodes.node_type.eq("substation"), nodes.hifld_label.map(clean), "")
     nodes["nm_osm"] = nodes.osm_name.map(clean) if "osm_name" in nodes else ""
     named = nodes[(nodes.nm_hifld.str.len() >= 3) | (nodes.nm_osm.str.len() >= 3)]
@@ -129,7 +134,7 @@ def main():
             res.append((r.uid, -1, "unlocated", np.nan, np.nan))
             continue
         # fallback: nearest bus with a plausible voltage
-        min_kv = 0.9 * r.poi_kv if not pd.isna(r.poi_kv) else (200 if r.mw >= 300 else 100)
+        min_kv = 0.9 * r.poi_kv if not pd.isna(r.poi_kv) else (200 if (r.mw or 0) >= 300 else 100)
         d, idx = tree_all.query([x, y], k=40)
         ok = [i for i in idx if nodes.kv_max.iat[i] >= min_kv]
         i = ok[0] if ok else idx[0]
@@ -143,12 +148,38 @@ def main():
     out["bus_name"] = np.where(ok, nodes.name.reindex(out.bus_idx.where(ok, 0)).values, None)
     out["lon"] = np.where(ok, nodes.lon.reindex(out.bus_idx.where(ok, 0)).values, np.nan)
     out["lat"] = np.where(ok, nodes.lat.reindex(out.bus_idx.where(ok, 0)).values, np.nan)
-    out = out.drop(columns=["bus_idx", "cx", "cy"])
+    return out.drop(columns=["bus_idx", "cx", "cy"])
+
+
+def lbnl_history():
+    """Every LBNL request (2000-2025, any status) in the schema locate() expects."""
+    lb = read_lbnl_raw()
+    h = pd.DataFrame({
+        "uid": "LBNL:" + lb.index.astype(str), "region": lb.region.astype(str),
+        "q_id": lb.q_id.map(norm_id), "q_status": lb.q_status.astype(str),
+        "poi_name": lb.poi_name.astype("string"), "state": lb.state.astype("string").str.strip().str.upper().str[:2],
+        "county": lb.county.astype("string"), "fips": pd.to_numeric(lb.fips_code, errors="coerce"),
+        "mw": pd.to_numeric(lb.mw_1, errors="coerce"), "type": lb.type_clean.astype("string"),
+        "q_year": pd.to_numeric(lb.q_year, errors="coerce"),
+        "q_date": pd.to_datetime(lb.q_date, errors="coerce"), "ia_date": pd.to_datetime(lb.ia_date, errors="coerce"),
+        "on_date": pd.to_datetime(lb.on_date, errors="coerce"), "wd_date": pd.to_datetime(lb.wd_date, errors="coerce"),
+    })
+    h["poi_kv"] = h.poi_name.map(kv_from)
+    return h
+
+
+def main():
+    nodes = gpd.read_parquet(INTERIM / "nodes.parquet")
+    county = load_counties()
+
+    out = locate(pd.read_parquet(INTERIM / "queue_projects.parquet"), nodes, county)
     out.to_parquet(INTERIM / "queue_located.parquet", index=False)
     summary = out.groupby("match_method").agg(n=("uid", "size"), gw=("mw", lambda s: s.sum() / 1e3)).round(1)
     print(summary.to_string())
-    print(out[out.match_method.str.startswith("POI")].sample(12, random_state=3)[
-              ["iso", "poi_name", "bus_name", "match_score", "match_dist_km"]].to_string())
+
+    hist = locate(lbnl_history(), nodes, county)
+    hist.to_parquet(INTERIM / "lbnl_located.parquet", index=False)
+    log(f"LBNL history located: {len(hist):,} requests; " + str(hist.match_method.value_counts().to_dict()))
 
 
 if __name__ == "__main__":

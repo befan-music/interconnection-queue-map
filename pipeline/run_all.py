@@ -9,8 +9,8 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-STEPS = ["normalize_queues.py", "prepare_eia.py", "build_network.py", "match_queue.py", "build_model.py",
-         "export_map.py", "claims.py"]
+STEPS = ["normalize_queues.py", "queue_stats.py", "prepare_eia.py", "build_network.py", "match_queue.py",
+         "cost_data.py", "build_model.py", "risk_model.py", "export_map.py", "claims.py"]
 
 if __name__ == "__main__":
     steps = (["fetch_data.py"] if "--fetch" in sys.argv else []) + STEPS

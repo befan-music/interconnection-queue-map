@@ -131,6 +131,32 @@ def lbnl_queue():
              RAW / "queues" / "lbnl_queued_up_thru2025.xlsx", note="CC BY 4.0, LBNL & GridTracker")
 
 
+LBNL_COST_FILES = {  # LBNL "Generator Interconnection Costs to the Transmission System" (cleaned project data)
+    "MISO": "miso_costs_2021_clean_data.xlsx",
+    "PJM": "pjm_costs_2022_clean_data.xlsx",
+    "SPP": "spp_costs_2023_clean_data.xlsx",
+    "NYISO": "nyiso_2022_final_data_cleaned_publication_vfinal.xlsx",
+    "ISO-NE": "isone_interconnection_cost_data_publication_vfinal.xlsx",
+    "Non-ISO BAs": "2026-02/ba_costs_2024_clean_data.xlsx",
+}
+
+
+def lbnl_costs():
+    """LBNL project-level interconnection cost data (network upgrade + POI costs from ISO studies)."""
+    for region, f in LBNL_COST_FILES.items():
+        download(f"LBNL interconnection costs ({region})",
+                 f"https://eta-publications.lbl.gov/sites/default/files/{f}",
+                 RAW / "costs" / Path(f).name, note="LBNL Generator Interconnection Costs; cite LBNL")
+
+
+def miso_cost_guide():
+    """MISO Transmission Cost Estimation Guide (MTEP24): $/mile and substation unit costs by kV."""
+    download("MISO Transmission Cost Estimation Guide (MTEP24)",
+             "https://cdn.misoenergy.org/20240501%20PSC%20Item%2004%20MISO%20Transmission%20Cost%20"
+             "Estimation%20Guide%20for%20MTEP24632680.pdf",
+             RAW / "costs" / "miso_cost_guide_mtep24.pdf")
+
+
 def caiso_queue():
     download("CAISO Public Queue Report",
              "https://www.caiso.com/PublishedDocuments/PublicQueueReport.xlsx",
@@ -202,7 +228,7 @@ def census():
 
 SOURCES = {f.__name__: f for f in (
     hifld_lines, control_areas, blm_solar, eia860, eia860m, eia930, lbnl_queue, caiso_queue,
-    miso_queue, spp_queue, nyiso_queue, pjm_queue, ercot_queue, isone_queue, census,
+    miso_queue, spp_queue, nyiso_queue, pjm_queue, ercot_queue, isone_queue, lbnl_costs, miso_cost_guide, census,
     osm_substations)}
 
 

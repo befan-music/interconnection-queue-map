@@ -39,6 +39,62 @@
     "source": "US Census cartographic boundaries",
     "url": "https://www2.census.gov/geo/tiger/GENZ2024/shp/cb_2024_us_state_20m.zip"
   },
+  "data/raw/costs/ba_costs_2024_clean_data.xlsx": {
+    "bytes": 4503920,
+    "note": "LBNL Generator Interconnection Costs; cite LBNL",
+    "retrieved_utc": "2026-11-12T07:14:16+00:00",
+    "sha256": "db3703e44272116215cc5bd89e59e305d3071ddc279777da732c63e9bdf003bf",
+    "source": "LBNL interconnection costs (Non-ISO BAs)",
+    "url": "https://eta-publications.lbl.gov/sites/default/files/2026-02/ba_costs_2024_clean_data.xlsx"
+  },
+  "data/raw/costs/isone_interconnection_cost_data_publication_vfinal.xlsx": {
+    "bytes": 1729222,
+    "note": "LBNL Generator Interconnection Costs; cite LBNL",
+    "retrieved_utc": "2026-11-12T07:14:15+00:00",
+    "sha256": "48d17fde90324a56d12f19a69d34edc55a12b2dd46f880f489f48a58744efebd",
+    "source": "LBNL interconnection costs (ISO-NE)",
+    "url": "https://eta-publications.lbl.gov/sites/default/files/isone_interconnection_cost_data_publication_vfinal.xlsx"
+  },
+  "data/raw/costs/miso_cost_guide_mtep24.pdf": {
+    "bytes": 1424167,
+    "note": "",
+    "retrieved_utc": "2026-11-12T07:14:18+00:00",
+    "sha256": "708b0103f8ea2ff458a09aa46334a537817a833814c8300a04fd07e4a74de167",
+    "source": "MISO Transmission Cost Estimation Guide (MTEP24)",
+    "url": "https://cdn.misoenergy.org/20240501%20PSC%20Item%2004%20MISO%20Transmission%20Cost%20Estimation%20Guide%20for%20MTEP24632680.pdf"
+  },
+  "data/raw/costs/miso_costs_2021_clean_data.xlsx": {
+    "bytes": 1809621,
+    "note": "LBNL Generator Interconnection Costs; cite LBNL",
+    "retrieved_utc": "2026-11-12T07:14:13+00:00",
+    "sha256": "d19bc37f3f95fef3d76810eb4cc272ed1ac6cac85160a9f7ed4eac66fcc83967",
+    "source": "LBNL interconnection costs (MISO)",
+    "url": "https://eta-publications.lbl.gov/sites/default/files/miso_costs_2021_clean_data.xlsx"
+  },
+  "data/raw/costs/nyiso_2022_final_data_cleaned_publication_vfinal.xlsx": {
+    "bytes": 1737417,
+    "note": "LBNL Generator Interconnection Costs; cite LBNL",
+    "retrieved_utc": "2026-11-12T07:14:14+00:00",
+    "sha256": "f3b7921d704455a6db8b8729d9b046dad682af0008c0c7e1e1e740a5c5ca345d",
+    "source": "LBNL interconnection costs (NYISO)",
+    "url": "https://eta-publications.lbl.gov/sites/default/files/nyiso_2022_final_data_cleaned_publication_vfinal.xlsx"
+  },
+  "data/raw/costs/pjm_costs_2022_clean_data.xlsx": {
+    "bytes": 1838850,
+    "note": "LBNL Generator Interconnection Costs; cite LBNL",
+    "retrieved_utc": "2026-11-12T07:14:13+00:00",
+    "sha256": "50a363318b18e36418ac1af4f7afb923998c0863d990a73b59816d014c0af245",
+    "source": "LBNL interconnection costs (PJM)",
+    "url": "https://eta-publications.lbl.gov/sites/default/files/pjm_costs_2022_clean_data.xlsx"
+  },
+  "data/raw/costs/spp_costs_2023_clean_data.xlsx": {
+    "bytes": 1830715,
+    "note": "LBNL Generator Interconnection Costs; cite LBNL",
+    "retrieved_utc": "2026-11-12T07:14:14+00:00",
+    "sha256": "1e26a030cccc6eef1a2cf6f1875e8035e764a2f74ad45cabc3cd307b812c2d34",
+    "source": "LBNL interconnection costs (SPP)",
+    "url": "https://eta-publications.lbl.gov/sites/default/files/spp_costs_2023_clean_data.xlsx"
+  },
   "data/raw/eia860/eia8602025.zip": {
     "bytes": 23622347,
     "note": "",

@@ -1,5 +1,5 @@
 {
- "generated": "2026-10-22",
+ "generated": "2026-11-11",
  "claims": [
   {
    "id": "C1",
@@ -841,8 +841,8 @@
   {
    "id": "C10",
    "title": "Substations with room for new generation",
-   "value": "28% green \u00b7 47% yellow \u00b7 25% red",
-   "statement": "Of 16,674 named, modelled substations at 115 kV or above, 28% are green, 47% are yellow, 25% are red.",
+   "value": "27% green \u00b7 45% yellow \u00b7 28% red",
+   "statement": "Of 16,674 named, modelled substations at 115 kV or above, 27% are green, 45% are yellow, 28% are red.",
    "kind": "Model output",
    "sources": [
     {
@@ -867,18 +867,18 @@
     "rows": [
      [
       "green",
-      "4,686",
-      "28.1%"
+      "4,513",
+      "27.1%"
      ],
      [
       "yellow",
-      "7,889",
-      "47.3%"
+      "7,510",
+      "45.0%"
      ],
      [
       "red",
-      "4,099",
-      "24.6%"
+      "4,651",
+      "27.9%"
      ]
     ]
    },
@@ -892,7 +892,7 @@
   {
    "id": "C11",
    "title": "Congestion where projects are queued, by region",
-   "value": "ERCOT 71%, PJM 43%, SPP 38% red",
+   "value": "ERCOT 71%, SPP 54%, PJM 48% red",
    "statement": "Among named substations at \u2265 115 kV that host queued requests, the share rated red differs sharply by region.",
    "kind": "Model output",
    "sources": [
@@ -924,52 +924,52 @@
       "0"
      ],
      [
-      "PJM",
-      "290",
-      "43%",
-      "126"
-     ],
-     [
       "SPP",
       "234",
-      "38%",
-      "172"
+      "54%",
+      "59"
      ],
      [
-      "West",
-      "391",
-      "29%",
-      "341"
+      "PJM",
+      "290",
+      "48%",
+      "106"
      ],
      [
       "NYISO",
       "98",
+      "38%",
+      "119"
+     ],
+     [
+      "West",
+      "391",
+      "31%",
+      "298"
+     ],
+     [
+      "CAISO",
+      "104",
       "27%",
-      "180"
+      "330"
      ],
      [
       "MISO",
       "483",
       "26%",
-      "207"
-     ],
-     [
-      "CAISO",
-      "104",
-      "24%",
-      "380"
+      "226"
      ],
      [
       "Southeast",
       "257",
-      "15%",
-      "411"
+      "19%",
+      "391"
      ],
      [
       "ISO-NE",
       "28",
       "11%",
-      "304"
+      "289"
      ]
     ]
    },
@@ -982,8 +982,8 @@
   {
    "id": "C12",
    "title": "Lines holding back the queue (reconductoring candidates)",
-   "value": "316 heat-limited lines < 80 km \u00b7 634 GW behind",
-   "statement": "393 line segments (18,755 km) set the limit for substations holding 890 GW of queued requests. Of these, 316 are limited by heat rather than stability and shorter than 80 km (7,633 km, 634 GW behind), the lines where new conductors add capacity.",
+   "value": "338 heat-limited lines < 80 km \u00b7 673 GW behind",
+   "statement": "413 line segments (18,864 km) set the limit for substations holding 914 GW of queued requests. Of these, 338 are limited by heat rather than stability and shorter than 80 km (8,179 km, 673 GW behind), the lines where new conductors add capacity.",
    "kind": "Model output",
    "sources": [
     {
@@ -1015,7 +1015,7 @@
       "345",
       "Oncor Electric Delivery Co.",
       "88",
-      "135%",
+      "142%",
       "89",
       "36.4"
      ],
@@ -1024,7 +1024,7 @@
       "345",
       "Pioneer Electric Coop, Inc - (Ks)",
       "1",
-      "153%",
+      "194%",
       "223",
       "29.0"
      ],
@@ -1033,7 +1033,7 @@
       "345",
       "Aep Texas Central Company",
       "226",
-      "107%",
+      "139%",
       "38",
       "11.6"
      ],
@@ -1042,8 +1042,8 @@
       "230",
       "Tri-State G & T Assn, Inc",
       "113",
-      "239%",
-      "24",
+      "345%",
+      "17",
       "10.2"
      ],
      [
@@ -1051,7 +1051,7 @@
       "345",
       "Aep Texas Central Company",
       "31",
-      "133%",
+      "149%",
       "18",
       "9.9"
      ],
@@ -1060,7 +1060,7 @@
       "500",
       "Not Available",
       "129",
-      "76%",
+      "92%",
       "2",
       "9.8"
      ],
@@ -1069,7 +1069,7 @@
       "345",
       "Oncor Electric Delivery Co.",
       "34",
-      "172%",
+      "167%",
       "21",
       "9.8"
      ],
@@ -1078,7 +1078,7 @@
       "500",
       "Virginia Electric & Power Co",
       "60",
-      "121%",
+      "130%",
       "66",
       "9.5"
      ],
@@ -1087,7 +1087,7 @@
       "500",
       "Azusa Light & Power",
       "25",
-      "61%",
+      "65%",
       "3",
       "9.2"
      ],
@@ -1096,7 +1096,7 @@
       "345",
       "Aep Texas Central Company",
       "47",
-      "118%",
+      "136%",
       "1",
       "9.2"
      ]
@@ -1112,8 +1112,8 @@
   {
    "id": "C13",
    "title": "Storage and reconductoring candidate substations",
-   "value": "677 substations",
-   "statement": "677 modelled buses have under 100 MW of generation headroom after the queue but at least 150 MW of solar and wind behind them.",
+   "value": "735 substations",
+   "statement": "735 modelled buses have under 100 MW of generation headroom after the queue but at least 150 MW of solar and wind behind them.",
    "kind": "Model output",
    "sources": [
     {
@@ -1136,15 +1136,15 @@
     "rows": [
      [
       "Eastern",
-      "333"
+      "379"
      ],
      [
       "ERCOT",
-      "195"
+      "198"
      ],
      [
       "Western",
-      "149"
+      "158"
      ]
     ]
    },
@@ -1328,7 +1328,7 @@
       "CA",
       "500/230",
       "3,000",
-      "1,129",
+      "661",
       "5,119",
       "1.44\u00d7",
       "green"
@@ -1378,7 +1378,7 @@
       "CO",
       "345/230/115",
       "1,410",
-      "1,180",
+      "1,067",
       "5,073",
       "1.29\u00d7",
       "green"
@@ -1398,7 +1398,7 @@
       "NE",
       "345/230/115",
       "1,430",
-      "894",
+      "294",
       "808",
       "0.25\u00d7",
       "green"
@@ -1408,7 +1408,7 @@
       "TX",
       "345",
       "2,590",
-      "2,307",
+      "2,319",
       "1,554",
       "0.50\u00d7",
       "green"
@@ -1482,6 +1482,721 @@
     "Atlas: Method & sources"
    ],
    "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/claims.py"
+  },
+  {
+   "id": "C17",
+   "title": "Odds that a queued request gets built, by region and stage",
+   "value": "22% before an agreement \u00b7 60% after",
+   "statement": "Of 18,103 requests filed 2000\u20132019 that have since been built or withdrawn, 22% were built overall, and 60% of those that signed an interconnection agreement (IA) were built. The map weights every active request by these odds for its region and stage.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns q_year, q_status, ia_date, IA_phase_clean, region",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Keep requests that entered a queue in 2000\u20132019 and are now 'operational' (built) or 'withdrawn'.",
+    "A request 'reached an IA' if it has an IA date or LBNL marks it 'IA Executed' (LBNL marks all built projects this way).",
+    "IA-executed odds = built \u00f7 requests that reached an IA. Early-study odds = share that reached an IA \u00d7 IA-executed odds. Late-study odds = midpoint of the two (assumption: LBNL does not record the stage at which withdrawn requests left). Under construction = 90% (assumption).",
+    "Regional values are shrunk towards the national value with the weight of 50 requests."
+   ],
+   "table": {
+    "columns": [
+     "Region",
+     "Resolved requests",
+     "Reached an IA",
+     "Built after IA (raw)",
+     "Early study",
+     "Late study",
+     "IA executed"
+    ],
+    "rows": [
+     [
+      "national",
+      "18,103",
+      "6,635",
+      "61%",
+      "22%",
+      "41%",
+      "60%"
+     ],
+     [
+      "CAISO",
+      "1,613",
+      "281",
+      "81%",
+      "14%",
+      "46%",
+      "78%"
+     ],
+     [
+      "ERCOT",
+      "1,127",
+      "502",
+      "79%",
+      "34%",
+      "56%",
+      "78%"
+     ],
+     [
+      "ISO-NE",
+      "673",
+      "237",
+      "86%",
+      "29%",
+      "55%",
+      "82%"
+     ],
+     [
+      "MISO",
+      "2,248",
+      "1,845",
+      "27%",
+      "23%",
+      "26%",
+      "28%"
+     ],
+     [
+      "NYISO",
+      "817",
+      "216",
+      "93%",
+      "24%",
+      "55%",
+      "87%"
+     ],
+     [
+      "PJM",
+      "4,329",
+      "1,917",
+      "58%",
+      "26%",
+      "42%",
+      "58%"
+     ],
+     [
+      "SPP",
+      "1,422",
+      "269",
+      "100%",
+      "18%",
+      "56%",
+      "94%"
+     ],
+     [
+      "Southeast",
+      "1,683",
+      "368",
+      "79%",
+      "17%",
+      "47%",
+      "77%"
+     ],
+     [
+      "West",
+      "4,191",
+      "1,000",
+      "80%",
+      "19%",
+      "49%",
+      "79%"
+     ]
+    ]
+   },
+   "caveats": "Survivorship: the 2000\u20132019 cohorts reflect older queue rules. Since FERC Order 2023, deposits and readiness rules may raise completion rates for today's requests.",
+   "used_in": [
+    "Atlas: queue weights and risk assessment",
+    "build_model.py",
+    "risk_model.py"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/queue_stats.py"
+  },
+  {
+   "id": "C18",
+   "title": "How long interconnection takes, by region",
+   "value": "4.4 years to operation (national median)",
+   "statement": "Projects that came online 2018\u20132025 took a median 4.4 years from request to operation; interconnection agreements signed 2020\u20132025 took a median 2.7 years from request.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns q_date, ia_date, on_date, region",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Request \u2192 operation: built projects with an online date in 2018\u20132025; years = online date \u2212 queue date (0\u201325 years kept).",
+    "Request \u2192 agreement: requests with an IA date in 2020\u20132025; years = IA date \u2212 queue date (0\u201320 kept).",
+    "Report median and 25th\u201375th percentile per region; regions with fewer than 20 cases fall back to national."
+   ],
+   "table": {
+    "columns": [
+     "Region",
+     "Years to signed IA: median (P25\u2013P75)",
+     "Years to operation: median (P25\u2013P75)"
+    ],
+    "rows": [
+     [
+      "national",
+      "2.7 (1.6\u20133.9), n=1,940",
+      "4.4 (3.1\u20135.8), n=1,439"
+     ],
+     [
+      "CAISO",
+      "4.2 (3.6\u20136.0), n=246",
+      "7.8 (6.3\u20139.6), n=96"
+     ],
+     [
+      "ERCOT",
+      "1.7 (1.1\u20132.4), n=786",
+      "3.8 (2.5\u20134.7), n=376"
+     ],
+     [
+      "ISO-NE",
+      "3.1 (2.4\u20134.2), n=91",
+      "\u2013 (too few)"
+     ],
+     [
+      "MISO",
+      "3.6 (2.9\u20134.2), n=449",
+      "4.2 (3.4\u20134.9), n=147"
+     ],
+     [
+      "NYISO",
+      "3.3 (2.6\u20134.0), n=90",
+      "5.0 (4.2\u20136.6), n=32"
+     ],
+     [
+      "PJM",
+      "3.8 (3.1\u20135.0), n=71",
+      "4.9 (3.2\u20136.5), n=427"
+     ],
+     [
+      "SPP",
+      "\u2013 (too few)",
+      "4.8 (4.1\u20136.8), n=108"
+     ],
+     [
+      "Southeast",
+      "\u2013 (too few)",
+      "4.0 (3.0\u20135.2), n=189"
+     ],
+     [
+      "West",
+      "2.1 (1.1\u20133.4), n=193",
+      "3.2 (1.6\u20135.5), n=64"
+     ]
+    ]
+   },
+   "caveats": "Only completed projects count, so slow projects still in the queue are missing: true durations for today's applicants are likely longer.",
+   "used_in": [
+    "Atlas: risk assessment (time)"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/queue_stats.py"
+  },
+  {
+   "id": "C19",
+   "title": "What interconnection studies actually cost",
+   "value": "4,713 studied projects",
+   "statement": "LBNL's cost datasets cover 4,713 studied projects in MISO, PJM, SPP, NYISO, ISO-NE and five non-ISO balancing authorities; 97% are placed on a substation of our network.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL interconnection costs (MISO)",
+     "file": "data/raw/costs/miso_costs_2021_clean_data.xlsx",
+     "detail": "project-level POI, network and total cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/miso_costs_2021_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (PJM)",
+     "file": "data/raw/costs/pjm_costs_2022_clean_data.xlsx",
+     "detail": "project-level POI, network and total cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/pjm_costs_2022_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (SPP)",
+     "file": "data/raw/costs/spp_costs_2023_clean_data.xlsx",
+     "detail": "project-level POI, network and total cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/spp_costs_2023_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (NYISO)",
+     "file": "data/raw/costs/nyiso_2022_final_data_cleaned_publication_vfinal.xlsx",
+     "detail": "project-level POI, network and total cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/nyiso_2022_final_data_cleaned_publication_vfinal.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (ISO-NE)",
+     "file": "data/raw/costs/isone_interconnection_cost_data_publication_vfinal.xlsx",
+     "detail": "project-level POI, network and total cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/isone_interconnection_cost_data_publication_vfinal.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (Non-ISO BAs)",
+     "file": "data/raw/costs/ba_costs_2024_clean_data.xlsx",
+     "detail": "project-level POI, network and total cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/2026-02/ba_costs_2024_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    }
+   ],
+   "method": [
+    "Read each file; for the non-ISO file keep the latest study per project.",
+    "Convert ISO costs from 2022 to 2024 dollars with the CPI-U annual-average ratio 313.689 / 292.655 = 1.072.",
+    "Place ISO projects on a bus by joining their queue ID to the located LBNL history; place non-ISO projects at the nearest bus within 15 km of their published POI coordinates.",
+    "Medians by region (all study years and statuses)."
+   ],
+   "table": {
+    "columns": [
+     "Region",
+     "Projects",
+     "Placed on a bus",
+     "Studies since 2018",
+     "Median total $/kW",
+     "Median network $/kW"
+    ],
+    "rows": [
+     [
+      "ISO-NE",
+      "194",
+      "100%",
+      "140",
+      "$240",
+      "$16"
+     ],
+     [
+      "MISO",
+      "922",
+      "99%",
+      "737",
+      "$89",
+      "$26"
+     ],
+     [
+      "NYISO",
+      "294",
+      "99%",
+      "180",
+      "$104",
+      "$33"
+     ],
+     [
+      "PJM",
+      "1,127",
+      "99%",
+      "947",
+      "$65",
+      "$42"
+     ],
+     [
+      "SPP",
+      "845",
+      "100%",
+      "489",
+      "$65",
+      "$5"
+     ],
+     [
+      "Southeast",
+      "330",
+      "68%",
+      "268",
+      "$176",
+      "$98"
+     ],
+     [
+      "West",
+      "1,001",
+      "100%",
+      "678",
+      "$285",
+      "$99"
+     ],
+     [
+      "Total",
+      "4,713",
+      "97%",
+      "3,439",
+      "$106",
+      "$35"
+     ]
+    ]
+   },
+   "caveats": "Costs are those assigned in studies, not final costs; withdrawn projects (often the most expensive) are included because a new applicant faces the same study. CAISO and ERCOT are not covered.",
+   "used_in": [
+    "Atlas: risk assessment (cost)"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/cost_data.py"
+  },
+  {
+   "id": "C20",
+   "title": "Does the map's congestion signal match real study costs?",
+   "value": "red $63/kW vs green $36/kW",
+   "statement": "Across 3,191 studies since 2018 placed on modelled substations, projects at substations the map colours red were assigned a median $63/kW of network upgrades, versus $36/kW at green ones (1.7\u00d7). Costs also rise with project size relative to the modelled headroom.",
+   "kind": "Model output",
+   "sources": [
+    {
+     "name": "Cost studies on buses + model buses",
+     "file": "data/interim/cost_projects.parquet, data/processed/buses.parquet",
+     "detail": "net_kw, gen_signal, headroom_gen_mw",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Keep cost studies from 2018 on that sit on a modelled substation.",
+    "Group by the substation's generation signal today and compare median network-upgrade cost.",
+    "Group by project MW \u00f7 modelled existing-grid headroom. The multipliers in brackets (median of cost \u00f7 regional median) are what the risk model applies; voltage multipliers likewise."
+   ],
+   "table": {
+    "columns": [
+     "Group",
+     "Studies",
+     "Median network $/kW (multiplier used)"
+    ],
+    "rows": [
+     [
+      "Signal: green",
+      "1,082",
+      "$36"
+     ],
+     [
+      "Signal: red",
+      "1,266",
+      "$63"
+     ],
+     [
+      "Signal: yellow",
+      "843",
+      "$67"
+     ],
+     [
+      "Size \u00f7 modelled headroom <0.5",
+      "1,953",
+      "$41  (\u00d70.76)"
+     ],
+     [
+      "Size \u00f7 modelled headroom 0.5-1",
+      "599",
+      "$64  (\u00d71.17)"
+     ],
+     [
+      "Size \u00f7 modelled headroom 1-2",
+      "356",
+      "$105  (\u00d71.43)"
+     ],
+     [
+      "Size \u00f7 modelled headroom 2-4",
+      "158",
+      "$76  (\u00d71.45)"
+     ],
+     [
+      "Size \u00f7 modelled headroom >4",
+      "125",
+      "$113  (\u00d71.48)"
+     ],
+     [
+      "Bus voltage <=150 kV",
+      "",
+      "\u00d71.02"
+     ],
+     [
+      "Bus voltage 230 kV",
+      "",
+      "\u00d71.47"
+     ],
+     [
+      "Bus voltage 345 kV",
+      "",
+      "\u00d70.98"
+     ],
+     [
+      "Bus voltage 500+ kV",
+      "",
+      "\u00d70.39"
+     ]
+    ]
+   },
+   "caveats": "Today's grid model is compared with studies done 2018\u20132023, while the grid and queue changed in between. It shows a directional relationship, not a precise prediction.",
+   "used_in": [
+    "Atlas: risk assessment (cost)",
+    "Method"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/risk_model.py"
+  },
+  {
+   "id": "C21",
+   "title": "Bigger upgrades, longer waits",
+   "value": "2.4 \u2192 3.9 years",
+   "statement": "Built projects in MISO, PJM and SPP (queued 2010 or later) with under $10/kW of network upgrades took a median 2.4 years from request to operation; those with over $150/kW took 3.9 years.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL interconnection costs (MISO)",
+     "file": "data/raw/costs/miso_costs_2021_clean_data.xlsx",
+     "detail": "Done Date",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/miso_costs_2021_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (PJM)",
+     "file": "data/raw/costs/pjm_costs_2022_clean_data.xlsx",
+     "detail": "Actual In Service Date",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/pjm_costs_2022_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (SPP)",
+     "file": "data/raw/costs/spp_costs_2023_clean_data.xlsx",
+     "detail": "In-Service Date",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/spp_costs_2023_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    }
+   ],
+   "method": [
+    "Keep cost-study projects with a queue date (2010+) and an in-service date; years = in-service \u2212 queue (0.3\u201320).",
+    "Group by network-upgrade cost tier; multiplier = tier median \u00f7 overall median. The risk model multiplies the regional time-to-operation by the multiplier of the expected cost tier."
+   ],
+   "table": {
+    "columns": [
+     "Network cost tier",
+     "Projects",
+     "Median years",
+     "Multiplier used"
+    ],
+    "rows": [
+     [
+      "<$10/kW",
+      "213",
+      "2.4",
+      "\u00d70.87"
+     ],
+     [
+      "$10-50/kW",
+      "63",
+      "3.0",
+      "\u00d71.07"
+     ],
+     [
+      "$50-150/kW",
+      "68",
+      "3.3",
+      "\u00d71.17"
+     ],
+     [
+      ">$150/kW",
+      "18",
+      "3.9",
+      "\u00d71.40"
+     ]
+    ]
+   },
+   "caveats": "Small samples in the top tier; NYISO, ISO-NE and non-ISO files have no in-service dates.",
+   "used_in": [
+    "Atlas: risk assessment (time)"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/risk_model.py"
+  },
+  {
+   "id": "C22",
+   "title": "How risk grades are distributed",
+   "value": "share of substations by grade and project size",
+   "statement": "With default weights, most substations earn A or B for a 50 MW project, while most earn D or E for 1,000 MW.",
+   "kind": "Assumption-based arithmetic",
+   "sources": [
+    {
+     "name": "Risk model",
+     "file": "data/processed/risk.parquet",
+     "detail": "",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Cost score: 100 at $25/kW falling linearly to 0 at $400/kW. Time score: 100 at 2.5 years to 0 at 8.0 years. Capacity score = chance the project still fits (0\u2013100).",
+    "Risk index = 100 \u2212 (35% cost + 30% time + 35% capacity). Grades: A < 25, B 25\u201340, C 40\u201355, D 55\u201370, E \u2265 70. Viewers can change the weights in the map.",
+    "Capacity fit allows a log-normal error of \u03c3 = 0.5 on the modelled headroom (assumption)."
+   ],
+   "table": {
+    "columns": [
+     "Project size",
+     "A",
+     "B",
+     "C",
+     "D",
+     "E",
+     "Median $/kW",
+     "Median years",
+     "Median fit"
+    ],
+    "rows": [
+     [
+      "50 MW",
+      "53%",
+      "23%",
+      "14%",
+      "8%",
+      "2%",
+      "$110",
+      "4.7",
+      "98%"
+     ],
+     [
+      "100 MW",
+      "34%",
+      "32%",
+      "19%",
+      "11%",
+      "3%",
+      "$100",
+      "4.7",
+      "73%"
+     ],
+     [
+      "200 MW",
+      "16%",
+      "22%",
+      "34%",
+      "22%",
+      "7%",
+      "$106",
+      "4.7",
+      "22%"
+     ],
+     [
+      "300 MW",
+      "9%",
+      "17%",
+      "32%",
+      "33%",
+      "9%",
+      "$108",
+      "4.7",
+      "6%"
+     ],
+     [
+      "500 MW",
+      "5%",
+      "11%",
+      "31%",
+      "38%",
+      "14%",
+      "$110",
+      "4.9",
+      "0%"
+     ],
+     [
+      "1,000 MW",
+      "2%",
+      "10%",
+      "29%",
+      "40%",
+      "19%",
+      "$114",
+      "4.9",
+      "0%"
+     ]
+    ]
+   },
+   "caveats": "The anchors, weights and model-error allowance are judgement calls, not data; they decide the grade boundaries.",
+   "used_in": [
+    "Atlas: risk assessment"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/risk_model.py"
+  },
+  {
+   "id": "C23",
+   "title": "Unit costs used to price upgrades",
+   "value": "MISO MTEP24 cost guide",
+   "statement": "Substation connections and line upgrades are priced with MISO's exploratory unit costs (2024 dollars, including 30% contingency and financing during construction).",
+   "kind": "Source table",
+   "sources": [
+    {
+     "name": "MISO Transmission Cost Estimation Guide (MTEP24)",
+     "file": "data/raw/costs/miso_cost_guide_mtep24.pdf",
+     "detail": "Tables 4.1-1, 4.1-3, 4.2-1",
+     "url": "https://cdn.misoenergy.org/20240501%20PSC%20Item%2004%20MISO%20Transmission%20Cost%20Estimation%20Guide%20for%20MTEP24632680.pdf",
+     "retrieved": "2026-11-12"
+    }
+   ],
+   "method": [
+    "Connection = 'add 1 position, breaker-and-a-half bus' at the substation's highest voltage.",
+    "Line upgrade = reconductor if the line is heat-limited and the needed extra flow is at most its usable rating; otherwise a new single-circuit line (median of MISO's state values).",
+    "Cost per mile \u00d7 line length; the project's share = its added flow \u00f7 (its added flow + the queue's overload)."
+   ],
+   "table": {
+    "columns": [
+     "Voltage",
+     "Add 1 position",
+     "Reconductor per mile",
+     "New line per mile"
+    ],
+    "rows": [
+     [
+      "69 kV",
+      "$1.7M",
+      "$0.33M",
+      "$1.80M"
+     ],
+     [
+      "115 kV",
+      "$2.0M",
+      "$0.39M",
+      "$2.00M"
+     ],
+     [
+      "138 kV",
+      "$2.3M",
+      "$0.39M",
+      "$2.05M"
+     ],
+     [
+      "161 kV",
+      "$2.6M",
+      "$0.39M",
+      "$2.10M"
+     ],
+     [
+      "230 kV",
+      "$3.0M",
+      "$0.39M",
+      "$2.25M"
+     ],
+     [
+      "345 kV",
+      "$4.9M",
+      "$0.62M",
+      "$3.60M"
+     ],
+     [
+      "500 kV",
+      "$7.3M",
+      "$0.83M",
+      "$4.50M"
+     ],
+     [
+      "765 kV",
+      "$21.9M",
+      "$1.14M",
+      "$5.60M"
+     ]
+    ]
+   },
+   "caveats": "MISO's figures are planning estimates for its footprint; costs elsewhere (e.g. California, the Northeast) are typically higher. Reconductoring with advanced conductors costs more than the ACSR/ACSS basis.",
+   "used_in": [
+    "Atlas: risk assessment (upgrade list)"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/risk_model.py"
   }
  ]
 }

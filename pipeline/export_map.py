@@ -59,6 +59,45 @@ def dump(name, obj):
     log(f"  {name}: {p.stat().st_size / 1e6:.2f} MB")
 
 
+def export_risk(buses):
+    """risk.json: per-bus risk inputs aligned with buses.json (null for unmodelled buses).
+    The page combines them with the project size and the viewer's weights."""
+    rk = pd.read_parquet(PROCESSED / "risk.parquet")
+    meta = json.loads((PROCESSED / "risk_meta.json").read_text())
+    sizes = meta["sizes"]
+    wide = {k: rk.pivot(index="node", columns="size_mw", values=k)[sizes] for k in ("net_kw", "years", "p_fit")}
+    per = rk.drop_duplicates("node").set_index("node")
+    regions = sorted(per.region.dropna().unique())
+    con = pd.read_parquet(PROCESSED / "bus_constraints.parquet").sort_values(["node", "rank"])
+    con = con[pd.notna(con.margin_mw) & (con.margin_mw < 1e9)]
+    con_by = {n: [[int(r.line), int(round(min(r.margin_mw, 9999))), int(round(100 * r.df))] for r in g.itertuples()]
+              for n, g in con.groupby("node")}
+
+    def row(df, n, f):
+        return [f(v) for v in df.loc[n].values] if n in df.index else None
+    out = {k: [] for k in ("rg", "net", "yr", "fit", "q", "h", "li", "ln", "cf", "con")}
+    for n in buses.node:
+        if n not in per.index:
+            for k in out:
+                out[k].append(None)
+            continue
+        p = per.loc[n]
+        out["rg"].append(regions.index(p.region))
+        out["net"].append(row(wide["net_kw"], n, lambda v: int(round(v))))
+        out["yr"].append(row(wide["years"], n, lambda v: round(float(v), 1)))
+        out["fit"].append(row(wide["p_fit"], n, lambda v: int(round(100 * v))))
+        out["q"].append(None if pd.isna(p.q_n) else [int(p.q_n), int(round(p.q_mw)), int(round(p.q_exp)),
+                                                   int(round(p.q_p10)), int(round(p.q_p50)), int(round(p.q_p90)),
+                                                   int(round(100 * p.q_p_any_wd)), round(float(p.q_exp_wd_n), 1),
+                                                   int(round(100 * p.q_county_share))])
+        out["h"].append([int(p.hist_built), int(p.hist_withdrawn)] if p.hist_built + p.hist_withdrawn else None)
+        out["li"].append(round(float(p.cost_local_index), 2))
+        out["ln"].append(round(float(p.cost_n_local), 1))
+        out["cf"].append(int(p.confidence))
+        out["con"].append(con_by.get(n))
+    dump("risk.json", {"sizes": sizes, "regions": regions, "meta": meta, **out})
+
+
 def main():
     buses = gpd.read_parquet(PROCESSED / "buses.parquet")
     lines = gpd.read_parquet(PROCESSED / "lines.parquet")
@@ -110,6 +149,8 @@ def main():
         "bG": col(b.bind_gen_line_q), "bL": col(b.bind_load_line),
         "sto": [1 if s else 0 for s in b.storage_opportunity], "stoS": col(b.storage_score, 1),
     })
+
+    export_risk(buses)
 
     # ---- queue projects -----------------------------------------------------------------------------
     q = queue[queue.node >= 0]

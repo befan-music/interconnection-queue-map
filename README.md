@@ -3,7 +3,9 @@
 A screening-level digital twin of the contiguous-US transmission grid, built only from public data.
 For every substation it estimates how many MW of new **generation** (or new **large load**) can
 connect before a transmission line hits its limit, both on today's grid and after the active
-interconnection queue ahead of you. See `context.md` for the product thesis.
+interconnection queue ahead of you. For a project of a given size it also estimates the
+**interconnection risk**: expected cost, time to operation, the queue ahead and its dropout odds,
+combined into a grade A–E. See `context.md` for the product thesis.
 
 > Screening estimates, not interconnection studies. Real ratings, contingencies and breaker
 > positions sit in CEII-protected base cases. See *Limitations*.
@@ -14,7 +16,7 @@ interconnection queue ahead of you. See `context.md` for the product thesis.
   `.github/workflows/pages.yml` on every push that changes `map/`. One-time setup: Settings → Pages →
   Source: *GitHub Actions*.
 - **Claude artifact:** https://claude.ai/artifact/VF2dNzKvJ3potjwQMJE6Uq
-- Every figure we cite is recomputed in the map's **Claims & calculations** panel; link to one with `#C1`…`#C16`.
+- Every figure we cite is recomputed in the map's **Claims & calculations** panel; link to one with `#C1`…`#C23`.
 
 ## Quick start
 
@@ -40,6 +42,8 @@ The map has to be served over HTTP, because browsers block `fetch()` from `file:
 | Queues (national) | LBNL *Queued Up* 2026 ed. (CC BY 4.0) | end-2025 | non-ISO West & Southeast, plus backfill (e.g. CAISO Cluster 15) |
 | Siting | BLM lands open to solar application (HIFLD mirror) | 2023 | overlay |
 | Boundaries | Census cartographic boundaries 2024 | 2024 | states, counties (queue geocoding) |
+| Interconnection costs | LBNL *Generator Interconnection Costs to the Transmission System* (MISO, PJM, SPP, NYISO, ISO-NE, 5 non-ISO BAs) | studies to 2024 | 4,713 studied projects: POI, network and total $/kW |
+| Unit costs | MISO Transmission Cost Estimation Guide for MTEP24 | 2024 $ | substation positions, reconductoring and new lines per mile |
 
 Every downloaded file is logged with URL, retrieval time and SHA-256 in `data/raw/manifest.json`.
 
@@ -49,10 +53,13 @@ Every downloaded file is logged with URL, retrieval time and SHA-256 in `data/ra
 |---|---|---|
 | 1 | `fetch_data.py` | `data/raw/**` |
 | 2 | `normalize_queues.py`: 7 ISO formats + LBNL into one schema, phase-standardized | `data/interim/queue_projects.parquet` |
+| 2b | `queue_stats.py`: completion odds by region and stage; durations to agreement and operation | `data/processed/queue_stats.json` |
 | 3 | `prepare_eia.py`: fleet by tech, plant grid voltage, NERC region | `data/interim/{generators,plants}.parquet` |
 | 4 | `build_network.py`: snap line ends into buses, name them, assign line parameters, cut interconnection seams | `data/interim/{nodes,lines}.parquet` |
-| 5 | `match_queue.py`: POI-name fuzzy matching within 150 km of the project county, voltage-aware; county fallback | `data/interim/queue_located.parquet` |
-| 6 | `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case | `data/processed/*.parquet`, `model_summary.json` |
+| 5 | `match_queue.py`: POI-name fuzzy matching within 150 km of the project county, voltage-aware; county fallback. Also places the full LBNL history | `data/interim/{queue,lbnl}_located.parquet` |
+| 5b | `cost_data.py`: LBNL cost studies in one table (2024 $), placed on buses | `data/interim/cost_projects.parquet` |
+| 6 | `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case, five tightest constraints per bus | `data/processed/*.parquet`, `model_summary.json` |
+| 6b | `risk_model.py`: cost, time, queue-ahead simulation and risk index per bus and project size | `data/processed/risk.parquet`, `risk_meta.json` |
 | 7 | `export_map.py`: compact JSON for the browser | `map/data/*.json` |
 | 8 | `claims.py`: recomputes every number cited in our documents, with sources and steps | `map/data/claims.json` (atlas panel *Claims & calculations*) |
 
@@ -90,9 +97,10 @@ Every downloaded file is logged with URL, retrieval time and SHA-256 in `data/ra
    **Substation outlet limit.** Injection at a bus is also capped at 85% of its N-1 branch capacity
    less what it already exports. Without it, big 500 kV hubs where no line carries 20% read as
    unlimited.
-7. **Queue ahead.** Active requests are weighted by their odds of reaching operation (early study 0.10,
-   late study 0.25, IA executed 0.55, construction 0.90) and by scenario output, capped at the output
-   each BA can actually displace. They are added to the base case and headroom is recomputed.
+7. **Queue ahead.** Active requests are weighted by their odds of reaching operation, estimated from
+   what happened to 18,000 requests filed 2000–2019, by region and stage (`queue_stats.py`; nationally
+   22% before an interconnection agreement, 60% after, 90% under construction; claim C17). They are also
+   weighted by scenario output and capped at the output each BA can actually displace. They are added to the base case and headroom is recomputed.
    Counterflow from queued projects is not credited, so headroom after the queue is never above
    today's. That gives *headroom after queue*, the map's main signal.
 8. **Substation capacity check** (the scoring rule from `context.md`). N-1 branch capacity is the sum of
@@ -101,6 +109,28 @@ Every downloaded file is logged with URL, retrieval time and SHA-256 in `data/ra
 
 Signals: **green** ≥ 250 MW after queue · **yellow** 75–250 MW · **red** < 75 MW or queue pressure > 1.5×.
 **Storage candidates**: < 100 MW generation headroom with ≥ 150 MW of solar/wind behind the bus.
+
+## Risk assessment (per substation and project size: 50 to 1,000 MW)
+
+- **Cost ($2024/kW)** = substation connection (MISO MTEP24 cost of a breaker-and-a-half position at the bus
+  voltage) + network upgrades. Network upgrades = the regional median from LBNL cost studies since 2018
+  × a multiplier for project size ÷ modelled headroom × a voltage multiplier × a local index from studies
+  within ~80 km (shrunk towards 1, bounded 0.3–3×). The multipliers are fitted on the same studies; projects
+  at substations the map colours red were assigned about 1.8× the network cost of green ones (claim C20).
+  ERCOT: network upgrades are funded by transmission utilities, so only the connection counts. CAISO has no
+  LBNL cost dataset (national median used).
+- **Time** = regional median years from request to operation (projects online 2018–2025) × a multiplier for
+  the expected network-cost tier. Projects with over $150/kW of network upgrades took ~1.6× longer (C21).
+- **Queue ahead** = every active request at the substation simulated 10,000 times with its regional,
+  stage-specific odds: expected MW built (P10–P90), expected withdrawals, chance at least one withdraws
+  (restudy trigger), plus the substation's track record from the located LBNL history.
+- **Capacity fit** = chance the project still fits once the queue resolves, allowing a log-normal error
+  (σ = 0.5) on the modelled headroom.
+- **Lines to upgrade** = which of the five tightest constraints a project of this size would overload,
+  priced with MISO reconductor / new-line costs and split with queued projects that also overload them.
+- **Risk index** = 100 − (35% cost score + 30% time score + 35% capacity fit); grades A < 25 … E ≥ 70.
+  Weights are adjustable in the map. Anchors: cost 100 at $25/kW, 0 at $400/kW; time 100 at 2.5 years,
+  0 at 8 years (judgement calls, claim C22).
 
 ## Limitations (what public data cannot give)
 
