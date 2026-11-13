@@ -17,3 +17,6 @@ data/raw/*
 .DS_Store
 Thumbs.db
 .vscode/
+
+# Local build of the web map (pipeline/serve_map.py)
+_site/

@@ -24,10 +24,12 @@ combined into a grade A–E. See `context.md` for the product thesis.
 python -m venv .venv && .venv/Scripts/python -m pip install -r requirements.txt
 .venv/Scripts/python -I pipeline/run_all.py --fetch   # download everything + build (≈1 h, OSM is slow)
 .venv/Scripts/python -I pipeline/run_all.py           # rebuild from data/raw only
-python -m http.server 8000 -d map                     # then open http://localhost:8000
+.venv/Scripts/python -I pipeline/serve_map.py        # then open http://localhost:8000
 ```
 
-The map has to be served over HTTP, because browsers block `fetch()` from `file://`.
+The map has to be served over HTTP, because browsers block `fetch()` from `file://`. `serve_map.py` wraps
+`map/index.html` (written in the Claude artifact format, without a document skeleton) exactly as the
+GitHub Pages workflow does, into `_site/`, and serves that.
 
 ## Data sources (all public)
 

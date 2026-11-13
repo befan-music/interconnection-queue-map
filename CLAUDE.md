@@ -23,7 +23,8 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
   8. `claims.py`: recomputes every quantitative claim (C1–C23) with sources and steps into
      `map/data/claims.json`, shown in the map's "Claims & calculations" panel. Rule: any new number
      we cite must be added here, not computed ad hoc in the terminal.
-- `map/index.html` + `map/data/*.json`: MapLibre web map (serve over HTTP: `python -m http.server -d map`)
+- `map/index.html` + `map/data/*.json`: MapLibre web map in Claude-artifact format (no doc skeleton).
+  Run locally with `python -I pipeline/serve_map.py` (wraps it into `_site/` like the Pages workflow).
 - `data/`: git-ignored, re-create with `python -I pipeline/run_all.py --fetch` (~1 h, OSM is slowest)
 
 ## Environment notes (Windows)
