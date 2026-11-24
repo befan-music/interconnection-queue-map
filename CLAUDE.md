@@ -27,6 +27,8 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
      we cite must be added here, not computed ad hoc in the terminal.
 - `map/index.html` + `map/data/*.json`: MapLibre web map in Claude-artifact format (no doc skeleton).
   Run locally with `python -I pipeline/serve_map.py` (wraps it into `_site/` like the Pages workflow).
+  UI rule: keep on-page text minimal (data, labels, colour keys); explanations and definitions go behind
+  "i" buttons (`<button class="info" data-info="key">`, text in the `INFO` object in `index.html`).
 - `data/`: git-ignored, re-create with `python -I pipeline/run_all.py --fetch` (~1 h, OSM is slowest)
 
 ## Environment notes (Windows)

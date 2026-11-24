@@ -65,7 +65,18 @@ button { cursor: pointer; }
 .rail-toggle { display: none; border: 1px solid var(--rule); background: var(--panel-2); border-radius: 6px; padding: 2px 8px; font-size: 12px; }
 .rail-body { overflow-y: auto; padding: 12px 16px 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; align-content: start; }
 .rail-body > * { min-width: 0; }
-#vintage { white-space: nowrap; }
+.brand .title { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.eyebrow-row { display: flex; align-items: center; gap: 6px; }
+
+/* ---- info buttons: every explanation lives behind an "i" ---- */
+.info { display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; padding: 0; border-radius: 50%;
+  border: 1px solid var(--rule); background: var(--panel-2); color: var(--muted); font: italic 600 11px/1 Georgia, serif; vertical-align: middle; }
+.info:hover, .info[aria-expanded="true"] { border-color: var(--accent); color: var(--accent); }
+.pop { position: fixed; z-index: 60; width: max-content; max-width: min(320px, calc(100vw - 16px)); padding: 10px 12px; display: grid; gap: 6px;
+  background: var(--panel); color: var(--ink); border: 1px solid var(--rule); border-radius: 8px; box-shadow: var(--shadow);
+  font: 400 12.5px/1.45 var(--f-body); text-align: left; letter-spacing: 0; text-transform: none; }
+.pop p { margin: 0; }
+.pop ul { margin: 0; padding-left: 16px; display: grid; gap: 2px; }
 
 .lens { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .lens button {
@@ -111,7 +122,7 @@ select, input[type="search"], input[type="number"] {
 .site .num { font-size: 12.5px; }
 .empty { color: var(--muted); font-size: 12.5px; margin: 0; }
 
-.rail-foot { border-top: 1px solid var(--rule); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted); }
+.rail-foot { border-top: 1px solid var(--rule); padding: 10px 16px; display: flex; justify-content: flex-end; align-items: center; gap: 8px; font-size: 11.5px; color: var(--muted); }
 .linkbtn { border: 0; background: none; color: var(--accent); padding: 0; font-weight: 600; font-size: 12.5px; }
 
 /* ---- zoom ---- */
@@ -272,7 +283,7 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
   #score { position: static; display: block; width: 100%; max-width: none; max-height: none; border: 0; box-shadow: none; margin: 0; }
   #score::backdrop { display: none; }
   #score .dlg { max-height: none; overflow: visible; padding: 0; }
-  .no-print { display: none !important; }
+  .no-print, .info, .pop { display: none !important; }
   .print-only { display: grid !important; }
   .sc { grid-template-columns: 1fr; }
   .plist { max-height: none; overflow: visible; }
@@ -285,8 +296,7 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
 
 <aside class="rail" id="rail" aria-label="Map controls">
   <div class="rail-head">
-    <div class="brand"><h1>Interconnection <span>Headroom</span> Atlas</h1><button class="rail-toggle" id="railToggle" aria-expanded="true">Hide</button></div>
-    <p class="sub" id="subline">Contiguous US · screening model</p>
+    <div class="brand"><span class="title"><h1>Interconnection <span>Headroom</span> Atlas</h1><button class="info" data-info="about" aria-label="About this map">i</button></span><button class="rail-toggle" id="railToggle" aria-expanded="true">Hide</button></div>
   </div>
   <div class="rail-body">
     <div class="sec">
@@ -295,18 +305,18 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
         <label for="psize">Project size<select id="psize"><option value="0">50 MW</option><option value="1">100 MW</option><option value="2" selected>200 MW</option><option value="3">300 MW</option><option value="4">500 MW</option><option value="5">1,000 MW</option></select></label>
         <button class="cta" id="openScore">Score my project</button>
       </div>
+      <div class="eyebrow-row"><span class="eyebrow">Map lens</span><button class="info" data-info="lens" aria-label="What this lens shows">i</button></div>
       <div class="lens" role="group" aria-label="Map lens">
-        <button data-lens="risk" aria-pressed="true" class="wide"><b>Risk assessment</b><small>Expected cost, time to operation and queue risk for a project of this size</small></button>
-        <button data-lens="gen" aria-pressed="false"><b>Generation</b><small>MW injectable after the queue ahead</small></button>
-        <button data-lens="load" aria-pressed="false"><b>Large load</b><small>MW a data center could draw at peak</small></button>
-        <button data-lens="queue" aria-pressed="false"><b>Queue pressure</b><small>Queued MW ÷ substation capacity</small></button>
-        <button data-lens="storage" aria-pressed="false"><b>Storage</b><small>Congested nodes with trapped renewables</small></button>
+        <button data-lens="risk" aria-pressed="true" class="wide"><b>Risk assessment</b></button>
+        <button data-lens="gen" aria-pressed="false"><b>Generation</b></button>
+        <button data-lens="load" aria-pressed="false"><b>Large load</b></button>
+        <button data-lens="queue" aria-pressed="false"><b>Queue pressure</b></button>
+        <button data-lens="storage" aria-pressed="false"><b>Storage</b></button>
       </div>
-      <details class="weights" id="weights"><summary>Risk weights</summary>
+      <details class="weights" id="weights"><summary>Risk weights <button class="info" data-info="weights" aria-label="How weights work">i</button></summary>
         <div class="w"><label for="wCost">Cost</label><input type="range" id="wCost" min="0" max="100" value="35"><span class="num" id="wCostV">35%</span></div>
         <div class="w"><label for="wTime">Time</label><input type="range" id="wTime" min="0" max="100" value="30"><span class="num" id="wTimeV">30%</span></div>
         <div class="w"><label for="wFit">Capacity</label><input type="range" id="wFit" min="0" max="100" value="35"><span class="num" id="wFitV">35%</span></div>
-        <p class="note">Weights are normalised to 100%. Cost scores 100 at $25/kW and 0 at $400/kW; time scores 100 at 2.5 years and 0 at 8 years; capacity is the chance the project still fits after the queue ahead resolves.</p>
       </details>
     </div>
     <div class="tally" id="tally"></div>
@@ -330,11 +340,11 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
       <label class="check"><input type="checkbox" id="L-blm"> BLM land open to solar</label>
     </fieldset>
     <div class="sites">
-      <div class="sites-head"><span class="eyebrow" id="sitesTitle">Best sites in view</span><small class="note" id="sitesNote"></small></div>
+      <div class="eyebrow-row"><span class="eyebrow" id="sitesTitle">Best sites in view</span><button class="info" data-info="sites" aria-label="How sites are ranked">i</button></div>
       <div id="sites"></div>
     </div>
   </div>
-  <div class="rail-foot"><span id="vintage"></span><span class="foot-links"><button class="linkbtn" id="openClaims">Claims &amp; calculations</button><button class="linkbtn" id="openMethod">Method &amp; sources</button></span></div>
+  <div class="rail-foot"><span class="foot-links"><button class="linkbtn" id="openClaims">Claims &amp; calculations</button><button class="linkbtn" id="openMethod">Method &amp; sources</button></span></div>
 </aside>
 
 <section class="inspector" id="insp" hidden aria-live="polite">
@@ -555,9 +565,7 @@ function renderTally() {
     for (let i = 0; i < B.n; i++) if ((B.kv[i] || 0) >= minkv && D.rk.grade[i] < 5) n[D.rk.grade[i]]++;
     $("#tally").className = "tally five"; $("#tally").style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
     $("#tally").innerHTML = n.map((v, g) => `<div><span class="v">${fmt(v)}</span><span class="k"><i class="dot" style="background:${col[g]}"></i>Grade ${GRADES[g]}</span></div>`).join("");
-    $("#legend").innerHTML = `<div class="row"><span class="ramp" style="background:linear-gradient(90deg,${col.join(",")})"></span><small class="note">A → E</small></div>
-      <div class="row"><span>Grades combine <b>expected cost</b> ($/kW, from nearby interconnection studies and our grid model), <b>time to operation</b> (regional history) and the <b>chance a ${fmt(D.risk.sizes[sizeIdx()])} MW project still fits</b> after the queue ahead resolves.</span></div>
-      <div class="row"><span class="ramp" style="background:linear-gradient(90deg,var(--line-lo),var(--line-mid),var(--line-hi))"></span><small class="note">Lines: 100 → 765 kV</small></div>`;
+    $("#legend").innerHTML = LINE_KEY;
     return;
   }
   $("#tally").className = "tally";
@@ -570,9 +578,9 @@ function renderTally() {
     [[c[0], cfg.legend[0][0], cfg.legend[0][1]], [c[1], cfg.legend[1][0], cfg.legend[1][1]], [c[2], cfg.legend[2][0], cfg.legend[2][1]]];
   $("#tally").style.gridTemplateColumns = `repeat(${items.length}, minmax(0, 1fr))`;
   $("#tally").innerHTML = items.map(([v, t, k]) => `<div><span class="v">${fmt(v)}</span><span class="k"><i class="dot" style="background:var(${t})"></i>${esc(k)}</span></div>`).join("");
-  $("#legend").innerHTML = cfg.legend.filter((l) => l[2]).map(([t, k, d]) => `<div class="row"><i class="dot" style="background:var(${t})"></i><span><b>${esc(k)}</b> · ${esc(d)}</span></div>`).join("") +
-    `<div class="row"><span class="ramp" style="background:linear-gradient(90deg,var(--line-lo),var(--line-mid),var(--line-hi))"></span><small class="note">Lines: 100 → 765 kV</small></div>`;
+  $("#legend").innerHTML = LINE_KEY;
 }
+const LINE_KEY = `<div class="row"><span class="ramp" style="background:linear-gradient(90deg,var(--line-lo),var(--line-mid),var(--line-hi))"></span><small class="note">Lines 100 → 765 kV</small></div>`;
 
 function renderSites() {
   if (!map) return;
@@ -588,7 +596,7 @@ function renderSites() {
     cand.push(i);
   }
   cand.sort((a, c) => m[c] - m[a]);
-  $("#sitesTitle").textContent = cfg.title; $("#sitesNote").textContent = cfg.note;
+  $("#sitesTitle").textContent = cfg.title;
   const top = cand.slice(0, 8);
   $("#sites").innerHTML = top.length ? top.map((i) => {
     const color = lens === "storage" ? "--store" : cfg.legend[lens === "gen" ? B.sig[i] : lens === "load" ? B.lsig[i] : qcat(i)][0];
@@ -607,7 +615,6 @@ function renderRiskSites() {
   }
   cand.sort((a, c) => D.rk.risk[a] - D.rk.risk[c]);
   $("#sitesTitle").textContent = LENS.risk.title;
-  $("#sitesNote").textContent = `for a ${fmt(D.risk.sizes[sizeIdx()])} MW project`;
   const top = cand.slice(0, 8);
   $("#sites").innerHTML = top.length ? top.map((i) => {
     const r = riskOf(i);
@@ -638,14 +645,14 @@ function showBus(i) {
   const head = `<button class="close" id="close" aria-label="Close">×</button>
     <span class="eyebrow">${["Substation", "Substation (unnamed in source)", "Line tap"][B.type[i]]} · ${esc(B.ic[i])}</span>
     <h2>${esc(B.name[i])}</h2>
-    <div class="meta"><span class="num">${esc(B.kvl[i])} kV</span><span>${esc([B.cty[i], B.st[i]].filter(Boolean).join(", "))}</span>${B.own[i] ? `<span>${esc(B.own[i])}</span>` : ""}<span>${fmt(B.deg[i])} line terminations</span></div>`;
+    <div class="meta"><span class="num">${esc(B.kvl[i])} kV</span><span>${esc([B.cty[i], B.st[i]].filter(Boolean).join(", "))}</span>${B.own[i] ? `<span>${esc(B.own[i])}</span>` : ""}<span>${fmt(B.deg[i])} line terminations</span><button class="info" data-info="disclaimer" aria-label="About these estimates">i</button></div>`;
   let body = riskCard(i);
   if (B.mod[i]) {
     const val = isLoad ? B.hLq[i] : B.hGq[i], s = isLoad ? B.lsig[i] : B.sig[i];
     const t = ["--good", "--warn", "--bad", "--na"][s];
     body += `<div class="verdict" style="--sig:var(${t})"><div class="big">${mw(val)}<small> MW</small></div>
-      <div class="lab">${isLoad ? "New load this bus can serve at peak" : "New generation this bus can take"} ${sigPill(s)}</div>
-      <div class="exp">${isLoad ? "After the active queue is added (phase-weighted)." : "After the active queue ahead is added (phase-weighted). Worst of summer peak and light-load scenarios."}</div></div>`;
+      <div class="lab">${isLoad ? "New load this bus can serve at peak" : "New generation this bus can take"} ${sigPill(s)} <button class="info" data-info="${isLoad ? "headroomLoad" : "headroomGen"}" aria-label="How headroom is computed">i</button></div>
+      <div class="exp">after the queue ahead</div></div>`;
     body += `<dl class="kv">
       <dt>Generation headroom, existing grid</dt><dd>${mw(B.hG[i])} MW</dd>
       <dt>…summer peak / light load</dt><dd>${mw(B.hGp[i])} / ${mw(B.hGl[i])}</dd>
@@ -655,21 +662,21 @@ function showBus(i) {
       <dt>Load headroom after queue</dt><dd>${mw(B.hLq[i])} MW</dd></dl>`;
     const bl = isLoad ? B.bL[i] : B.bG[i]; const j = D.lines.idx.get(bl);
     if (bl === -2) {
-      body += `<div class="sec"><span class="eyebrow">Binding constraint</span><div class="constraint"><b>Substation outlet capacity</b>
-        <small>The lines leaving this bus can carry ${fmt(0.85 * B.n1[i])} MW with the largest one out of service (85% of N-1 branch capacity), and part of that is already used by existing ${isLoad ? "load" : "generation"}${isLoad ? "" : " and the queue"}.</small></div></div>`;
+      body += `<div class="sec"><div class="eyebrow-row"><span class="eyebrow">Binding constraint</span><button class="info" data-info="outlet" aria-label="About this constraint">i</button></div><div class="constraint"><b>Substation outlet capacity</b>
+        <small>${fmt(0.85 * B.n1[i])} MW with the largest line out</small></div></div>`;
     } else if (j != null) {
       const L = D.lines;
-      body += `<div class="sec"><span class="eyebrow">Binding constraint</span><button class="constraint" data-line="${j}"><b>${esc(lineLabel(j))}</b>
-        ${!isLoad && B.bdf[i] != null ? `<small>${fmt(100 * Math.abs(B.bdf[i]))}% of a new injection here flows on this line</small>` : ""}
-        <small>Screening limit ${fmt(L.lim[j])} MW (${L.basis[j] ? "stability, St. Clair" : "thermal"}) · loading ${fmt(Math.max(L.ldP[j] ?? 0, L.ldL[j] ?? 0))}% today, ${fmt(L.ldQ[j])}% with queue</small>
-        <small>Limits ${fmt(L.bb[j])} buses · ${fmt(L.qb[j])} MW queued behind it. Show on map →</small></button></div>`;
+      body += `<div class="sec"><div class="eyebrow-row"><span class="eyebrow">Binding constraint</span><button class="info" data-info="binding" aria-label="About this constraint">i</button></div><button class="constraint" data-line="${j}"><b>${esc(lineLabel(j))}</b>
+        ${!isLoad && B.bdf[i] != null ? `<small>${fmt(100 * Math.abs(B.bdf[i]))}% of your output flows here</small>` : ""}
+        <small>${fmt(L.lim[j])} MW (${L.basis[j] ? "stability" : "thermal"}) · ${fmt(Math.max(L.ldP[j] ?? 0, L.ldL[j] ?? 0))}% loaded, ${fmt(L.ldQ[j])}% with queue</small>
+        <small>Limits ${fmt(L.bb[j])} buses · ${fmt(L.qb[j])} MW queued behind it →</small></button></div>`;
     }
   } else {
-    body += `<div class="verdict" style="--sig:var(--na)"><div class="big">${mw(B.hGq[i])}<small> MW</small></div><div class="lab">Structural estimate ${sigPill(3)}</div><div class="exp">This bus sits on a fragment of the line data that is not connected to the main network, so no power flow was run. The figure is N-1 branch capacity × 0.85, less existing and expected queued generation.</div></div>`;
+    body += `<div class="verdict" style="--sig:var(--na)"><div class="big">${mw(B.hGq[i])}<small> MW</small></div><div class="lab">Structural estimate ${sigPill(3)} <button class="info" data-info="structural" aria-label="Why not modeled">i</button></div></div>`;
   }
   const qtot = B.q[i] || 0;
-  body += `<div class="sec"><span class="eyebrow">Substation capacity check</span><dl class="kv">
-    <dt>N-1 branch capacity (sum of line limits less the largest)</dt><dd>${fmt(B.n1[i])} MW</dd>
+  body += `<div class="sec"><div class="eyebrow-row"><span class="eyebrow">Substation capacity check</span><button class="info" data-info="capacity" aria-label="About capacity">i</button></div><dl class="kv">
+    <dt>N-1 branch capacity</dt><dd>${fmt(B.n1[i])} MW</dd>
     <dt>Active queue at this bus</dt><dd>${fmt(qtot)} MW</dd>
     <dt>Queue ÷ capacity</dt><dd>${B.qcap[i] == null ? "–" : fmt(B.qcap[i], 2) + "×"} ${qtot ? sigPill(qcat(i), ["Room", "Crowded", "Oversubscribed", "–"]) : ""}</dd>
     <dt>Allocated peak load</dt><dd>${fmt(B.load[i])} MW</dd></dl></div>`;
@@ -691,7 +698,6 @@ function showBus(i) {
       <div class="bar-key">${segs.map((x) => `<span><i class="dot" style="background:${TECH_COLORS[x.n] || "#8b959c"}"></i> ${esc(x.n)} ${fmt(x.v)}</span>`).join("")}</div>
       ${pl.length ? `<ul class="plist">${pl.sort((a, c) => P.mw[c] - P.mw[a]).slice(0, 12).map((k) => `<li><span class="n">${esc(P.name[k])}</span><span class="num">${fmt(P.mw[k])} MW</span><span class="d">${esc(P.tech[k])}${P.kv[k] ? ` · grid ${fmt(P.kv[k], 1)} kV` : ""} · ${esc(P.own[k] || "")}</span></li>`).join("")}</ul>` : ""}</div>`;
   }
-  body += `<p class="note">Screening estimate from public data, not a utility interconnection study. Ratings, topology and dispatch are approximated; see Method &amp; sources.</p>`;
   openInspector(head, body);
 }
 
@@ -725,42 +731,44 @@ function riskCard(i) {
   let html = `<div class="risk-card" style="--c:${col}">
     <div class="risk-top"><span class="grade" style="--c:${col}">${GRADES[r.grade]}</span>
       <div><div class="lab">Risk index ${fmt(r.risk)} / 100 for a ${fmt(P)} MW project</div>
-      <div class="exp">${esc(reg)} · confidence ${CONF[R.cf[i]]} · change the size or weights in the side panel</div></div></div>
+      <div class="exp">${esc(reg)} · confidence ${CONF[R.cf[i]]} <button class="info" data-info="riskcard" data-i="${i}" aria-label="How the risk index is built">i</button></div></div></div>
     <div class="metrics">
       <div class="metric"><span class="k">Expected cost</span><span class="v">$${fmt(r.cost)}/kW</span><span class="r">$${fmt(r.poi + r.net * q25)}–${fmt(r.poi + r.net * q75)}/kW · ≈$${fmt(r.cost * P / 1000, 1)}M</span></div>
       <div class="metric"><span class="k">Time to operation</span><span class="v">${fmt(r.yrs, 1)} yrs</span><span class="r">${fmt(r.yrs * dur.p25 / dur.p50, 1)}–${fmt(r.yrs * dur.p75 / dur.p50, 1)} yrs · agreement ~${fmt(ia.p50, 1)} yrs</span></div>
-      <div class="metric"><span class="k">Still fits after queue</span><span class="v">${fmt(100 * r.fit)}%</span><span class="r">chance ${fmt(P)} MW fits once the queue ahead resolves</span></div>
+      <div class="metric"><span class="k">Still fits after queue</span><span class="v">${fmt(100 * r.fit)}%</span></div>
     </div>
     <button class="cta" data-score="${i}">Score my project here</button>`;
   if (q) {
     const [n, mwq, exp, p10, , p90, anyWd, expWdN, county] = q;
-    html += `<div class="sec"><span class="eyebrow">Queue ahead and dropout risk</span><dl class="kv">
+    html += `<div class="sec"><div class="eyebrow-row"><span class="eyebrow">Queue ahead and dropout risk</span><button class="info" data-info="queueahead" data-c="${county}" aria-label="About the queue simulation">i</button></div><dl class="kv">
       <dt>Active requests at this substation</dt><dd>${fmt(n)} · ${fmt(mwq)} MW</dd>
       <dt>Expected MW built (P10–P90 range)</dt><dd>${fmt(exp)} MW (${fmt(p10)}–${fmt(p90)})</dd>
       <dt>Expected withdrawals</dt><dd>${fmt(expWdN, 1)} of ${fmt(n)} · ${fmt(100 - 100 * exp / Math.max(mwq, 1))}% of MW</dd>
-      <dt>Chance at least one withdraws (restudy trigger)</dt><dd>${fmt(anyWd)}%</dd></dl>
-      ${county >= 50 ? `<p class="note">${fmt(county)}% of these MW were placed here by county, not by name, so some may belong to a nearby substation.</p>` : ""}</div>`;
+      <dt>Chance at least one withdraws</dt><dd>${fmt(anyWd)}%</dd></dl></div>`;
   } else {
-    html += `<p class="note">No active requests are placed at this substation. Capacity can still be taken by projects at nearby substations; the after-queue headroom includes them.</p>`;
+    html += `<p class="note">No active queue at this substation.</p>`;
   }
   if (h) {
     const [built, wd] = h, nres = built + wd, rate = (built + 10 * comp["Early study"]) / (nres + 10);
-    html += `<p class="note"><b>Track record here:</b> ${fmt(nres)} past requests resolved, ${fmt(built)} built and ${fmt(wd)} withdrawn. Adjusted completion rate ${fmt(100 * rate)}% versus ${fmt(100 * comp["Early study"])}% for ${esc(reg)} overall.</p>`;
+    html += `<p class="note"><b>Track record:</b> ${fmt(built)} built, ${fmt(wd)} withdrawn · ${fmt(100 * rate)}% vs ${fmt(100 * comp["Early study"])}% in ${esc(reg)}</p>`;
   }
   const ex = upgradeExposure(i, P);
   if (ex.items.length) {
     const tot = ex.items.reduce((s, x) => s + x.musd * x.share, 0);
-    html += `<div class="sec"><span class="eyebrow">Lines a ${fmt(P)} MW project would overload (our model)</span><ul class="upg">${ex.items.map((x) => `<li><button class="linkbtn" data-line="${x.j}" style="text-align:left">${esc(lineLabel(x.j))}</button><span class="num">$${fmt(x.musd, 1)}M</span>
+    html += `<div class="sec"><div class="eyebrow-row"><span class="eyebrow">Lines a ${fmt(P)} MW project would overload</span><button class="info" data-info="upgrades" data-more="${ex.more ? 1 : 0}" aria-label="How upgrades are priced">i</button></div><ul class="upg">${ex.items.map((x) => `<li><button class="linkbtn" data-line="${x.j}" style="text-align:left">${esc(lineLabel(x.j))}</button><span class="num">$${fmt(x.musd, 1)}M</span>
       <small>${x.recon ? "Reconductor" : "New parallel line"} · ${fmt(D.lines.len[x.j] / 1.609, 1)} mi · ${fmt(100 * x.df)}% of your output flows here · your share ${fmt(100 * x.share)}%</small></li>`).join("")}</ul>
-      <p class="note">Your share ≈ $${fmt(tot, 1)}M (≈$${fmt(tot * 1000 / P)}/kW) at MISO MTEP24 unit costs${ex.more ? ", and more lines are likely beyond the five tightest" : ""}. This is an independent cross-check on the expected cost above.</p></div>`;
+      <p class="note">Your share ≈ $${fmt(tot, 1)}M (≈$${fmt(tot * 1000 / P)}/kW)</p></div>`;
   } else {
-    html += `<p class="note">Our model finds no line overloaded by a ${fmt(P)} MW project here after the queue ahead (lines carrying ≥20% of the output).</p>`;
+    html += `<p class="note">No line overloaded at ${fmt(P)} MW.</p>`;
   }
-  const rn = meta.region_net_median_kw[reg] ?? meta.national_net_median_kw;
-  html += reg === "ERCOT"
-    ? `<p class="note"><b>Cost basis:</b> in ERCOT, transmission utilities fund network upgrades (PUCT rule 25.195), so the estimate is the substation connection only (~$${fmt(r.poi)}/kW, MISO MTEP24 cost of a new breaker-and-a-half position at ${fmt(B.kv[i])} kV).</p>`
-    : `<p class="note"><b>Cost basis:</b> network upgrades $${fmt(r.net)}/kW = ${esc(reg)} median from interconnection studies since ${meta.recent_from} ($${fmt(rn)}/kW) × a factor for project size versus modelled headroom × a voltage factor × local index ${fmt(R.li[i], 2)} (from ≈${fmt(R.ln[i], 1)} nearby studies). Plus the substation connection ~$${fmt(r.poi)}/kW (MISO MTEP24).${reg === "CAISO" ? " CAISO has no LBNL cost dataset, so the national median is used." : ""}</p>`;
   return html + `</div>`;
+}
+
+function costBasis(i, r, reg) {
+  const R = D.risk, meta = R.meta, rn = meta.region_net_median_kw[reg] ?? meta.national_net_median_kw;
+  return reg === "ERCOT"
+    ? `In ERCOT, transmission utilities fund network upgrades (PUCT rule 25.195), so the estimate is the substation connection only (~$${fmt(r.poi)}/kW, MISO MTEP24 cost of a new breaker-and-a-half position at ${fmt(D.buses.kv[i])} kV).`
+    : `Network upgrades $${fmt(r.net)}/kW = ${esc(reg)} median from interconnection studies since ${meta.recent_from} ($${fmt(rn)}/kW) × a factor for project size versus modelled headroom × a voltage factor × local index ${fmt(R.li[i], 2)} (from ≈${fmt(R.ln[i], 1)} nearby studies). Plus the substation connection ~$${fmt(r.poi)}/kW (MISO MTEP24).${reg === "CAISO" ? " CAISO has no LBNL cost dataset, so the national median is used." : ""}`;
 }
 
 function showLine(j) {
@@ -770,12 +778,11 @@ function showLine(j) {
   const head = `<button class="close" id="close" aria-label="Close">×</button><span class="eyebrow">Transmission line · ${esc(L.owners[L.own[j]])}</span>
     <h2>${esc(lineLabel(j))}</h2><div class="meta"><span class="num">${fmt(L.len[j], 1)} km</span><span>${L.cal[j] ? "rating raised to fit today's modeled flow" : "rating from voltage class"}</span></div>`;
   const ld = Math.max(L.ldP[j] ?? 0, L.ldL[j] ?? 0); const s = ld >= 100 ? 2 : ld >= 85 ? 1 : 0;
-  let body = `<div class="verdict" style="--sig:var(${["--good", "--warn", "--bad"][s]})"><div class="big">${fmt(ld)}<small> %</small></div><div class="lab">Modeled loading, worst scenario</div><div class="exp">Of the usable limit (85% of the screening rating). With the phase-weighted queue: ${fmt(L.ldQ[j])}%.</div></div>
+  let body = `<div class="verdict" style="--sig:var(${["--good", "--warn", "--bad"][s]})"><div class="big">${fmt(ld)}<small> %</small></div><div class="lab">Modeled loading <button class="info" data-info="lineload" aria-label="About line loading">i</button></div><div class="exp">${fmt(L.ldQ[j])}% with the queue</div></div>
     <dl class="kv"><dt>Screening rating</dt><dd>${fmt(L.lim0[j])} MW (${L.basis[j] ? "St. Clair" : "thermal"})</dd><dt>Rating used in the model</dt><dd>${fmt(L.lim[j])} MW</dd>
     <dt>Flow, summer peak</dt><dd>${fmt(Math.abs(L.fP[j] ?? 0))} MW</dd><dt>Flow, light load / high renewables</dt><dd>${fmt(Math.abs(L.fL[j] ?? 0))} MW</dd>
     <dt>Buses whose headroom it sets</dt><dd>${fmt(L.bb[j])}</dd><dt>Queued MW behind it</dt><dd>${fmt(L.qb[j])}</dd></dl>
-    <div class="sec"><span class="eyebrow">Ends</span>${[fr, to].filter((x) => x != null).map((i) => `<button class="site" data-bus="${i}"><i class="dot" style="background:var(${["--good", "--warn", "--bad", "--na"][B.sig[i]]})"></i><span>${esc(B.name[i])} <small>${esc(B.kvl[i])} kV</small></span><span class="num">${mw(B.hGq[i])} MW</span></button>`).join("")}</div>
-    <p class="note">A high share of buses limited by one line marks it as a candidate for reconductoring or storage.</p>`;
+    <div class="sec"><span class="eyebrow">Ends</span>${[fr, to].filter((x) => x != null).map((i) => `<button class="site" data-bus="${i}"><i class="dot" style="background:var(${["--good", "--warn", "--bad", "--na"][B.sig[i]]})"></i><span>${esc(B.name[i])} <small>${esc(B.kvl[i])} kV</small></span><span class="num">${mw(B.hGq[i])} MW</span></button>`).join("")}</div>`;
   openInspector(head, body);
 }
 
@@ -917,7 +924,7 @@ async function openScore(i) {
 
 function renderScoreForm() {
   const opt = (arr, v) => arr.map(([k, t]) => `<option value="${esc(k)}"${k === v ? " selected" : ""}>${esc(t)}</option>`).join("");
-  $("#scoreBody").innerHTML = `<div class="sc-head"><h2 id="sTitle">Project risk score</h2>
+  $("#scoreBody").innerHTML = `<div class="sc-head"><span class="title eyebrow-row"><h2 id="sTitle">Project risk score</h2><button class="info no-print" data-info="score" aria-label="How the score is built">i</button></span>
     <span class="sc-actions no-print"><button class="linkbtn" id="sPrint">Export PDF</button><button class="close" style="position:static" id="sClose" aria-label="Close">×</button></span></div>
   <div class="sc">
     <form class="sc-form no-print" id="sForm" onsubmit="return false">
@@ -1060,7 +1067,7 @@ function renderScore() {
       <div class="metric"><span class="k">Expected online</span><span class="v">${t ? yr(t.q50) : "–"}</span><span class="r">${t ? `${yr(t.q25)}–${yr(t.q75)}${r.st === 4 ? " *" : ""}` : ""}</span></div>
       <div class="metric"><span class="k">Network upgrades</span><span class="v">$${fmt(net)}/kW</span><span class="r">≈$${fmt(net * SC.mw / 1000, 1)}M · ${esc(costR)}</span></div>
     </div>
-    <div class="sec"><span class="eyebrow">What drives it · percentage points</span><div class="drivers">${drv.length ? drv.map((x) => `<div class="drv">
+    <div class="sec"><div class="eyebrow-row"><span class="eyebrow">What drives it</span><button class="info no-print" data-info="drivers" aria-label="About drivers">i</button></div><div class="drivers">${drv.length ? drv.map((x) => `<div class="drv">
       <span>${esc(x.k)} <small>${esc(x.lv)}${x.assume ? " *" : ""}</small></span>
       <span class="axis"><span style="${x.pp >= 0 ? "left" : "right"}:50%;width:${50 * Math.abs(x.pp) / mx}%;background:var(${x.pp >= 0 ? "--good" : "--bad"})"></span></span>
       <span class="num">${x.pp >= 0 ? "+" : "−"}${fmt(100 * Math.abs(x.pp))}</span></div>`).join("") : `<p class="note">Under construction: ${pctTxt(S.p_construction)} *</p>`}</div></div>
@@ -1071,8 +1078,65 @@ function renderScore() {
     <dl class="kv print-only">${[["Substation", `${B.name[i]} (${B.kvl[i]} kV, ${reg})`], ["Technology · size", `${SC.tech} · ${fmt(SC.mw)} MW`],
       ["Stage · in queue since", `${SC.stage} · ${SC.qy}`], ["Target online", SC.target], ["Study cost", SC.cost != null ? `$${fmt(SC.cost)}/kW` : "unknown"],
       ...SEGS.map(([k, lab]) => [lab, SC[k]])].map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl>
-    <p class="note">Screening estimate from public data: ${fmt(v.n)} LBNL requests 2000–2019 (AUC ${fmt(v.auc_cv, 2)}), LBNL cost studies, EIA-860M permits, NREL ordinances. * team assumption. <button class="linkbtn no-print" id="sClaims">How it is built</button></p>`;
-  $("#sClaims").onclick = () => { $("#score").close(); location.hash = "C24"; openClaimFromHash(); };
+    <p class="note print-only">${scoreBasis()}</p>`;
+}
+function scoreBasis() {
+  const v = D.score.validation;
+  return `Screening estimate from public data: ${fmt(v.n)} LBNL requests 2000–2019 (AUC ${fmt(v.auc_cv, 2)}), LBNL cost studies, EIA-860M permits, NREL ordinances. * = team assumption.`;
+}
+
+// ---------------- info popovers ----------------
+// Explanations and definitions sit behind small "i" buttons (data-info="key") instead of on the page.
+const LENS_INTRO = {
+  risk: () => `<b>Risk assessment</b>: expected cost, time to operation and queue risk for a ${fmt(D.risk.sizes[sizeIdx()])} MW project. Grades combine expected cost ($/kW, from nearby interconnection studies and our grid model), time to operation (regional history) and the chance the project still fits after the queue ahead resolves.`,
+  gen: () => "<b>Generation</b>: MW of new generation each substation can take after the queue ahead.",
+  load: () => "<b>Large load</b>: MW a data center or other large load could draw at summer peak.",
+  queue: () => "<b>Queue pressure</b>: queued MW ÷ substation capacity (N-1 branch capacity).",
+  storage: () => "<b>Storage</b>: congested substations with trapped renewables, candidates for storage or reconductoring.",
+};
+const INFO = {
+  about: () => { const m = D.meta; return `<p><b>Interconnection Headroom Atlas</b></p><p>Contiguous US · ${fmt(m.counts.buses_modeled)} modeled buses · ${fmt(m.counts.queue_gw)} GW in active queues · model built ${esc(m.built)}.</p><p>Screening estimates from public data, not utility interconnection studies. Details under Method &amp; sources.</p>`; },
+  lens: () => `<p>${LENS_INTRO[lens]()}</p><ul>${lens === "risk"
+    ? "<li><b>A</b> risk index under 25 (lowest)</li><li><b>B</b> 25–40</li><li><b>C</b> 40–55</li><li><b>D</b> 55–70</li><li><b>E</b> 70 or more (highest)</li>"
+    : LENS[lens].legend.filter((l) => l[2]).map(([, k, d]) => `<li><b>${esc(k)}</b>: ${esc(d)}</li>`).join("")}</ul>`,
+  weights: "<p>Weights are normalised to 100%. Cost scores 100 at $25/kW and 0 at $400/kW; time scores 100 at 2.5 years and 0 at 8 years; capacity is the chance the project still fits after the queue ahead resolves.</p>",
+  sites: () => `<p>Named substations of at least 115 kV in the current view, ${lens === "risk" ? `lowest risk index first, for a ${fmt(D.risk.sizes[sizeIdx()])} MW project` : esc(LENS[lens].note)}.</p>`,
+  disclaimer: "<p>Screening estimate from public data, not a utility interconnection study. Ratings, topology and dispatch are approximated; see Method &amp; sources.</p>",
+  headroomGen: "<p>MW of new generation that can connect before a line carrying ≥20% of it reaches 85% of its rating, after the active queue ahead is added (each request weighted by its odds of being built). Worst of summer peak and light-load scenarios.</p>",
+  headroomLoad: "<p>MW of new load that can be served at summer peak before a line reaches 85% of its rating, after the active queue is added (each request weighted by its odds of being built).</p>",
+  outlet: "<p>The lines leaving this substation can carry this much with the largest one out of service (85% of N-1 branch capacity). Part of it is already used by existing generation and the queue.</p>",
+  binding: "<p>The first line to reach 85% of its rating as MW are added here: the share of your output that flows on it, its screening limit (thermal, or St. Clair stability for long lines) and its loading today and with the queue. Click it to show it on the map.</p>",
+  structural: "<p>This bus sits on a fragment of the line data that is not connected to the main network, so no power flow was run. The figure is N-1 branch capacity × 0.85, less existing and expected queued generation.</p>",
+  capacity: "<p>N-1 branch capacity = sum of the line limits at this substation less the largest. Queue ÷ capacity: room below 0.5×, crowded 0.5–1.5×, oversubscribed above 1.5×.</p>",
+  riskcard: (b) => {
+    const i = +b.dataset.i, r = riskOf(i), reg = D.risk.regions[D.risk.rg[i]];
+    return `<p><b>Risk index</b> = 100 − weighted score of cost, time and capacity fit (weights in the side panel). A under 25 … E 70 or more.</p>
+      <p><b>Cost.</b> ${costBasis(i, r, reg)}</p>
+      <p><b>Time.</b> Regional median years from request to operation (projects online 2018–2025), longer for bigger expected upgrades.</p>
+      <p><b>Still fits.</b> Chance a ${fmt(r.P)} MW project fits once the queue ahead resolves.</p>
+      <p><b>Confidence</b> drops with few nearby cost studies, in CAISO (no cost data), or when the queue here was placed mostly by county.</p>`;
+  },
+  queueahead: (b) => `<p>Every active request here is simulated 10,000 times with its regional, stage-specific odds of being built: expected MW built (P10–P90 range), expected withdrawals, and the chance at least one withdraws, which can trigger a restudy.</p>${+b.dataset.c >= 50 ? `<p>${fmt(+b.dataset.c)}% of these MW were placed here by county, not by name, so some may belong to a nearby substation.</p>` : ""}<p>Projects at nearby substations can also take capacity; the after-queue headroom includes them.</p>`,
+  upgrades: (b) => `<p>Lines our model says this project would overload (≥20% of its output flows on them), priced with MISO MTEP24 unit costs: reconductor if the line is heat-limited, otherwise a new parallel line. Your share is split with queued projects that also overload the line.${+b.dataset.more ? " More lines are likely beyond the five tightest." : ""} An independent cross-check on the expected cost.</p>`,
+  lineload: "<p>Modeled flow as a share of the usable limit (85% of the screening rating), worst of summer peak and light load. A line that limits many substations is a candidate for reconductoring or storage.</p>",
+  score: () => `<p>${scoreBasis()}</p><p><button class="linkbtn" data-claim="C24">How it is built →</button></p>`,
+  drivers: "<p>Percentage points each answer adds to or takes from the chance, compared with a typical request. * = team assumption, not yet backed by outcome data.</p>",
+};
+const pop = Object.assign(document.createElement("div"), { className: "pop", hidden: true });
+pop.setAttribute("role", "note");
+let popBtn = null;
+function hideInfo() { if (!popBtn) return; popBtn.setAttribute("aria-expanded", "false"); popBtn = null; pop.hidden = true; }
+function showInfo(b) {
+  if (popBtn === b) { hideInfo(); return; }
+  hideInfo();
+  const f = INFO[b.dataset.info]; if (!f) return;
+  (b.closest("dialog") || document.body).appendChild(pop);   // inside an open dialog, or it would be inert
+  pop.innerHTML = typeof f === "function" ? f(b) : f;
+  pop.hidden = false; popBtn = b; b.setAttribute("aria-expanded", "true");
+  const r = b.getBoundingClientRect(), w = pop.offsetWidth, h = pop.offsetHeight;
+  const top = r.bottom + 6 + h > innerHeight - 8 ? Math.max(8, r.top - h - 6) : r.bottom + 6;
+  pop.style.left = `${Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8)}px`;
+  pop.style.top = `${top}px`;
 }
 
 // ---------------- wiring ----------------
@@ -1105,7 +1169,18 @@ function wire() {
   addEventListener("hashchange", openClaimFromHash);
   $("#railToggle").onclick = () => { const r = $("#rail"); const c = r.classList.toggle("collapsed"); $("#railToggle").textContent = c ? "Show" : "Hide"; $("#railToggle").setAttribute("aria-expanded", String(!c)); };
   $("#openScore").onclick = () => openScore(selected?.kind === "bus" ? selected.i : null);
+  // info popovers: capture phase so an "i" inside a summary or card never triggers its parent
   document.addEventListener("click", (e) => {
+    const b = e.target.closest(".info");
+    if (b) { e.preventDefault(); e.stopPropagation(); showInfo(b); return; }
+    if (!e.target.closest(".pop")) hideInfo();
+  }, true);
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && popBtn) { hideInfo(); e.preventDefault(); e.stopPropagation(); } }, true);
+  document.addEventListener("scroll", hideInfo, true);
+  addEventListener("resize", hideInfo);
+  document.addEventListener("click", (e) => {
+    const cl = e.target.closest("[data-claim]");
+    if (cl) { hideInfo(); document.querySelectorAll("dialog[open]").forEach((d) => d.close()); location.hash = cl.dataset.claim; openClaimFromHash(); return; }
     const sc = e.target.closest("[data-score]"); if (sc) { openScore(+sc.dataset.score); return; }
     const s = e.target.closest("[data-bus]"); if (s) { flyToBus(+s.dataset.bus); $("#results").hidden = true; return; }
     const c = e.target.closest("[data-line]"); if (c) { highlightLine(+c.dataset.line, true); }
@@ -1160,8 +1235,6 @@ async function main() {
   }
   const m = D.meta;
   computeRisk();
-  $("#subline").textContent = `Contiguous US · ${fmt(m.counts.buses_modeled)} modeled buses · ${fmt(m.counts.queue_gw)} GW in active queues`;
-  $("#vintage").textContent = `Model built ${m.built}`;
   $("#c-lines").textContent = fmt(m.counts.lines); $("#c-buses").textContent = fmt(m.counts.buses);
   $("#c-queue").textContent = `${fmt(m.counts.queue_located)} req.`; $("#c-plants").textContent = fmt(D.plants.id.length);
   map = new maplibregl.Map({
