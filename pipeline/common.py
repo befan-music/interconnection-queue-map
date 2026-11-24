@@ -18,6 +18,11 @@ MANIFEST = RAW / "manifest.json"
 for _p in (RAW, INTERIM, PROCESSED, MAP_DATA):
     _p.mkdir(parents=True, exist_ok=True)
 
+# Windows consoles and pipes default to cp1252, which cannot print the arrows and dashes in log lines
+for _s in (sys.stdout, sys.stderr):
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 UA = ("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
       "(KHTML, like Gecko) Chrome/130.0 Safari/537.36")
 

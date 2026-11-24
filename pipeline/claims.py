@@ -6,6 +6,7 @@ Output: map/data/claims.json, shown in the web map's "Claims & calculations" pan
 Run after build_model.py:  python -I pipeline/claims.py
 """
 import json
+import math
 import re
 import sys
 from datetime import date
@@ -615,6 +616,105 @@ def c23_unit_costs():
           ["Atlas: risk assessment (upgrade list)"], "risk_model.py")
 
 
+COST_FILES = ("miso_costs_2021_clean_data.xlsx", "pjm_costs_2022_clean_data.xlsx", "spp_costs_2023_clean_data.xlsx",
+              "nyiso_2022_final_data_cleaned_publication_vfinal.xlsx",
+              "isone_interconnection_cost_data_publication_vfinal.xlsx", "ba_costs_2024_clean_data.xlsx")
+SCORE_USE = ["Atlas: Score my project", "README"]
+
+
+def c24_project_model():
+    m = json.loads((PROCESSED / "project_model.json").read_text())
+    v, coef = m["validation"], m["m0"]["coef"]
+    names = {"region": "Region", "tech": "Technology", "size": "Size", "voltage": "POI voltage",
+             "siblings": "Same county & technology filed within 60 days", "ordinance": "County siting ordinance (solar/wind)"}
+    rows = [[names[f], lv, f"×{math.exp(b):.2f}"] for f in names
+            for lv, b in sorted(coef[f].items(), key=lambda kv: -kv[1])]
+    claim("C24", "What predicts that a project reaches operation",
+          f"AUC {v['auc_cv']:.2f} · {100 * v['decile_low']:.0f}% → {100 * v['decile_high']:.0f}% built",
+          f"Among {n(v['n_resolved'])} requests filed 2000–2019 that were built or withdrawn, the tenth our model rates "
+          f"lowest was {100 * v['decile_low']:.0f}% built and the tenth it rates highest {100 * v['decile_high']:.0f}%. "
+          f"Discrimination (AUC) is {v['auc_cv']:.2f} in 5-fold cross-validation, against {v['auc_region_only']:.2f} for "
+          "region alone (what the map's queue weights use).",
+          "Calculation",
+          [LBNL_SRC("q_year, q_status, IA_phase_clean, ia_date, type_clean, mw_1-3, region, fips_code, poi_name, q_date"),
+           src("data/raw/ordinances/solar_ordinances_2025.xlsx", "sheet County-Level"),
+           src("data/raw/ordinances/wind_ordinances_2025.xlsx", "sheet County-Level")],
+          ["Keep requests filed 2000–2019. Built = 1, withdrawn = 0; the "
+           f"{n(v['n_active_fractional'])} still active count fractionally with their region × stage odds (C17).",
+           "Features known at filing: region, technology, size, POI voltage, other requests in the same county and "
+           "technology filed within 60 days (parallel filings), the county's NREL siting ordinance (restrictive = ban, "
+           "project-size cap, or setback ≥ 2,000 ft for wind / ≥ 500 ft for solar from non-participating homes), entry era.",
+           "Regularised logistic regression (L2 = 1). A second fit on requests that signed an interconnection agreement "
+           f"({n(m['n_after_ia'])}) scores projects past that stage; late study takes the midpoint.",
+           "Coefficients are centred on the training mix, so ×1.00 = typical; the page shows each as percentage points.",
+           f"Out-of-time check: trained on 2000–2014 filings, AUC {v['auc_out_of_time']:.2f} on 2015–2019; it predicted "
+           f"{100 * v['out_of_time_pred']:.0f}% built against {100 * v['out_of_time_actual']:.0f}% resolved so far."],
+          {"columns": ["Factor", "Level", "Odds vs typical"], "rows": rows},
+          "Public attributes explain only part of the outcome; site control, financing and offtake are not in the data. "
+          "Service type (NRIS/ERIS) and the proposed online date were left out: regions record them inconsistently, and "
+          "LBNL stores the latest proposed date, which leaks the outcome. The ordinance data was extracted with LLMs by NREL "
+          "and most ordinances post-date the 2000–2019 filings.",
+          SCORE_USE, "project_model.py")
+
+
+def c25_cost_outcome():
+    cost = json.loads((PROCESSED / "project_model.json").read_text())["cost"]
+    rows = [[lab, n(k), f"{100 * b:.0f}%", f"×{math.exp(beta):.2f}"]
+            for lab, k, b, beta in zip(cost["labels"], cost["n_tier"], cost["built_share"], cost["beta"])]
+    claim("C25", "Expensive studies end in withdrawal",
+          f"{100 * cost['built_share'][0]:.0f}% built under $10/kW → {100 * cost['built_share'][-1]:.0f}% over $400/kW",
+          f"Of {n(cost['n'])} studied requests that were later built or withdrawn, {100 * cost['built_share'][0]:.0f}% of those "
+          f"assigned under $10/kW of network upgrades were built, against {100 * cost['built_share'][-1]:.0f}% of those assigned "
+          "over $400/kW. The score uses the developer's own study cost when given.",
+          "Calculation",
+          [src(f"data/raw/costs/{f}", "Request Status, network cost per kW") for f in COST_FILES],
+          ["Keep cost-study projects whose status is Withdrawn, Complete or Operational and that have a network cost.",
+           "Built share by network-cost tier.",
+           "Logistic regression built ~ cost tier + region; tier coefficients centred on the tier mix (odds column). "
+           "Applied only before an interconnection agreement is signed."],
+          {"columns": ["Network cost", "Studied requests", "Built", "Odds vs typical"], "rows": rows},
+          "Cost is known only after a study, so it applies to projects already studied. ERCOT and CAISO are not covered.",
+          SCORE_USE, "project_model.py")
+
+
+def c26_permits():
+    p = json.loads((PROCESSED / "project_model.json").read_text())["permits"]
+    rows = [[k, n(v["n"]), f"{100 * v['built']:.0f}%", f"×{math.exp(v['beta']):.2f}"] for k, v in p.items()]
+    claim("C26", "Permitted projects get built more often",
+          f"{100 * p['Not started']['built']:.0f}% → {100 * p['Approved']['built']:.0f}% built",
+          f"Of planned units on EIA's December 2021 list, {100 * p['Not started']['built']:.0f}% of those whose regulatory "
+          f"approvals had not started were operating by the current file, against {100 * p['Approved']['built']:.0f}% of "
+          "those with approvals received.",
+          "Calculation",
+          [src("data/raw/eia860m_archive/december_generator2021.xlsx", "sheet Planned, Status"),
+           src("data/raw/eia860m/august_generator2026.xlsx", "sheets Operating, Retired")],
+          ["Planned units of at least 5 MW in December 2021, by status code: (P) approvals not initiated = Not started, "
+           "(L) approvals pending = Applied, (T) approvals received = Approved.",
+           "Built = the same plant and generator ID appears as operating (or since retired) in the current file.",
+           "Odds ratio against Not started; the score adds its log as a driver."],
+          {"columns": ["Permits", "Units", "Built", "Odds vs not started"], "rows": rows},
+          "EIA's planned list holds projects close to construction, not early queue requests, and the sample is small.",
+          SCORE_USE, "project_model.py")
+
+
+def c27_assumptions():
+    pr = json.loads((PROCESSED / "project_model.json").read_text())["priors"]
+    rows = [[k.title(), lv, f"×{v:.2f}"] for k, d in pr.items() for lv, v in d.items()]
+    rows.append(["Stage", "Under construction", "90% built"])
+    claim("C27", "Score inputs that are assumptions", "local opposition, offtake, construction",
+          "No public dataset links local opposition or offtake contracts to queue outcomes. Until users' outcomes "
+          "calibrate them, the score applies these team estimates (marked * on the page).",
+          "Assumption-based arithmetic",
+          [{"name": "Team assumption", "file": "pipeline/project_model.py", "detail": "PRIORS", "url": None, "retrieved": ""}],
+          ["Each answer multiplies the odds of reaching operation by the factor shown.",
+           "Under construction is scored at 90%, as in the map's queue weights (C17).",
+           "Remaining time under construction is taken as 0.5–2 years."],
+          {"columns": ["Input", "Answer", "Odds multiplier"], "rows": rows},
+          "Judgement, not data. County ordinance data (C24) shows only a small effect in public records, so "
+          "project-specific opposition is left to the developer's answer.",
+          SCORE_USE, "project_model.py")
+
+
 def main():
     lb = read_lbnl_raw()
     b = gpd.read_parquet(PROCESSED / "buses.parquet")
@@ -643,6 +743,10 @@ def main():
     c21_cost_time()
     c22_risk_grades()
     c23_unit_costs()
+    c24_project_model()
+    c25_cost_outcome()
+    c26_permits()
+    c27_assumptions()
     out = {"generated": str(date.today()), "claims": CLAIMS}
     (MAP_DATA / "claims.json").write_text(json.dumps(out, indent=1, default=str), encoding="utf-8")
     for c in CLAIMS:

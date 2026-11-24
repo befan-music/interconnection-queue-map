@@ -62,6 +62,7 @@ Every downloaded file is logged with URL, retrieval time and SHA-256 in `data/ra
 | 5b | `cost_data.py`: LBNL cost studies in one table (2024 $), placed on buses | `data/interim/cost_projects.parquet` |
 | 6 | `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case, five tightest constraints per bus | `data/processed/*.parquet`, `model_summary.json` |
 | 6b | `risk_model.py`: cost, time, queue-ahead simulation and risk index per bus and project size | `data/processed/risk.parquet`, `risk_meta.json` |
+| 6c | `project_model.py`: project risk score (chance to reach operation) from LBNL outcomes, cost studies, EIA-860M permits, NREL ordinances | `map/data/{score,comps}.json` |
 | 7 | `export_map.py`: compact JSON for the browser | `map/data/*.json` |
 | 8 | `claims.py`: recomputes every number cited in our documents, with sources and steps | `map/data/claims.json` (atlas panel *Claims & calculations*) |
 
@@ -133,6 +134,22 @@ Signals: **green** ≥ 250 MW after queue · **yellow** 75–250 MW · **red** <
 - **Risk index** = 100 − (35% cost score + 30% time score + 35% capacity fit); grades A < 25 … E ≥ 70.
   Weights are adjustable in the map. Anchors: cost 100 at $25/kW, 0 at $400/kW; time 100 at 2.5 years,
   0 at 8 years (judgement calls, claim C22).
+
+## Project risk score ("Score my project")
+
+A developer picks the substation they applied at and fills in a short form (technology, size, stage,
+queue date, target date, study cost, permits, local opposition, offtake, parallel filings). The page returns
+the chance of reaching operation, the chance of being online by the target year, the expected online year,
+network-upgrade cost, the drivers in percentage points, and comparable past projects. It exports to PDF.
+
+- **Public attributes** (C24): logistic regression on 19,761 LBNL requests filed 2000–2019 (active ones
+  weighted by their stage odds). AUC 0.67 vs 0.58 for region alone; the lowest-rated tenth was 9% built,
+  the highest 49%. A second fit after an interconnection agreement scores later stages.
+- **Study cost** (C25): 63% of requests assigned < $10/kW of network upgrades were built, 3% of those > $400/kW.
+- **Permits** (C26): EIA-860M planned units, December 2021 → today: 32% built with approvals not started,
+  49% with approvals received.
+- **Local opposition, offtake, construction** (C27): team assumptions, marked * on the page.
+- **Time**: comparable built projects (same region, technology, ±2× size), conditioned on years already in the queue.
 
 ## Limitations (what public data cannot give)
 

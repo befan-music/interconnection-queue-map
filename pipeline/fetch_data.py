@@ -113,6 +113,23 @@ def eia860m():
                 return
 
 
+def eia860m_archive():
+    """EIA-860M December 2021: permit status of planned units, compared with today's file to see
+    which were built (project_model.py). Kept in its own folder: prepare_eia.py reads the newest
+    file in data/raw/eia860m by name."""
+    download("EIA-860M (archive, Dec 2021)",
+             "https://www.eia.gov/electricity/data/eia860m/archive/xls/december_generator2021.xlsx",
+             RAW / "eia860m_archive" / "december_generator2021.xlsx")
+
+
+def ordinances():
+    """NREL U.S. wind and solar siting regulation and zoning ordinances (2025, OpenEI 8519 / 8602)."""
+    for sub, name, dest in ((8519, "Wind Ordinances 2025 (1).xlsx", "wind_ordinances_2025.xlsx"),
+                            (8602, "Solar Ordinances 2025.xlsx", "solar_ordinances_2025.xlsx")):
+        download("NREL siting ordinances (OpenEI)", f"https://data.openei.org/files/{sub}/{name}",
+                 RAW / "ordinances" / dest)
+
+
 # --- Load ------------------------------------------------------------------------------
 
 def eia930():
@@ -227,7 +244,7 @@ def census():
 
 
 SOURCES = {f.__name__: f for f in (
-    hifld_lines, control_areas, blm_solar, eia860, eia860m, eia930, lbnl_queue, caiso_queue,
+    hifld_lines, control_areas, blm_solar, eia860, eia860m, eia860m_archive, ordinances, eia930, lbnl_queue, caiso_queue,
     miso_queue, spp_queue, nyiso_queue, pjm_queue, ercot_queue, isone_queue, lbnl_costs, miso_cost_guide, census,
     osm_substations)}
 

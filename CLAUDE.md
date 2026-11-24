@@ -19,6 +19,8 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
   6. `build_model.py`: load, dispatch, DC power flow, PTDF headroom, queue-loaded case; saves the five
      tightest constraints per bus (`bus_constraints.parquet`)
      6b. `risk_model.py`: risk per bus × project size (cost, time, queue-ahead simulation, fit, index)
+     6c. `project_model.py`: project risk score for the map's "Score my project" dialog (`score.json`,
+     `comps.json`); reuses `success_factors.py` (exploratory analysis of LBNL outcomes)
   7. `export_map.py`: compact JSON for the web map
   8. `claims.py`: recomputes every quantitative claim (C1–C23) with sources and steps into
      `map/data/claims.json`, shown in the map's "Claims & calculations" panel. Rule: any new number
@@ -63,6 +65,14 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
   operation × cost-tier multiplier; fit = queue simulation + log-normal model error (σ 0.5); index =
   100 − weighted score (35/30/35). Validation: red substations' studies cost ~1.8× green (C20).
 - **Signals:** green ≥ 250 MW after queue, yellow 75–250, red < 75 or queue > 1.5× N-1 branch capacity.
+- **Project risk score** (`project_model.py`, claims C24–C27): every input is a log-odds term so the page can
+  show it as a driver. Validated: region, technology, size, POI voltage, parallel filings, county ordinance
+  (LBNL 2000–2019, AUC 0.67), study cost (LBNL cost studies), permits (EIA-860M Dec 2021 vs today).
+  Assumptions: local opposition, offtake, 90% under construction. Left out on purpose: service type
+  (recorded inconsistently by region) and proposed COD (LBNL stores the latest date, which leaks the
+  outcome). Modelled headroom showed no clean signal against past outcomes, so it is context, not a driver.
+  The EIA-860M archive lives in `data/raw/eia860m_archive/` because `prepare_eia.py` takes the
+  alphabetically last file in `data/raw/eia860m/`.
 
 ## Known limitations
 

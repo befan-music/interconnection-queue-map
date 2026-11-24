@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-11",
+ "generated": "2026-11-24",
  "claims": [
   {
    "id": "C1",
@@ -2197,6 +2197,473 @@
     "Atlas: risk assessment (upgrade list)"
    ],
    "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/risk_model.py"
+  },
+  {
+   "id": "C24",
+   "title": "What predicts that a project reaches operation",
+   "value": "AUC 0.67 \u00b7 9% \u2192 49% built",
+   "statement": "Among 18,099 requests filed 2000\u20132019 that were built or withdrawn, the tenth our model rates lowest was 9% built and the tenth it rates highest 49%. Discrimination (AUC) is 0.67 in 5-fold cross-validation, against 0.58 for region alone (what the map's queue weights use).",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL Queued Up (2026 ed.)",
+     "file": "data/raw/queues/lbnl_queued_up_thru2025.xlsx",
+     "detail": "sheet '03. Complete Queue Data', columns q_year, q_status, IA_phase_clean, ia_date, type_clean, mw_1-3, region, fips_code, poi_name, q_date",
+     "url": "https://emp.lbl.gov/sites/default/files/2026-05/LBNL_Ix_Queue_Data_File_thru2025.xlsx",
+     "retrieved": "2026-10-22"
+    },
+    {
+     "name": "NREL siting ordinances (OpenEI)",
+     "file": "data/raw/ordinances/solar_ordinances_2025.xlsx",
+     "detail": "sheet County-Level",
+     "url": "https://data.openei.org/files/8602/Solar Ordinances 2025.xlsx",
+     "retrieved": "2026-11-24"
+    },
+    {
+     "name": "NREL siting ordinances (OpenEI)",
+     "file": "data/raw/ordinances/wind_ordinances_2025.xlsx",
+     "detail": "sheet County-Level",
+     "url": "https://data.openei.org/files/8519/Wind Ordinances 2025 (1).xlsx",
+     "retrieved": "2026-11-24"
+    }
+   ],
+   "method": [
+    "Keep requests filed 2000\u20132019. Built = 1, withdrawn = 0; the 1,662 still active count fractionally with their region \u00d7 stage odds (C17).",
+    "Features known at filing: region, technology, size, POI voltage, other requests in the same county and technology filed within 60 days (parallel filings), the county's NREL siting ordinance (restrictive = ban, project-size cap, or setback \u2265 2,000 ft for wind / \u2265 500 ft for solar from non-participating homes), entry era.",
+    "Regularised logistic regression (L2 = 1). A second fit on requests that signed an interconnection agreement (7,895) scores projects past that stage; late study takes the midpoint.",
+    "Coefficients are centred on the training mix, so \u00d71.00 = typical; the page shows each as percentage points.",
+    "Out-of-time check: trained on 2000\u20132014 filings, AUC 0.60 on 2015\u20132019; it predicted 25% built against 19% resolved so far."
+   ],
+   "table": {
+    "columns": [
+     "Factor",
+     "Level",
+     "Odds vs typical"
+    ],
+    "rows": [
+     [
+      "Region",
+      "ERCOT",
+      "\u00d72.42"
+     ],
+     [
+      "Region",
+      "ISO-NE",
+      "\u00d71.18"
+     ],
+     [
+      "Region",
+      "SPP",
+      "\u00d71.12"
+     ],
+     [
+      "Region",
+      "MISO",
+      "\u00d71.06"
+     ],
+     [
+      "Region",
+      "NYISO",
+      "\u00d71.05"
+     ],
+     [
+      "Region",
+      "PJM",
+      "\u00d71.02"
+     ],
+     [
+      "Region",
+      "Southeast",
+      "\u00d70.86"
+     ],
+     [
+      "Region",
+      "West",
+      "\u00d70.80"
+     ],
+     [
+      "Region",
+      "CAISO",
+      "\u00d70.78"
+     ],
+     [
+      "Technology",
+      "Hydro/geo/nuclear",
+      "\u00d72.61"
+     ],
+     [
+      "Technology",
+      "Coal/oil",
+      "\u00d72.57"
+     ],
+     [
+      "Technology",
+      "Gas",
+      "\u00d71.71"
+     ],
+     [
+      "Technology",
+      "Solar+Storage",
+      "\u00d71.67"
+     ],
+     [
+      "Technology",
+      "Other/hybrid",
+      "\u00d71.06"
+     ],
+     [
+      "Technology",
+      "Wind",
+      "\u00d70.90"
+     ],
+     [
+      "Technology",
+      "Storage",
+      "\u00d70.77"
+     ],
+     [
+      "Technology",
+      "Solar",
+      "\u00d70.74"
+     ],
+     [
+      "Technology",
+      "Offshore wind",
+      "\u00d70.60"
+     ],
+     [
+      "Size",
+      "<20 MW",
+      "\u00d71.63"
+     ],
+     [
+      "Size",
+      "20-50 MW",
+      "\u00d71.21"
+     ],
+     [
+      "Size",
+      "50-100 MW",
+      "\u00d71.08"
+     ],
+     [
+      "Size",
+      "100-200 MW",
+      "\u00d70.87"
+     ],
+     [
+      "Size",
+      "200-500 MW",
+      "\u00d70.66"
+     ],
+     [
+      "Size",
+      ">500 MW",
+      "\u00d70.29"
+     ],
+     [
+      "POI voltage",
+      "500+ kV",
+      "\u00d71.98"
+     ],
+     [
+      "POI voltage",
+      "345 kV",
+      "\u00d71.51"
+     ],
+     [
+      "POI voltage",
+      "230 kV",
+      "\u00d71.36"
+     ],
+     [
+      "POI voltage",
+      "100-150 kV",
+      "\u00d71.05"
+     ],
+     [
+      "POI voltage",
+      "unknown",
+      "\u00d70.81"
+     ],
+     [
+      "POI voltage",
+      "<100 kV",
+      "\u00d70.74"
+     ],
+     [
+      "Same county & technology filed within 60 days",
+      "1-2",
+      "\u00d71.03"
+     ],
+     [
+      "Same county & technology filed within 60 days",
+      "none",
+      "\u00d71.03"
+     ],
+     [
+      "Same county & technology filed within 60 days",
+      "3+",
+      "\u00d70.88"
+     ],
+     [
+      "County siting ordinance (solar/wind)",
+      "none",
+      "\u00d71.01"
+     ],
+     [
+      "County siting ordinance (solar/wind)",
+      "ordinance",
+      "\u00d70.97"
+     ],
+     [
+      "County siting ordinance (solar/wind)",
+      "restrictive",
+      "\u00d70.95"
+     ]
+    ]
+   },
+   "caveats": "Public attributes explain only part of the outcome; site control, financing and offtake are not in the data. Service type (NRIS/ERIS) and the proposed online date were left out: regions record them inconsistently, and LBNL stores the latest proposed date, which leaks the outcome. The ordinance data was extracted with LLMs by NREL and most ordinances post-date the 2000\u20132019 filings.",
+   "used_in": [
+    "Atlas: Score my project",
+    "README"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/project_model.py"
+  },
+  {
+   "id": "C25",
+   "title": "Expensive studies end in withdrawal",
+   "value": "63% built under $10/kW \u2192 3% over $400/kW",
+   "statement": "Of 2,883 studied requests that were later built or withdrawn, 63% of those assigned under $10/kW of network upgrades were built, against 3% of those assigned over $400/kW. The score uses the developer's own study cost when given.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "LBNL interconnection costs (MISO)",
+     "file": "data/raw/costs/miso_costs_2021_clean_data.xlsx",
+     "detail": "Request Status, network cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/miso_costs_2021_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (PJM)",
+     "file": "data/raw/costs/pjm_costs_2022_clean_data.xlsx",
+     "detail": "Request Status, network cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/pjm_costs_2022_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (SPP)",
+     "file": "data/raw/costs/spp_costs_2023_clean_data.xlsx",
+     "detail": "Request Status, network cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/spp_costs_2023_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (NYISO)",
+     "file": "data/raw/costs/nyiso_2022_final_data_cleaned_publication_vfinal.xlsx",
+     "detail": "Request Status, network cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/nyiso_2022_final_data_cleaned_publication_vfinal.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (ISO-NE)",
+     "file": "data/raw/costs/isone_interconnection_cost_data_publication_vfinal.xlsx",
+     "detail": "Request Status, network cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/isone_interconnection_cost_data_publication_vfinal.xlsx",
+     "retrieved": "2026-11-12"
+    },
+    {
+     "name": "LBNL interconnection costs (Non-ISO BAs)",
+     "file": "data/raw/costs/ba_costs_2024_clean_data.xlsx",
+     "detail": "Request Status, network cost per kW",
+     "url": "https://eta-publications.lbl.gov/sites/default/files/2026-02/ba_costs_2024_clean_data.xlsx",
+     "retrieved": "2026-11-12"
+    }
+   ],
+   "method": [
+    "Keep cost-study projects whose status is Withdrawn, Complete or Operational and that have a network cost.",
+    "Built share by network-cost tier.",
+    "Logistic regression built ~ cost tier + region; tier coefficients centred on the tier mix (odds column). Applied only before an interconnection agreement is signed."
+   ],
+   "table": {
+    "columns": [
+     "Network cost",
+     "Studied requests",
+     "Built",
+     "Odds vs typical"
+    ],
+    "rows": [
+     [
+      "<$10/kW",
+      "1,192",
+      "63%",
+      "\u00d72.93"
+     ],
+     [
+      "$10-50/kW",
+      "439",
+      "54%",
+      "\u00d71.98"
+     ],
+     [
+      "$50-150/kW",
+      "395",
+      "44%",
+      "\u00d71.24"
+     ],
+     [
+      "$150-400/kW",
+      "372",
+      "18%",
+      "\u00d70.38"
+     ],
+     [
+      ">$400/kW",
+      "485",
+      "3%",
+      "\u00d70.07"
+     ]
+    ]
+   },
+   "caveats": "Cost is known only after a study, so it applies to projects already studied. ERCOT and CAISO are not covered.",
+   "used_in": [
+    "Atlas: Score my project",
+    "README"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/project_model.py"
+  },
+  {
+   "id": "C26",
+   "title": "Permitted projects get built more often",
+   "value": "32% \u2192 49% built",
+   "statement": "Of planned units on EIA's December 2021 list, 32% of those whose regulatory approvals had not started were operating by the current file, against 49% of those with approvals received.",
+   "kind": "Calculation",
+   "sources": [
+    {
+     "name": "EIA-860M (archive, Dec 2021)",
+     "file": "data/raw/eia860m_archive/december_generator2021.xlsx",
+     "detail": "sheet Planned, Status",
+     "url": "https://www.eia.gov/electricity/data/eia860m/archive/xls/december_generator2021.xlsx",
+     "retrieved": "2026-11-24"
+    },
+    {
+     "name": "EIA-860M",
+     "file": "data/raw/eia860m/august_generator2026.xlsx",
+     "detail": "sheets Operating, Retired",
+     "url": "https://www.eia.gov/electricity/data/eia860m/xls/august_generator2026.xlsx",
+     "retrieved": "2026-10-22"
+    }
+   ],
+   "method": [
+    "Planned units of at least 5 MW in December 2021, by status code: (P) approvals not initiated = Not started, (L) approvals pending = Applied, (T) approvals received = Approved.",
+    "Built = the same plant and generator ID appears as operating (or since retired) in the current file.",
+    "Odds ratio against Not started; the score adds its log as a driver."
+   ],
+   "table": {
+    "columns": [
+     "Permits",
+     "Units",
+     "Built",
+     "Odds vs not started"
+    ],
+    "rows": [
+     [
+      "Not started",
+      "294",
+      "32%",
+      "\u00d71.00"
+     ],
+     [
+      "Applied",
+      "153",
+      "40%",
+      "\u00d71.47"
+     ],
+     [
+      "Approved",
+      "142",
+      "49%",
+      "\u00d72.05"
+     ]
+    ]
+   },
+   "caveats": "EIA's planned list holds projects close to construction, not early queue requests, and the sample is small.",
+   "used_in": [
+    "Atlas: Score my project",
+    "README"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/project_model.py"
+  },
+  {
+   "id": "C27",
+   "title": "Score inputs that are assumptions",
+   "value": "local opposition, offtake, construction",
+   "statement": "No public dataset links local opposition or offtake contracts to queue outcomes. Until users' outcomes calibrate them, the score applies these team estimates (marked * on the page).",
+   "kind": "Assumption-based arithmetic",
+   "sources": [
+    {
+     "name": "Team assumption",
+     "file": "pipeline/project_model.py",
+     "detail": "PRIORS",
+     "url": null,
+     "retrieved": ""
+    }
+   ],
+   "method": [
+    "Each answer multiplies the odds of reaching operation by the factor shown.",
+    "Under construction is scored at 90%, as in the map's queue weights (C17).",
+    "Remaining time under construction is taken as 0.5\u20132 years."
+   ],
+   "table": {
+    "columns": [
+     "Input",
+     "Answer",
+     "Odds multiplier"
+    ],
+    "rows": [
+     [
+      "Opposition",
+      "None known",
+      "\u00d71.00"
+     ],
+     [
+      "Opposition",
+      "Some concerns",
+      "\u00d70.75"
+     ],
+     [
+      "Opposition",
+      "Organized / litigation",
+      "\u00d70.45"
+     ],
+     [
+      "Offtake",
+      "None",
+      "\u00d71.00"
+     ],
+     [
+      "Offtake",
+      "Negotiating",
+      "\u00d71.30"
+     ],
+     [
+      "Offtake",
+      "Signed",
+      "\u00d72.00"
+     ],
+     [
+      "Stage",
+      "Under construction",
+      "90% built"
+     ]
+    ]
+   },
+   "caveats": "Judgement, not data. County ordinance data (C24) shows only a small effect in public records, so project-specific opposition is left to the developer's answer.",
+   "used_in": [
+    "Atlas: Score my project",
+    "README"
+   ],
+   "code": "https://github.com/befan-music/interconnection-queue-map/blob/main/pipeline/project_model.py"
   }
  ]
 }
