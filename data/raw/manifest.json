@@ -111,6 +111,14 @@
     "source": "EIA-860M",
     "url": "https://www.eia.gov/electricity/data/eia860m/xls/august_generator2026.xlsx"
   },
+  "data/raw/eia860m_archive/december_generator2021.xlsx": {
+    "bytes": 8786363,
+    "note": "",
+    "retrieved_utc": "2026-11-24T17:41:03+00:00",
+    "sha256": "b66eab4a167c493d530d59792930f88e69bb934b88831e9795f0e779bd642698",
+    "source": "EIA-860M (archive, Dec 2021)",
+    "url": "https://www.eia.gov/electricity/data/eia860m/archive/xls/december_generator2021.xlsx"
+  },
   "data/raw/eia930/EIA930_BALANCE_Jul_Dec.csv": {
     "bytes": 29542945,
     "note": "",
@@ -134,6 +142,22 @@
     "sha256": "e42408238867bfc32a33de8c9e5a0dfb6999bc18a0a872241ad4823dc8c2f586",
     "source": "HIFLD Electric Power Transmission Lines",
     "url": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0"
+  },
+  "data/raw/ordinances/solar_ordinances_2025.xlsx": {
+    "bytes": 4197277,
+    "note": "",
+    "retrieved_utc": "2026-11-24T17:45:47+00:00",
+    "sha256": "8bceb085ddb76117176c326aa42b35fe0eca983a2ebc1760fca57ce32320dca7",
+    "source": "NREL siting ordinances (OpenEI)",
+    "url": "https://data.openei.org/files/8602/Solar Ordinances 2025.xlsx"
+  },
+  "data/raw/ordinances/wind_ordinances_2025.xlsx": {
+    "bytes": 2733185,
+    "note": "",
+    "retrieved_utc": "2026-11-24T17:45:42+00:00",
+    "sha256": "1178c79bff4eb88ed423639ccea0af3b1120d4b63c32ae5138bd2fdcacf9268f",
+    "source": "NREL siting ordinances (OpenEI)",
+    "url": "https://data.openei.org/files/8519/Wind Ordinances 2025 (1).xlsx"
   },
   "data/raw/osm/substations_US-AL.json": {
     "bytes": 568509,
