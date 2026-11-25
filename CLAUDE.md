@@ -29,6 +29,9 @@ ahead. Product thesis: `context.md`. Market analysis (TAM/SAM/SOM, competitors, 
   Run locally with `python -I pipeline/serve_map.py` (wraps it into `_site/` like the Pages workflow).
   UI rule: keep on-page text minimal (data, labels, colour keys); explanations and definitions go behind
   "i" buttons (`<button class="info" data-info="key">`, text in the `INFO` object in `index.html`).
+  The side panel is a 3-step flow: 1 Project (developer's inputs, `SC` object) → 2 Location (search or
+  click; map coloured by risk grade for that size) → 3 Score (result + PDF export). Lenses, layers and
+  filters sit in a collapsed "Map options"; risk weights are fixed at the defaults (no UI).
 - `data/`: git-ignored, re-create with `python -I pipeline/run_all.py --fetch` (~1 h, OSM is slowest)
 
 ## Environment notes (Windows)

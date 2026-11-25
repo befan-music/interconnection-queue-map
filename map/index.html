@@ -104,7 +104,7 @@ legend { padding: 0; margin-bottom: 4px; }
 .check em { font-style: normal; color: var(--muted); font-size: 12px; margin-left: auto; }
 .ctl-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .ctl-row label, .search label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
-select, input[type="search"], input[type="number"] {
+select, input[type="search"], input[type="number"], input[type="text"] {
   border: 1px solid var(--rule); background: var(--panel-2); border-radius: 6px; padding: 6px 8px; width: 100%; min-width: 0;
 }
 .search { position: relative; }
@@ -227,17 +227,34 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
 @media (max-width: 560px) { details.claim summary { grid-template-columns: auto 1fr; } .cval { grid-column: 1 / -1; text-align: left; } }
 /* ---- project risk score ---- */
 .cta { border: 0; border-radius: 8px; background: var(--accent); color: var(--accent-ink); font: 600 16px/1 var(--f-display); letter-spacing: .02em; padding: 10px 12px; }
-#score { width: min(1000px, calc(100vw - 32px)); }
-.sc-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-.sc-head h2 { margin: 0; font: 700 28px/1.05 var(--f-display); }
-.sc-actions { display: flex; align-items: center; gap: 14px; }
-.sc { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; }
-.sc-form { display: grid; gap: 12px; min-width: 0; }
-.sc-form input, .sc-form select { box-sizing: border-box; }
-.f2 label { min-width: 0; }
-#score .plist li { max-width: none; }
-.sc-poi { display: grid; gap: 6px; }
-.sc-poi small { color: var(--muted); }
+.rail { width: 380px; bottom: auto; max-height: calc(100% - 24px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)); }
+.steps { list-style: none; margin: 6px 0 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.steps button { width: 100%; display: flex; align-items: center; gap: 7px; padding: 7px 8px; border-radius: 8px; border: 1px solid var(--rule);
+  background: var(--panel-2); font: 600 15px/1 var(--f-display); letter-spacing: .02em; color: var(--muted); }
+.steps b { display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: var(--rule); color: var(--ink); font: 600 12px/1 var(--f-mono); }
+.steps button.done b { background: var(--good); color: var(--panel); }
+.steps button[aria-current="step"] { border-color: var(--accent); color: var(--ink); background: color-mix(in srgb, var(--accent) 10%, var(--panel)); }
+.steps button[aria-current="step"] b { background: var(--accent); color: var(--accent-ink); }
+.steps button:disabled { opacity: .45; cursor: default; }
+.step { display: grid; gap: 14px; align-content: start; min-width: 0; }
+.step input, .step select { box-sizing: border-box; }
+.f2 label, .f1 label { min-width: 0; }
+.f1 label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
+.selcard { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; align-items: center; padding: 12px; border-radius: 8px; background: var(--panel-2); border-left: 4px solid var(--c); }
+.selcard small { display: block; color: var(--muted); font-size: 12px; }
+.btn-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.btn-row .cta { flex: 1; }
+.res-head { display: grid; gap: 2px; }
+.res-head b { font: 700 22px/1.1 var(--f-display); }
+.res-head small { color: var(--muted); font-size: 12.5px; }
+.mapopts { border-top: 1px solid var(--rule); padding-top: 10px; display: grid; gap: 12px; }
+.mapopts[open] { gap: 12px; }
+.mapopts summary { cursor: pointer; color: var(--muted); font-size: 12.5px; font-weight: 600; }
+.mapopts > :not(summary) { margin-top: 10px; }
+.mapkey { position: absolute; z-index: 3; left: 412px; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  max-width: calc(100vw - 500px); padding: 6px 10px; border-radius: 8px; background: color-mix(in srgb, var(--panel) 92%, transparent); border: 1px solid var(--rule); box-shadow: var(--shadow); font-size: 12px; }
+.mapkey .k { display: inline-flex; align-items: center; gap: 4px; }
+.mapkey .eyebrow { font-size: 10.5px; }
 .f2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .f2 label, .segf > span { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
 .segf { display: grid; gap: 4px; }
@@ -259,7 +276,6 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
 .drv .axis span { position: absolute; top: 0; bottom: 0; border-radius: 4px; }
 .drv .num { text-align: right; }
 .print-only { display: none; }
-@media (max-width: 760px) { .sc { grid-template-columns: 1fr; } }
 .loading { position: absolute; inset: 0; z-index: 20; display: grid; place-items: center; background: var(--bg); }
 .loading div { display: grid; gap: 6px; justify-items: center; color: var(--muted); }
 .loading b { font: 700 26px/1 var(--f-display); color: var(--ink); }
@@ -272,6 +288,7 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
   .inspector { top: auto; left: 0; right: 0; bottom: 0; width: auto; max-height: 70%; border-radius: 12px 12px 0 0; z-index: 7; padding-bottom: env(safe-area-inset-bottom, 0px); }
   .zoom { top: calc(12px + env(safe-area-inset-top, 0px)); bottom: auto; }
   .attrib { top: calc(12px + env(safe-area-inset-top, 0px)); bottom: auto; right: auto; left: max(12px, env(safe-area-inset-left, 0px)); }
+  .mapkey { left: max(12px, env(safe-area-inset-left, 0px)); bottom: auto; top: calc(56px + env(safe-area-inset-top, 0px)); max-width: calc(100vw - 80px); }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
 @media print {
@@ -279,13 +296,11 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
     --bg: #ffffff; --panel: #ffffff; --panel-2: #f2f5f6; --ink: #16202a; --muted: #5a6772; --rule: #d6dde1;
     --accent: #b05d27; --accent-ink: #ffffff; --good: #16905c; --warn: #c98f00; --bad: #cc3a3a; color-scheme: light; }
   html, body { height: auto; overflow: visible; background: #fff; }
-  body > *:not(#score) { display: none !important; }
-  #score { position: static; display: block; width: 100%; max-width: none; max-height: none; border: 0; box-shadow: none; margin: 0; }
-  #score::backdrop { display: none; }
-  #score .dlg { max-height: none; overflow: visible; padding: 0; }
-  .no-print, .info, .pop { display: none !important; }
+  body > *:not(#rail) { display: none !important; }
+  .rail { position: static !important; inset: auto !important; width: auto !important; max-height: none !important; border: 0; border-radius: 0; box-shadow: none; overflow: visible; }
+  .rail-body { overflow: visible; padding: 0; }
+  .rail-head, .rail-foot, .step:not([data-pane="3"]), .no-print, .info, .pop { display: none !important; }
   .print-only { display: grid !important; }
-  .sc { grid-template-columns: 1fr; }
   .plist { max-height: none; overflow: visible; }
 }
 </style>
@@ -294,18 +309,37 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
 
 <div class="loading" id="loading"><div><b>Interconnection Headroom Atlas</b><span id="loadmsg">Loading grid model…</span></div></div>
 
-<aside class="rail" id="rail" aria-label="Map controls">
+<aside class="rail" id="rail" aria-label="Project risk score">
   <div class="rail-head">
     <div class="brand"><span class="title"><h1>Interconnection <span>Headroom</span> Atlas</h1><button class="info" data-info="about" aria-label="About this map">i</button></span><button class="rail-toggle" id="railToggle" aria-expanded="true">Hide</button></div>
+    <ol class="steps" id="steps">
+      <li><button data-step="1"><b>1</b>Project</button></li>
+      <li><button data-step="2"><b>2</b>Location</button></li>
+      <li><button data-step="3"><b>3</b>Score</button></li>
+    </ol>
   </div>
-  <div class="rail-body">
-    <div class="sec">
-      <span class="eyebrow">What are you siting?</span>
-      <div class="project">
-        <label for="psize">Project size<select id="psize"><option value="0">50 MW</option><option value="1">100 MW</option><option value="2" selected>200 MW</option><option value="3">300 MW</option><option value="4">500 MW</option><option value="5">1,000 MW</option></select></label>
-        <button class="cta" id="openScore">Score my project</button>
+  <div class="rail-body" id="railBody">
+    <!-- step 1: the developer's own project -->
+    <section class="step" data-pane="1" id="projForm"></section>
+
+    <!-- step 2: where it connects -->
+    <section class="step" data-pane="2" hidden>
+      <div class="search">
+        <label for="q">Substation<input type="search" id="q" placeholder="Search, or click the map" autocomplete="off"></label>
+        <ul class="results" id="results" hidden></ul>
       </div>
-      <div class="eyebrow-row"><span class="eyebrow">Map lens</span><button class="info" data-info="lens" aria-label="What this lens shows">i</button></div>
+      <div id="selCard"></div>
+      <div class="sites">
+        <div class="eyebrow-row"><span class="eyebrow" id="sitesTitle">Best sites in view</span><button class="info" data-info="sites" aria-label="How sites are ranked">i</button></div>
+        <div id="sites"></div>
+      </div>
+    </section>
+
+    <!-- step 3: the score -->
+    <section class="step" data-pane="3" hidden><div class="sc-out" id="scoreOut" aria-live="polite"></div></section>
+
+    <details class="mapopts no-print">
+      <summary>Map options</summary>
       <div class="lens" role="group" aria-label="Map lens">
         <button data-lens="risk" aria-pressed="true" class="wide"><b>Risk assessment</b></button>
         <button data-lens="gen" aria-pressed="false"><b>Generation</b></button>
@@ -313,36 +347,20 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
         <button data-lens="queue" aria-pressed="false"><b>Queue pressure</b></button>
         <button data-lens="storage" aria-pressed="false"><b>Storage</b></button>
       </div>
-      <details class="weights" id="weights"><summary>Risk weights <button class="info" data-info="weights" aria-label="How weights work">i</button></summary>
-        <div class="w"><label for="wCost">Cost</label><input type="range" id="wCost" min="0" max="100" value="35"><span class="num" id="wCostV">35%</span></div>
-        <div class="w"><label for="wTime">Time</label><input type="range" id="wTime" min="0" max="100" value="30"><span class="num" id="wTimeV">30%</span></div>
-        <div class="w"><label for="wFit">Capacity</label><input type="range" id="wFit" min="0" max="100" value="35"><span class="num" id="wFitV">35%</span></div>
-      </details>
-    </div>
-    <div class="tally" id="tally"></div>
-    <div class="legend" id="legend"></div>
-    <div class="sec search">
-      <label for="q">Find a substation<input type="search" id="q" placeholder="e.g. Lamont, Vincent, Bearkat" autocomplete="off"></label>
-      <ul class="results" id="results" hidden></ul>
-    </div>
-    <div class="ctl-row">
-      <label for="minkv">Bus voltage<select id="minkv"><option value="0">All (≥100 kV)</option><option value="115">≥ 115 kV</option><option value="230" selected>≥ 230 kV</option><option value="345">≥ 345 kV</option><option value="500">≥ 500 kV</option></select></label>
-      <label for="linecolor">Lines colored by<select id="linecolor"><option value="kv">Voltage</option><option value="load">Modeled loading</option><option value="loadq">Loading with queue</option></select></label>
-    </div>
-    <fieldset>
-      <legend class="eyebrow">Layers</legend>
-      <label class="check"><input type="checkbox" id="L-lines" checked> Transmission lines <em id="c-lines"></em></label>
-      <label class="check"><input type="checkbox" id="L-buses" checked> Substations &amp; taps <em id="c-buses"></em></label>
-      <label class="check"><input type="checkbox" id="L-named"> Named substations only</label>
-      <label class="check"><input type="checkbox" id="L-queue"> Active queue at each bus <em id="c-queue"></em></label>
-      <label class="check"><input type="checkbox" id="L-plants"> Existing power plants <em id="c-plants"></em></label>
-      <label class="check"><input type="checkbox" id="L-ba"> Balancing authorities</label>
-      <label class="check"><input type="checkbox" id="L-blm"> BLM land open to solar</label>
-    </fieldset>
-    <div class="sites">
-      <div class="eyebrow-row"><span class="eyebrow" id="sitesTitle">Best sites in view</span><button class="info" data-info="sites" aria-label="How sites are ranked">i</button></div>
-      <div id="sites"></div>
-    </div>
+      <div class="ctl-row">
+        <label for="minkv">Bus voltage<select id="minkv"><option value="0">All (≥100 kV)</option><option value="115">≥ 115 kV</option><option value="230" selected>≥ 230 kV</option><option value="345">≥ 345 kV</option><option value="500">≥ 500 kV</option></select></label>
+        <label for="linecolor">Lines colored by<select id="linecolor"><option value="kv">Voltage</option><option value="load">Modeled loading</option><option value="loadq">Loading with queue</option></select></label>
+      </div>
+      <fieldset>
+        <label class="check"><input type="checkbox" id="L-lines" checked> Transmission lines <em id="c-lines"></em></label>
+        <label class="check"><input type="checkbox" id="L-buses" checked> Substations &amp; taps <em id="c-buses"></em></label>
+        <label class="check"><input type="checkbox" id="L-named"> Named substations only</label>
+        <label class="check"><input type="checkbox" id="L-queue"> Active queue at each bus <em id="c-queue"></em></label>
+        <label class="check"><input type="checkbox" id="L-plants"> Existing power plants <em id="c-plants"></em></label>
+        <label class="check"><input type="checkbox" id="L-ba"> Balancing authorities</label>
+        <label class="check"><input type="checkbox" id="L-blm"> BLM land open to solar</label>
+      </fieldset>
+    </details>
   </div>
   <div class="rail-foot"><span class="foot-links"><button class="linkbtn" id="openClaims">Claims &amp; calculations</button><button class="linkbtn" id="openMethod">Method &amp; sources</button></span></div>
 </aside>
@@ -352,13 +370,13 @@ details.claim summary:hover { background: var(--panel-2); border-radius: 8px; }
   <div class="insp-body" id="inspBody"></div>
 </section>
 
+<div class="mapkey" id="mapKey"></div>
 <div class="zoom"><button id="zin" aria-label="Zoom in">+</button><button id="zout" aria-label="Zoom out">−</button></div>
 <div class="attrib">HIFLD · EIA · ISO/RTO queues · LBNL · Census · © OpenStreetMap contributors</div>
 <div class="tip" id="tip" hidden></div>
 
 <dialog id="method" aria-labelledby="mTitle"><div class="dlg" id="methodBody"></div></dialog>
 <dialog id="claims" aria-labelledby="cTitle"><div class="dlg" id="claimsBody"></div></dialog>
-<dialog id="score" aria-labelledby="sTitle"><div class="dlg" id="scoreBody"></div></dialog>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.js"></script>
 <script>
@@ -394,7 +412,7 @@ function polyGeom(parts) {
 }
 
 async function load() {
-  const names = ["meta", "buses", "lines", "queue", "plants", "context", "claims", "risk"];
+  const names = ["meta", "buses", "lines", "queue", "plants", "context", "claims", "risk", "score", "comps"];
   const res = await Promise.all(names.map((n) => fetch(`data/${n}.json`).then((r) => { if (!r.ok) throw new Error(n); return r.json(); })));
   names.forEach((n, i) => D[n] = res[i]);
   const B = D.buses, Q = D.queue, P = D.plants, L = D.lines;
@@ -411,11 +429,9 @@ async function load() {
 const GRADES = ["A", "B", "C", "D", "E"];
 const GRADE_CUTS = [25, 40, 55, 70];
 const CONF = ["Low", "Medium", "High"];
-const sizeIdx = () => +$("#psize").value;
-function weights() {
-  const c = +$("#wCost").value, t = +$("#wTime").value, f = +$("#wFit").value, s = c + t + f || 1;
-  return { cost: c / s, time: t / s, fit: f / s };
-}
+// the map is scored for the developer's project size (nearest modelled size) with the default weights
+const sizeIdx = () => D.risk.sizes.reduce((b, s, k, a) => Math.abs(Math.log(s / SC.mw)) < Math.abs(Math.log(a[b] / SC.mw)) ? k : b, 0);
+const weights = () => D.risk.meta.weights;
 function riskOf(i, s = sizeIdx(), W = weights()) {
   const R = D.risk; if (!R.net[i]) return null;
   const P = R.sizes[s], poi = D.buses.poiM[i] * 1e6 / (P * 1e3), net = R.net[i][s];
@@ -558,29 +574,13 @@ const LENS = {
     legend: [["--store", "Candidate", "< 100 MW gen headroom, ≥ 150 MW of solar/wind (incl. 30% of queue)"], ["--na", "Other buses", ""]] },
 };
 
-function renderTally() {
-  const B = D.buses, cfg = LENS[lens], minkv = +$("#minkv").value; const c = [0, 0, 0, 0];
-  if (lens === "risk") {
-    const n = [0, 0, 0, 0, 0], col = gradeColors();
-    for (let i = 0; i < B.n; i++) if ((B.kv[i] || 0) >= minkv && D.rk.grade[i] < 5) n[D.rk.grade[i]]++;
-    $("#tally").className = "tally five"; $("#tally").style.gridTemplateColumns = "repeat(5, minmax(0, 1fr))";
-    $("#tally").innerHTML = n.map((v, g) => `<div><span class="v">${fmt(v)}</span><span class="k"><i class="dot" style="background:${col[g]}"></i>Grade ${GRADES[g]}</span></div>`).join("");
-    $("#legend").innerHTML = LINE_KEY;
-    return;
-  }
-  $("#tally").className = "tally";
-  for (let i = 0; i < B.n; i++) {
-    if ((B.kv[i] || 0) < minkv) continue;
-    if (lens === "storage") { c[B.sto[i] ? 0 : 3]++; continue; }
-    const v = lens === "gen" ? B.sig[i] : lens === "load" ? B.lsig[i] : qcat(i); c[v]++;
-  }
-  const items = lens === "storage" ? [[c[0], cfg.legend[0][0], "candidates"]] :
-    [[c[0], cfg.legend[0][0], cfg.legend[0][1]], [c[1], cfg.legend[1][0], cfg.legend[1][1]], [c[2], cfg.legend[2][0], cfg.legend[2][1]]];
-  $("#tally").style.gridTemplateColumns = `repeat(${items.length}, minmax(0, 1fr))`;
-  $("#tally").innerHTML = items.map(([v, t, k]) => `<div><span class="v">${fmt(v)}</span><span class="k"><i class="dot" style="background:var(${t})"></i>${esc(k)}</span></div>`).join("");
-  $("#legend").innerHTML = LINE_KEY;
+const LENS_NAME = { risk: "Risk grade", gen: "Generation headroom", load: "Large-load headroom", queue: "Queue pressure", storage: "Storage candidates" };
+function renderKey() {
+  // floating map key: what the substation colours mean for the active lens
+  const items = lens === "risk" ? GRADES.map((g, k) => [gradeColors()[k], g]) : LENS[lens].legend.map(([t, k]) => [`var(${t})`, k]);
+  $("#mapKey").innerHTML = `<span class="eyebrow">${esc(LENS_NAME[lens])}${lens === "risk" ? ` · ${fmt(SC.mw)} MW` : ""}</span>${items.map(([c, k]) =>
+    `<span class="k"><i class="dot" style="background:${c}"></i>${esc(k)}</span>`).join("")}<button class="info" data-info="lens" aria-label="What the colours mean">i</button>`;
 }
-const LINE_KEY = `<div class="row"><span class="ramp" style="background:linear-gradient(90deg,var(--line-lo),var(--line-mid),var(--line-hi))"></span><small class="note">Lines 100 → 765 kV</small></div>`;
 
 function renderSites() {
   if (!map) return;
@@ -625,7 +625,7 @@ function renderRiskSites() {
 function updateRisk() {
   computeRisk();
   map.getSource("buses").setData(busFC());
-  restyle(); renderTally(); renderSites();
+  restyle(); renderKey(); renderSites();
   if (selected?.kind === "bus") showBus(selected.i);
 }
 
@@ -737,7 +737,7 @@ function riskCard(i) {
       <div class="metric"><span class="k">Time to operation</span><span class="v">${fmt(r.yrs, 1)} yrs</span><span class="r">${fmt(r.yrs * dur.p25 / dur.p50, 1)}–${fmt(r.yrs * dur.p75 / dur.p50, 1)} yrs · agreement ~${fmt(ia.p50, 1)} yrs</span></div>
       <div class="metric"><span class="k">Still fits after queue</span><span class="v">${fmt(100 * r.fit)}%</span></div>
     </div>
-    <button class="cta" data-score="${i}">Score my project here</button>`;
+    <button class="cta" data-score="${i}">Score my project here →</button>`;
   if (q) {
     const [n, mwq, exp, p10, , p90, anyWd, expWdN, county] = q;
     html += `<div class="sec"><div class="eyebrow-row"><span class="eyebrow">Queue ahead and dropout risk</span><button class="info" data-info="queueahead" data-c="${county}" aria-label="About the queue simulation">i</button></div><dl class="kv">
@@ -792,8 +792,12 @@ function openInspector(head, body) {
 }
 function closeInspector() {
   $("#insp").hidden = true; selected = null;
-  map.getSource("sel").setData({ type: "FeatureCollection", features: [] });
+  markSel();
   map.getSource("hl").setData({ type: "FeatureCollection", features: [] });
+}
+function markSel(i = SC.bus) {
+  const B = D.buses;
+  map.getSource("sel").setData({ type: "FeatureCollection", features: i == null ? [] : [{ type: "Feature", geometry: { type: "Point", coordinates: [B.lon[i], B.lat[i]] } }] });
 }
 function highlightLine(j, fit = true) {
   const L = D.lines; const geom = lineGeom(L.g[j]);
@@ -804,7 +808,7 @@ function highlightLine(j, fit = true) {
     map.fitBounds([[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]], { padding: 120, maxZoom: 10, duration: 600 });
   }
 }
-function flyToBus(i) { map.flyTo({ center: [D.buses.lon[i], D.buses.lat[i]], zoom: Math.max(map.getZoom(), 8.5), duration: 700 }); showBus(i); }
+function flyToBus(i) { map.flyTo({ center: [D.buses.lon[i], D.buses.lat[i]], zoom: Math.max(map.getZoom(), 8.5), duration: 700 }); }
 
 // ---------------- method dialog ----------------
 function renderMethod() {
@@ -901,75 +905,81 @@ const SEGS = [["permits", "Permits", ["Not started", "Applied", "Approved"]],
 const SIB_LEVEL = { "0": "none", "1–2": "1-2", "3+": "3+" };
 const ORD_NAME = ["none on record", "ordinance", "restrictive"];
 const NOW = new Date(), NOW_Y = NOW.getFullYear(), NOW_F = NOW_Y + NOW.getMonth() / 12;
-let SC = null;
+// the developer's project, filled in step 1; bus = the substation picked in step 2
+const SC = { name: "", bus: null, tech: "Solar", mw: 200, stage: "Early study", qy: NOW_Y, target: NOW_Y + 4, cost: null,
+  permits: "Not started", opposition: "None known", offtake: "None", sib: "0" };
+let step = 1;
 const sigm = (x) => 1 / (1 + Math.exp(-x));
 const binIdx = (v, bins) => { const k = bins.findIndex((b) => v <= b); return k < 0 ? bins.length : k; };
 const quant = (a, q) => { const s = [...a].sort((x, y) => x - y), p = (s.length - 1) * q, lo = Math.floor(p); return s[lo] + (s[Math.min(lo + 1, s.length - 1)] - s[lo]) * (p - lo); };
 const pctTxt = (p) => `${fmt(100 * p)}%`;
 
-async function openScore(i) {
-  if (!SC) SC = { bus: null, tech: "Solar", mw: D.risk.sizes[sizeIdx()], stage: "Early study", qy: NOW_Y, target: NOW_Y + 4, cost: null,
-    permits: "Not started", opposition: "None known", offtake: "None", sib: "0" };
-  if (i != null && D.risk.net[i]) SC.bus = i;
-  if (!$("#score").open) $("#score").showModal();
-  if (!D.score) {
-    $("#scoreBody").innerHTML = `<p class="empty">Loading…</p>`;
-    try {
-      const [s, c] = await Promise.all(["score", "comps"].map((n) => fetch(`data/${n}.json`).then((r) => { if (!r.ok) throw new Error(n); return r.json(); })));
-      D.score = s; D.comps = c;
-    } catch (err) { $("#scoreBody").innerHTML = `<p class="empty">The score model could not be loaded.</p>`; return; }
-  }
-  renderScoreForm(); renderScore();
+function goStep(n) {
+  if (n === 3 && SC.bus == null) n = 2;
+  step = n;
+  document.querySelectorAll(".step").forEach((p) => { p.hidden = +p.dataset.pane !== n; });
+  document.querySelectorAll("#steps button").forEach((b) => {
+    const k = +b.dataset.step;
+    b.setAttribute("aria-current", k === n ? "step" : "false");
+    b.classList.toggle("done", k !== n && (k === 1 ? n > 1 : k === 2 ? SC.bus != null : false));
+    b.disabled = k === 3 && SC.bus == null;
+  });
+  if (n === 2) { renderSel(); renderSites(); }
+  if (n === 3) renderScore();
+  $("#railBody").scrollTop = 0;
 }
 
-function renderScoreForm() {
+// step 1: the project
+function renderProjectForm() {
   const opt = (arr, v) => arr.map(([k, t]) => `<option value="${esc(k)}"${k === v ? " selected" : ""}>${esc(t)}</option>`).join("");
-  $("#scoreBody").innerHTML = `<div class="sc-head"><span class="title eyebrow-row"><h2 id="sTitle">Project risk score</h2><button class="info no-print" data-info="score" aria-label="How the score is built">i</button></span>
-    <span class="sc-actions no-print"><button class="linkbtn" id="sPrint">Export PDF</button><button class="close" style="position:static" id="sClose" aria-label="Close">×</button></span></div>
-  <div class="sc">
-    <form class="sc-form no-print" id="sForm" onsubmit="return false">
-      <div class="sc-poi"><span class="eyebrow">Substation</span><div id="sPoi"></div>
-        <input type="search" id="sq" placeholder="Search substation" autocomplete="off" aria-label="Search substation"><ul class="results" id="sres" hidden></ul></div>
-      <div class="f2">
-        <label>Technology<select id="sTech">${opt(TECHS, SC.tech)}</select></label>
-        <label>Size, MW<input type="number" id="sMw" min="1" max="5000" value="${SC.mw}"></label>
-        <label>Stage<select id="sStage">${opt(STAGES.map((s) => [s, s]), SC.stage)}</select></label>
-        <label>In queue since<input type="number" id="sQy" min="2000" max="${NOW_Y + 1}" value="${SC.qy}"></label>
-        <label>Target online<input type="number" id="sTarget" min="${NOW_Y}" max="2050" value="${SC.target}"></label>
-        <label>Study cost, $/kW<input type="number" id="sCost" min="0" placeholder="unknown" value="${SC.cost ?? ""}"></label>
-      </div>
-      ${SEGS.map(([k, t, vals]) => `<div class="segf"><span>${esc(t)}</span><div class="seg" role="group" aria-label="${esc(t)}">${vals.map((v) =>
-        `<button type="button" data-seg="${k}" data-v="${esc(v)}" aria-pressed="${SC[k] === v}">${esc(v)}</button>`).join("")}</div></div>`).join("")}
-    </form>
-    <div class="sc-out" id="scoreOut" aria-live="polite"></div>
-  </div>`;
+  $("#projForm").innerHTML = `
+    <div class="f1"><label>Project name<input type="text" id="sName" placeholder="optional" value="${esc(SC.name)}" autocomplete="off"></label></div>
+    <div class="f2">
+      <label>Technology<select id="sTech">${opt(TECHS, SC.tech)}</select></label>
+      <label>Size, MW<input type="number" id="sMw" min="1" max="5000" value="${SC.mw}"></label>
+      <label>Stage<select id="sStage">${opt(STAGES.map((s) => [s, s]), SC.stage)}</select></label>
+      <label>In queue since<input type="number" id="sQy" min="2000" max="${NOW_Y + 1}" value="${SC.qy}"></label>
+      <label>Target online<input type="number" id="sTarget" min="${NOW_Y}" max="2050" value="${SC.target}"></label>
+      <label>Study cost, $/kW<input type="number" id="sCost" min="0" placeholder="unknown" value="${SC.cost ?? ""}"></label>
+    </div>
+    ${SEGS.map(([k, t, vals]) => `<div class="segf"><span>${esc(t)}</span><div class="seg" role="group" aria-label="${esc(t)}">${vals.map((v) =>
+      `<button type="button" data-seg="${k}" data-v="${esc(v)}" aria-pressed="${SC[k] === v}">${esc(v)}</button>`).join("")}</div></div>`).join("")}
+    <button class="cta" data-goto="2">Next: location →</button>`;
   const num = (id) => { const v = $(id).value.trim(); return v === "" || Number.isNaN(+v) ? null : +v; };
   const sync = () => {
-    SC.tech = $("#sTech").value; SC.mw = Math.max(1, num("#sMw") || 1); SC.stage = $("#sStage").value;
+    const before = sizeIdx();
+    SC.name = $("#sName").value.trim(); SC.tech = $("#sTech").value; SC.mw = Math.max(1, num("#sMw") || 1); SC.stage = $("#sStage").value;
     SC.qy = num("#sQy") ?? NOW_Y; SC.target = num("#sTarget") ?? NOW_Y + 4; SC.cost = num("#sCost");
-    renderScore();
+    if (sizeIdx() !== before) updateRisk(); else renderKey();   // the map is coloured for this project size
   };
-  for (const id of ["#sTech", "#sMw", "#sStage", "#sQy", "#sTarget", "#sCost"]) { $(id).addEventListener("input", sync); $(id).addEventListener("change", sync); }
-  $("#sForm").addEventListener("click", (e) => {
+  for (const id of ["#sName", "#sTech", "#sMw", "#sStage", "#sQy", "#sTarget", "#sCost"]) $(id).addEventListener("change", sync);
+  $("#sMw").addEventListener("input", sync);
+  $("#projForm").addEventListener("click", (e) => {
     const b = e.target.closest("[data-seg]"); if (!b) return;
     SC[b.dataset.seg] = b.dataset.v;
     b.parentElement.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
-    renderScore();
   });
-  const B = D.buses, R = D.risk;
-  if (!D.scoreNamed) { D.scoreNamed = []; for (let i = 0; i < B.n; i++) if (R.net[i] && (B.type[i] === 0 || B.osm[i])) D.scoreNamed.push(i); }
-  $("#sq").oninput = (e) => {
-    const t = e.target.value.trim().toLowerCase(), ul = $("#sres");
-    if (t.length < 2) { ul.hidden = true; return; }
-    const hits = D.scoreNamed.filter((i) => B.name[i].toLowerCase().includes(t) || (B.osm[i] || "").toLowerCase().includes(t))
-      .sort((a, c) => (B.kv[c] || 0) - (B.kv[a] || 0)).slice(0, 10);
-    ul.innerHTML = hits.length ? hits.map((i) => `<li><button type="button" data-sbus="${i}"><span>${esc(B.name[i])}</span><small>${esc(B.kvl[i])} kV · ${esc(B.st[i] || "")}</small></button></li>`).join("")
-      : `<li><p class="empty" style="padding:6px 8px">No match.</p></li>`;
-    ul.hidden = false;
-  };
-  $("#sres").onclick = (e) => { const b = e.target.closest("[data-sbus]"); if (!b) return; SC.bus = +b.dataset.sbus; $("#sq").value = ""; $("#sres").hidden = true; renderScore(); };
-  $("#sPrint").onclick = () => print();
-  $("#sClose").onclick = () => $("#score").close();
+}
+
+// step 2: the location
+function pickBus(i, fly = false) {
+  if (fly) flyToBus(i);
+  if (!D.risk.net[i]) { SC.pending = i; renderSel(); if (step !== 2) goStep(2); return; }   // not modelled: cannot be scored
+  SC.bus = i; SC.pending = null; markSel(i);
+  if (!$("#insp").hidden) showBus(i);
+  if (step === 3) goStep(3); else goStep(2);
+}
+function renderSel() {
+  const B = D.buses, i = SC.pending ?? SC.bus, el = $("#selCard");
+  if (i == null) { el.innerHTML = ""; return; }
+  if (!D.risk.net[i]) {
+    el.innerHTML = `<p class="note"><b>${esc(B.name[i])}</b> is not in the power-flow model. Pick a nearby substation.</p>`; return;
+  }
+  const r = riskOf(i), col = gradeColors()[r.grade];
+  el.innerHTML = `<div class="selcard" style="--c:${col}"><span class="grade" style="--c:${col}">${GRADES[r.grade]}</span>
+      <div><b>${esc(B.name[i])}</b><small>${esc(B.kvl[i])} kV · ${esc([B.cty[i], B.st[i]].filter(Boolean).join(", "))}</small>
+      <small class="num">$${fmt(r.cost)}/kW · ${fmt(r.yrs, 1)} yrs · ${fmt(100 * r.fit)}% fit</small></div></div>
+    <div class="btn-row"><button class="linkbtn" data-details="${i}">Details</button><button class="cta" data-goto="3">Score this site →</button></div>`;
 }
 
 function scoreCalc(i, reg) {
@@ -1040,15 +1050,10 @@ function timeCalc(r, pool) {
 
 function renderScore() {
   const out = $("#scoreOut"), B = D.buses, R = D.risk, S = D.score, C = D.comps, i = SC.bus;
-  if (i == null) {
-    $("#sPoi").innerHTML = `<span class="note">Search below, or close this and click a substation.</span>`;
-    out.innerHTML = `<p class="empty">Choose the substation you applied at.</p>`; return;
-  }
+  if (i == null) { out.innerHTML = ""; return; }
   const reg = R.regions[R.rg[i]];
-  $("#sPoi").innerHTML = `<b>${esc(B.name[i])}</b> <small>${esc(B.kvl[i])} kV · ${esc([B.cty[i], B.st[i]].filter(Boolean).join(", "))} · ${esc(reg)}</small>`;
   const r = scoreCalc(i, reg), cp = compsFor(i, reg), t = timeCalc(r, cp.pool);
-  const sIdx = R.sizes.reduce((b, s, k) => Math.abs(Math.log(s / SC.mw)) < Math.abs(Math.log(R.sizes[b] / SC.mw)) ? k : b, 0);
-  const est = riskOf(i, sIdx), [q25, q75] = R.meta.residual_iqr;
+  const est = riskOf(i, sizeIdx()), [q25, q75] = R.meta.residual_iqr;
   const net = SC.cost ?? est.net;
   const costR = SC.cost != null ? "your study" : reg === "ERCOT" ? "utility-funded in ERCOT" : `atlas estimate · $${fmt(est.net * q25)}–${fmt(est.net * q75)}`;
   const band = r.P >= 0.4 ? "--good" : r.P >= 0.2 ? "--warn" : "--bad";
@@ -1057,9 +1062,11 @@ function renderScore() {
   const mx = Math.max(0.05, ...drv.map((x) => Math.abs(x.pp)));
   const res = cp.pool.length, nb = cp.pool.filter((k) => C.b[k]).length;
   const yrs = cp.pool.filter((k) => C.b[k] && C.yr[k] != null).map((k) => C.yr[k]);
-  const v = S.validation;
+  const techName = TECHS.find((x) => x[0] === SC.tech)[1];
   out.innerHTML = `
-    <p class="note print-only">${esc(B.name[i])} · ${esc(SC.tech)} ${fmt(SC.mw)} MW · Interconnection Headroom Atlas · ${NOW.toISOString().slice(0, 10)}</p>
+    <div class="res-head"><span class="eyebrow-row"><b>${esc(SC.name || "Your project")}</b><button class="info" data-info="score" aria-label="How the score is built">i</button></span>
+      <small>${esc(techName)} · ${fmt(SC.mw)} MW · ${esc(SC.stage)} · ${esc(B.name[i])} ${esc(B.kvl[i])} kV, ${esc(reg)}</small>
+      <small class="print-only">Interconnection Headroom Atlas · ${NOW.toISOString().slice(0, 10)}</small></div>
     <div class="sc-top" style="--c:var(${band})"><div class="sc-p">${fmt(100 * r.P)}<small>%</small></div>
       <div><div class="lab">chance to reach operation</div><div class="exp">Typical new request in ${esc(reg)}: ${pctTxt(S.typical[reg] ?? 0.25)}</div></div></div>
     <div class="metrics">
@@ -1078,7 +1085,9 @@ function renderScore() {
     <dl class="kv print-only">${[["Substation", `${B.name[i]} (${B.kvl[i]} kV, ${reg})`], ["Technology · size", `${SC.tech} · ${fmt(SC.mw)} MW`],
       ["Stage · in queue since", `${SC.stage} · ${SC.qy}`], ["Target online", SC.target], ["Study cost", SC.cost != null ? `$${fmt(SC.cost)}/kW` : "unknown"],
       ...SEGS.map(([k, lab]) => [lab, SC[k]])].map(([a, b]) => `<dt>${esc(a)}</dt><dd>${esc(b)}</dd>`).join("")}</dl>
-    <p class="note print-only">${scoreBasis()}</p>`;
+    <p class="note print-only">${scoreBasis()}</p>
+    <div class="btn-row no-print"><button class="linkbtn" data-details="${i}">Substation details</button><button class="cta" id="sPrint">Export PDF</button></div>`;
+  $("#sPrint").onclick = () => print();
 }
 function scoreBasis() {
   const v = D.score.validation;
@@ -1088,7 +1097,7 @@ function scoreBasis() {
 // ---------------- info popovers ----------------
 // Explanations and definitions sit behind small "i" buttons (data-info="key") instead of on the page.
 const LENS_INTRO = {
-  risk: () => `<b>Risk assessment</b>: expected cost, time to operation and queue risk for a ${fmt(D.risk.sizes[sizeIdx()])} MW project. Grades combine expected cost ($/kW, from nearby interconnection studies and our grid model), time to operation (regional history) and the chance the project still fits after the queue ahead resolves.`,
+  risk: () => `<b>Risk grade</b> of each substation for your ${fmt(SC.mw)} MW project${D.risk.sizes[sizeIdx()] !== SC.mw ? ` (scored at the nearest modelled size, ${fmt(D.risk.sizes[sizeIdx()])} MW)` : ""}: expected cost, time to operation and queue risk. Grades combine expected cost ($/kW, from nearby interconnection studies and our grid model), time to operation (regional history) and the chance the project still fits after the queue ahead resolves.`,
   gen: () => "<b>Generation</b>: MW of new generation each substation can take after the queue ahead.",
   load: () => "<b>Large load</b>: MW a data center or other large load could draw at summer peak.",
   queue: () => "<b>Queue pressure</b>: queued MW ÷ substation capacity (N-1 branch capacity).",
@@ -1099,7 +1108,6 @@ const INFO = {
   lens: () => `<p>${LENS_INTRO[lens]()}</p><ul>${lens === "risk"
     ? "<li><b>A</b> risk index under 25 (lowest)</li><li><b>B</b> 25–40</li><li><b>C</b> 40–55</li><li><b>D</b> 55–70</li><li><b>E</b> 70 or more (highest)</li>"
     : LENS[lens].legend.filter((l) => l[2]).map(([, k, d]) => `<li><b>${esc(k)}</b>: ${esc(d)}</li>`).join("")}</ul>`,
-  weights: "<p>Weights are normalised to 100%. Cost scores 100 at $25/kW and 0 at $400/kW; time scores 100 at 2.5 years and 0 at 8 years; capacity is the chance the project still fits after the queue ahead resolves.</p>",
   sites: () => `<p>Named substations of at least 115 kV in the current view, ${lens === "risk" ? `lowest risk index first, for a ${fmt(D.risk.sizes[sizeIdx()])} MW project` : esc(LENS[lens].note)}.</p>`,
   disclaimer: "<p>Screening estimate from public data, not a utility interconnection study. Ratings, topology and dispatch are approximated; see Method &amp; sources.</p>",
   headroomGen: "<p>MW of new generation that can connect before a line carrying ≥20% of it reaches 85% of its rating, after the active queue ahead is added (each request weighted by its odds of being built). Worst of summer peak and light-load scenarios.</p>",
@@ -1110,7 +1118,8 @@ const INFO = {
   capacity: "<p>N-1 branch capacity = sum of the line limits at this substation less the largest. Queue ÷ capacity: room below 0.5×, crowded 0.5–1.5×, oversubscribed above 1.5×.</p>",
   riskcard: (b) => {
     const i = +b.dataset.i, r = riskOf(i), reg = D.risk.regions[D.risk.rg[i]];
-    return `<p><b>Risk index</b> = 100 − weighted score of cost, time and capacity fit (weights in the side panel). A under 25 … E 70 or more.</p>
+    const W = weights();
+    return `<p><b>Risk index</b> = 100 − weighted score of cost (${fmt(100 * W.cost)}%), time (${fmt(100 * W.time)}%) and capacity fit (${fmt(100 * W.fit)}%). Cost scores 100 at $25/kW and 0 at $400/kW; time 100 at 2.5 and 0 at 8 years. A under 25 … E 70 or more.</p>
       <p><b>Cost.</b> ${costBasis(i, r, reg)}</p>
       <p><b>Time.</b> Regional median years from request to operation (projects online 2018–2025), longer for bigger expected upgrades.</p>
       <p><b>Still fits.</b> Chance a ${fmt(r.P)} MW project fits once the queue ahead resolves.</p>
@@ -1142,7 +1151,7 @@ function showInfo(b) {
 // ---------------- wiring ----------------
 function setLens(l) {
   lens = l; document.querySelectorAll(".lens button").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.lens === l)));
-  restyle(); renderTally(); renderSites();
+  restyle(); renderKey(); renderSites();
   if (selected?.kind === "bus") showBus(selected.i);
 }
 
@@ -1156,19 +1165,13 @@ function wire() {
   $("#L-ba").onchange = (e) => vis("ba", e.target.checked);
   $("#L-blm").onchange = (e) => vis("blm", e.target.checked);
   $("#L-named").onchange = () => { map.setFilter("buses", minKvFilter()); renderSites(); };
-  $("#minkv").onchange = () => { map.setFilter("buses", minKvFilter()); renderTally(); renderSites(); };
+  $("#minkv").onchange = () => { map.setFilter("buses", minKvFilter()); renderSites(); };
   $("#linecolor").onchange = restyle;
-  $("#psize").onchange = updateRisk;
-  for (const id of ["wCost", "wTime", "wFit"]) $(`#${id}`).oninput = () => {
-    const W = weights(); $("#wCostV").textContent = `${fmt(100 * W.cost)}%`; $("#wTimeV").textContent = `${fmt(100 * W.time)}%`; $("#wFitV").textContent = `${fmt(100 * W.fit)}%`;
-    updateRisk();
-  };
   $("#zin").onclick = () => map.zoomIn(); $("#zout").onclick = () => map.zoomOut();
   $("#openMethod").onclick = () => $("#method").showModal();
   $("#openClaims").onclick = () => $("#claims").showModal();
   addEventListener("hashchange", openClaimFromHash);
   $("#railToggle").onclick = () => { const r = $("#rail"); const c = r.classList.toggle("collapsed"); $("#railToggle").textContent = c ? "Show" : "Hide"; $("#railToggle").setAttribute("aria-expanded", String(!c)); };
-  $("#openScore").onclick = () => openScore(selected?.kind === "bus" ? selected.i : null);
   // info popovers: capture phase so an "i" inside a summary or card never triggers its parent
   document.addEventListener("click", (e) => {
     const b = e.target.closest(".info");
@@ -1181,8 +1184,10 @@ function wire() {
   document.addEventListener("click", (e) => {
     const cl = e.target.closest("[data-claim]");
     if (cl) { hideInfo(); document.querySelectorAll("dialog[open]").forEach((d) => d.close()); location.hash = cl.dataset.claim; openClaimFromHash(); return; }
-    const sc = e.target.closest("[data-score]"); if (sc) { openScore(+sc.dataset.score); return; }
-    const s = e.target.closest("[data-bus]"); if (s) { flyToBus(+s.dataset.bus); $("#results").hidden = true; return; }
+    const st = e.target.closest("[data-step], [data-goto]"); if (st) { goStep(+(st.dataset.step || st.dataset.goto)); return; }
+    const sc = e.target.closest("[data-score]"); if (sc) { pickBus(+sc.dataset.score); goStep(3); if (innerWidth <= 760) closeInspector(); return; }
+    const dt = e.target.closest("[data-details]"); if (dt) { flyToBus(+dt.dataset.details); showBus(+dt.dataset.details); return; }
+    const s = e.target.closest("[data-bus]"); if (s) { pickBus(+s.dataset.bus, true); $("#results").hidden = true; $("#q").value = ""; return; }
     const c = e.target.closest("[data-line]"); if (c) { highlightLine(+c.dataset.line, true); }
   });
   // search
@@ -1216,9 +1221,9 @@ function wire() {
   map.on("click", (e) => {
     const box = [[e.point.x - 4, e.point.y - 4], [e.point.x + 4, e.point.y + 4]];
     const fb = map.queryRenderedFeatures(box, { layers: ["buses"] });
-    if (fb.length) { showBus(fb[0].properties.i); return; }
+    if (fb.length) { pickBus(fb[0].properties.i); return; }
     const fq = map.getLayoutProperty("queue", "visibility") === "visible" ? map.queryRenderedFeatures(box, { layers: ["queue"] }) : [];
-    if (fq.length) { showBus(fq[0].properties.i); return; }
+    if (fq.length) { pickBus(fq[0].properties.i); return; }
     const fl = map.queryRenderedFeatures(box, { layers: ["lines"] });
     if (fl.length) { showLine(fl[0].properties.i); return; }
   });
@@ -1240,12 +1245,12 @@ async function main() {
   map = new maplibregl.Map({
     container: "map", attributionControl: false, renderWorldCopies: false, dragRotate: false, pitchWithRotate: false,
     style: { version: 8, sources: {}, layers: [{ id: "bg", type: "background", paint: { "background-color": tok("--bg") } }] },
-    bounds: [[-124.8, 24.4], [-66.9, 49.4]], fitBoundsOptions: { padding: { top: 30, bottom: 30, left: innerWidth > 760 ? 360 : 20, right: 20 } },
+    bounds: [[-124.8, 24.4], [-66.9, 49.4]], fitBoundsOptions: { padding: { top: 30, bottom: 30, left: innerWidth > 760 ? 400 : 20, right: 20 } },
     minZoom: 2.5, maxZoom: 13,
   });
   map.touchZoomRotate.disableRotation();
   map.on("load", () => {
-    addLayers(); wire(); renderTally(); renderSites(); renderMethod(); renderClaims(); openClaimFromHash();
+    addLayers(); wire(); renderProjectForm(); renderKey(); goStep(1); renderMethod(); renderClaims(); openClaimFromHash();
     $("#loading").hidden = true;
   });
 }

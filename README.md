@@ -132,13 +132,15 @@ Signals: **green** ≥ 250 MW after queue · **yellow** 75–250 MW · **red** <
 - **Lines to upgrade** = which of the five tightest constraints a project of this size would overload,
   priced with MISO reconductor / new-line costs and split with queued projects that also overload them.
 - **Risk index** = 100 − (35% cost score + 30% time score + 35% capacity fit); grades A < 25 … E ≥ 70.
-  Weights are adjustable in the map. Anchors: cost 100 at $25/kW, 0 at $400/kW; time 100 at 2.5 years,
+  Anchors: cost 100 at $25/kW, 0 at $400/kW; time 100 at 2.5 years,
   0 at 8 years (judgement calls, claim C22).
 
 ## Project risk score ("Score my project")
 
-A developer picks the substation they applied at and fills in a short form (technology, size, stage,
-queue date, target date, study cost, permits, local opposition, offtake, parallel filings). The page returns
+The atlas opens as a three-step flow. **1 Project:** the developer describes their project (technology,
+size, stage, queue date, target date, study cost, permits, local opposition, offtake, parallel filings).
+**2 Location:** they search for or click their substation; the map is coloured by risk grade for that
+project size. **3 Score:** the page returns
 the chance of reaching operation, the chance of being online by the target year, the expected online year,
 network-upgrade cost, the drivers in percentage points, and comparable past projects. It exports to PDF.
 

@@ -590,7 +590,7 @@ def c22_risk_grades():
            f"Time score: 100 at {meta['time_anchor'][0]} years to 0 at {meta['time_anchor'][1]} years. Capacity score = "
            "chance the project still fits (0–100).",
            f"Risk index = 100 − ({100 * w['cost']:.0f}% cost + {100 * w['time']:.0f}% time + {100 * w['fit']:.0f}% capacity). "
-           "Grades: A < 25, B 25–40, C 40–55, D 55–70, E ≥ 70. Viewers can change the weights in the map.",
+           "Grades: A < 25, B 25–40, C 40–55, D 55–70, E ≥ 70.",
            f"Capacity fit allows a log-normal error of σ = {meta['model_sigma']} on the modelled headroom (assumption)."],
           {"columns": ["Project size", "A", "B", "C", "D", "E", "Median $/kW", "Median years", "Median fit"], "rows": rows},
           "The anchors, weights and model-error allowance are judgement calls, not data; they decide the grade boundaries.",

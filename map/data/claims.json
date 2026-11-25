@@ -2024,7 +2024,7 @@
    ],
    "method": [
     "Cost score: 100 at $25/kW falling linearly to 0 at $400/kW. Time score: 100 at 2.5 years to 0 at 8.0 years. Capacity score = chance the project still fits (0\u2013100).",
-    "Risk index = 100 \u2212 (35% cost + 30% time + 35% capacity). Grades: A < 25, B 25\u201340, C 40\u201355, D 55\u201370, E \u2265 70. Viewers can change the weights in the map.",
+    "Risk index = 100 \u2212 (35% cost + 30% time + 35% capacity). Grades: A < 25, B 25\u201340, C 40\u201355, D 55\u201370, E \u2265 70.",
     "Capacity fit allows a log-normal error of \u03c3 = 0.5 on the modelled headroom (assumption)."
    ],
    "table": {
